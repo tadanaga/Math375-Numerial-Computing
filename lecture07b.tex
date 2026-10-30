@@ -1,0 +1,1018 @@
+\documentclass[10pt]{beamer}
+% \documentclass[handout,10pt]{beamer}
+\usepackage{my_style}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title[Math/CS 375]{Lecture 07 - B}
+\subtitle{\S 8.1 LDL and Cholesky Factorization}
+
+\begin{document}
+% -------------------------------------------------
+\begin{frame}
+  \titlepage
+\end{frame}
+% -------------------------------------------------
+\begin{frame}{Goals}
+We will answer these questions:\\[3mm]
+\begin{itemize}
+    \item Can we do better than LU factorization?
+    \item What is the $LDL$ factorization? What are its advantages?
+    \item What is the Cholesky factorization? What are its advantages? 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Is LU Always the Right Tool?}
+\begin{itemize}
+    \item LU works for a general matrix 
+    \item But LU:
+    \begin{itemize}
+        \item Stores both $L$ and $U$
+        \item Computes redundant information if $A$ has structure
+        \item Requires pivoting for stability
+    \end{itemize}
+    \vspace{2mm}
+
+    \item \textbf{Key question:} What if $A$ has extra structure?
+    
+\end{itemize}
+
+
+\end{frame}
+
+
+\begin{frame}{Two Other Factorizations}
+
+\begin{block}{LDL Factorization}
+\begin{itemize}
+    \item Form $A = LDL^T$
+    \item $L$ = unit lower triangular matrix 
+    \item $D$ = diagonal matrix
+    \item Special Requirement: $A$ must be symmetric
+\end{itemize}
+\end{block}
+
+\begin{block}{Cholesky Factorization}
+\begin{itemize}
+    \item Form $A = \tilde{L}\tilde{L}^T$
+    \item $\tilde{L}$ = lower triangular matrix 
+    \item Special Requirement: $A$ must be symmetric and positive definite
+\end{itemize}
+\end{block}
+    
+    
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{LDL Factorization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Symmetric Matrices}
+\begin{itemize}
+    \define{Symmetry}{
+        A square matrix $A$ is considered \textbf{symmetric} if $A = A^T$.
+    }
+    \vspace{3mm}
+    \item A matrix is symmetric if it is invariant with respect to its transpose: 
+    $$
+    A = 
+    \begin{bmatrix}
+    1 & 4 & 7\\
+    4 & 5 & 6\\
+    7 & 6 & 9\\
+    \end{bmatrix}, \quad A^T = 
+    \begin{bmatrix}
+    1 & 4 & 7\\
+    4 & 5 & 6\\
+    7 & 6 & 9\\
+    \end{bmatrix}
+    $$
+    \item Many symmetric matrices appear naturally in applications
+    \[
+A = \left[\begin{array}{rrr}
+  1 & -2 &  0 \\
+ -2 &  1 & -2 \\
+  0 & -2 &  1
+\end{array}\right]
+\]
+\end{itemize}
+\onslide<2>{
+\question{
+What happens to the LU factorization if $A$ happens to be symmetric?
+}
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Factorizing a Symmetric Matrix}{Part 1}
+\begin{block}{Begin}
+We assume that $A = LU$ and $A = A^T$. Let's see what happens.
+\end{block}
+\begin{itemize}
+    \item First, write things in terms of $L$ and $U$
+          \begin{align*}
+              A &= A^T\\ 
+              (LU) &= (LU)^T\\
+               LU  &= U^TL^T 
+          \end{align*}
+          
+    \item With a little manipulation we derive 
+          \begin{align*}
+               LU  &= U^TL^T\\ 
+               L^{-1}LU(L^{T})^{-1}  &= L^{-1}U^TL^T(L^{T})^{-1}\\ 
+               UL^{-T}  &= L^{-1}U^T
+          \end{align*}
+    \item Let $B = U L^{-T}$, then the equation above can be written
+        $$ B = B^T$$
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Factorizing a Symmetric Matrix}{Part 2}
+\begin{itemize}
+
+    \question{What is so special about $B=B^T$?}
+
+
+    \item \textbf{Lower triangular $\times$ lower triangular
+    is lower triangular.}
+    \[
+    \begin{bmatrix}
+    \bullet & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \bullet
+    \end{bmatrix}
+    \begin{bmatrix}
+    \bullet & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \bullet
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \bullet & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \bullet
+    \end{bmatrix}
+    \]
+
+    \bigskip
+
+    \item \textbf{Upper triangular $\times$ upper triangular
+    is upper triangular.}
+    \[
+    \begin{bmatrix}
+    \bullet & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet} & \bullet
+    \end{bmatrix}
+    \begin{bmatrix}
+    \bullet & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet} & \bullet
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \bullet & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet} & \bullet
+    \end{bmatrix}
+    \]
+    \item Therefore, 
+        $$B=UL^{-T}=\text{upper}\times\text{upper}=\text{upper}$$
+
+\end{itemize}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Factorizing a Symmetric Matrix}{Part 3}
+\begin{itemize}
+    \item $B$ is upper triangular
+        \vfill 
+    \item So $B^T$ must be lower triangular
+        \vfill 
+    \item But we found that $B=B^T$
+        \vfill 
+    \question{How is it possible for a matrix to be both upper triangular and lower triangular?
+    \[
+    \begin{bmatrix}
+    \bullet & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \bullet
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \bullet & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet} & \bullet
+    \end{bmatrix}
+    \]
+    }
+\end{itemize}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Factorizing a Symmetric Matrix}{Part 4}
+\begin{itemize}
+
+    \item Matrix $B$ must be \textbf{diagonal}
+        $$B = B^T \implies B  = D $$
+    \item Solve for $U$:
+    \begin{align}
+        B=D=UL^{-T} \implies U=DL^T
+    \end{align}
+
+    \item Finally, we substitute into the $LU$ decomposition
+        $$A = LU = LDL^T$$
+\end{itemize}
+
+\begin{theorem}    
+Suppose a symmetric, nonsingular matrix $A$ admits an LU
+factorization without pivoting. Then
+\[
+    A = LDL^T,
+\]
+where $L$ is unit lower triangular and $D$ is diagonal.
+\end{theorem}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{LDL Factorization}
+
+{
+\method{LDL Factorization}{Symmetric matrix $A$}{Unit lower triangular matrix $L$ and Diagonal matrix $D$, such that $A = L D L^T$}
+{Similar to $LU$ except storage and calculation of $U$ is not needed}
+}
+
+\vspace{4mm}
+
+Comments:\\[2mm]
+
+\begin{itemize}
+    \item For a general matrix, you must do $A=LU$
+    \item If $A$ is symmetric, you may do $A=LDL^T$
+    \item Method is stable\footnote{Requires a special form of pivoting called Bunch-Kaufman}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Memory}
+
+\begin{itemize}
+    \item \textbf{LU:} Store the strict lower triangle of $L$
+    and the upper triangle of $U$.
+    \[
+    \underbrace{
+    \begin{bmatrix}
+    \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \phantom{\bullet}
+    \end{bmatrix}
+    }_{L\text{ (unit diagonal implicit)}}
+    \quad
+    \underbrace{
+    \begin{bmatrix}
+    \bullet & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \bullet & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \bullet & \bullet\\
+    \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet} & \bullet
+    \end{bmatrix}
+    }_{U}
+    \;\longrightarrow\;
+    \begin{bmatrix}
+    \bullet & \bullet & \bullet & \bullet\\
+    \bullet & \bullet & \bullet & \bullet\\
+    \bullet & \bullet & \bullet & \bullet\\
+    \bullet & \bullet & \bullet & \bullet
+    \end{bmatrix}
+    \]
+    \[
+        \frac{n(n-1)}{2}+\frac{n(n+1)}{2}
+        =\boxed{n^2}.
+    \]
+
+    \item \textbf{$LDL^T$:} Store the strict lower triangle
+    of $L$ and the diagonal of $D$.
+    \[
+    \underbrace{
+    \begin{bmatrix}
+    \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \phantom{\bullet}
+    \end{bmatrix}
+    }_{L\text{ (unit diagonal implicit)}}
+    \quad
+    \underbrace{
+    \begin{bmatrix}
+    \bullet & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \phantom{\bullet} & \bullet & \phantom{\bullet} & \phantom{\bullet}\\
+    \phantom{\bullet} & \phantom{\bullet} & \bullet & \phantom{\bullet}\\
+    \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet} & \bullet
+    \end{bmatrix}
+    }_{D}
+    \;\longrightarrow\;
+    \begin{bmatrix}
+    \bullet & \phantom{\bullet} & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \phantom{\bullet} & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \phantom{\bullet}\\
+    \bullet & \bullet & \bullet & \bullet
+    \end{bmatrix}
+    \]
+    \[
+        \frac{n(n-1)}{2}+n
+        =\boxed{\frac{n(n+1)}{2}}.
+    \]
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{LU versus LDL}
+
+
+\begin{block}{When does each factorization apply?}
+\begin{itemize}
+  \item \textbf{LU}: \;generally works for any nonsingular $A$ 
+  \item \textbf{LDL$^{T}$}: \;requires \emph{symmetric} $A$
+\end{itemize}
+\end{block}
+
+\vspace{2mm}
+\begin{block}{Storage flop counts (dense $n\times n$)}
+\begin{center}
+\begin{tabular}{lcc}
+                & Memory (floats) & Flops (factor) \\ \hline
+\textbf{LU}              & $n^2$ & $\tfrac23 n^{3}$ \\
+$LDL^T$ & $\dfrac{n(n+1)}{2}$ & $\dfrac{1}{3}n^3$\end{tabular}
+\end{center}
+\vspace{-2mm}
+\footnotesize (LDL stores no upper part and replaces $U$’s diagonal by $D$.) 
+\end{block}
+\keyidea{LDL is faster and requires less memory than LU, but we require $A$ to be symmetric which is not always the case.}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{ LDL Factorization}
+
+\begin{lstlisting}[mathescape,caption=$LDL'$ Factorization,label=algo:symm]
+given $A$
+output $L$, $D$
+for $j=1\dots n$          
+    $\ell_{jj} = 1$
+    $d_j = a_{jj} - \sum_{\nu=1}^{j-1} d_{\nu} \ell_{j\nu}^2$
+    for $i = j+1 \ldots n$      
+        $\ell_{ji} = 0$
+        $\ell_{ij} = \left( a_{ij} - \sum_{\nu=1}^{j-1} \ell_{i\nu}d_{\nu}\ell_{j\nu} \right)/ d_j$
+    end
+end                          
+\end{lstlisting}
+\begin{itemize}
+    \item It is a triple loop so LDL is still $\mO(n^3)$ cost
+    \item The LDL factorization requires slightly above half the amount of memory as LU factorization
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Calculating LDL by Hand}
+
+Steps:
+\begin{enumerate}
+    \item Calculate the usual $A=LU$ factorization 
+
+    \item Set $U = DL^T$ and solve for $D$
+\end{enumerate}
+\vfill 
+\keyidea{
+\begin{itemize}
+    \item The $L$ in $LDL^T$ factorization is the same matrix 
+    \item We may solve for $D$ from the equation $U = DL^T$
+\end{itemize}
+}
+\vfill
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Multiplying by $D$}
+
+\begin{block}{Useful Knowledge}
+    Multiplying $DA$ is the same as multiplying each row of $A$ by the diagonals elements.
+\end{block}
+
+\begin{itemize}
+    \item Example: if 
+    $$
+    D = \begin{bmatrix}
+            2 & 0 & 0\\
+            0 & 0.5 & 0 \\
+            0 & 0 & 3
+        \end{bmatrix},\qquad
+         A = \begin{bmatrix}
+            1 & 2 & 3\\
+            2 & 4 & 10 \\
+            1 & 1 & 0
+        \end{bmatrix}
+    $$
+    \item Then $DA$ is
+        $$
+    DA = \begin{bmatrix}
+            2 & 4 & 6\\
+            1 & 2 & 5 \\
+            3 & 3 & 0
+        \end{bmatrix}
+    $$
+\end{itemize}
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Example}{Part 1}
+
+\begin{example}
+Calculate the LDL factorization of the matrix
+\[ 
+A=\begin{bmatrix}
+2 & 4 & -2\\
+4 & 11 & 5\\
+-2 & 5 & 33
+\end{bmatrix}
+\qquad(\text{symmetric})
+\]
+\end{example}
+\begin{itemize}
+    \item First find the LU factorization. Eliminate elements under $a_{11}=2$
+    $$
+    M_1A = \begin{bmatrix}
+        1 & 0 & 0\\
+        -2 & 1 & 0 \\
+        1 & 0 & 1
+    \end{bmatrix}\begin{bmatrix}
+    \boxed{2} & 4 & -2\\
+    4 & 11 & 5\\
+    -2 & 5 & 33
+    \end{bmatrix}=\begin{bmatrix}
+        2 & 4 & -2\\
+        0 & 3 & 9\\
+        0 & 9 & 31
+    \end{bmatrix}
+    $$
+    \item Eliminate the elements under $a_{22}=3$. We obtain $U$.
+    $$
+    M_2M_1A = \begin{bmatrix}
+        1 & 0 & 0\\
+        0 & 1 & 0 \\
+        0 & -3 & 1
+    \end{bmatrix}\begin{bmatrix}
+        2 & 4 & -2\\
+        0 & \boxed{3} & 9\\
+        0 & 9 & 31
+    \end{bmatrix}=\begin{bmatrix}
+        2 & 4 & -2\\
+        0 & 3 & 9\\
+        0 & 0 & 4
+    \end{bmatrix}=U
+    $$
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Example}{Part 2}
+
+\begin{itemize}
+    \item Next, find $L$ using the elementary matrices 
+    $$
+    M_2M_1 = \begin{bmatrix}
+        1 & 0 & 0\\
+        -2 & 1 & 0 \\
+        1 & 0 & 1
+    \end{bmatrix}\begin{bmatrix}
+        1 & 0 & 0\\
+        0 & 1 & 0 \\
+        0 & -3 & 1
+    \end{bmatrix}\implies L=M_1^{-1}M_2^{-1}=\begin{bmatrix}
+        1 & 0 & 0\\
+        2 & 1 & 0\\
+        -1 & 3 & 1
+    \end{bmatrix}
+    $$
+    \item Find $D$ using the equation $DL^T=U$
+    $$
+    DL^T=
+    \begin{bmatrix}
+        d_1 & 0 & 0\\
+        0 & d_2 & 0\\
+        0 & 0 & d_3
+    \end{bmatrix}\begin{bmatrix}
+        1 & 2 & -1\\
+        0 & 1 & 3\\
+        0 & 0 & 1
+    \end{bmatrix}=    \begin{bmatrix}
+        2 & 4 & -2\\
+        0 & 3 & 9 \\
+        0 & 0 & 4
+    \end{bmatrix}=U
+    $$
+    \item It is clear that 
+    $$
+        D = \begin{bmatrix}
+            2 & 0 & 0\\
+            0 & 3 & 0 \\
+            0 & 0 & 4
+        \end{bmatrix}
+    $$
+    \item Done. We found $L$ and $D$.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Cholesky Factorization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Positive Definite}
+
+\begin{itemize}
+
+    {\define{Positive Definite}{
+        A square matrix $A$ is \textbf{positive definite} if for all $x \ne 0$ 
+        $$ x^T A x > 0 .$$
+        When  $A$ is both symmetric and positive definite, we abbreviate it as \textbf{SPD}. Some mathematicians write
+        $$ A > 0$$
+        to mean SPD.
+    }} \vspace{3mm}
+
+\item For a real symmetric matrix, positive definiteness
+is equivalent to having all positive eigenvalues.
+In particular, an SPD matrix is nonsingular.
+
+    \item In the special case that $A$ is SPD, we have an even better factorization
+    \vspace{3mm}
+    \begin{center}
+        \textbf{the Cholesky factorization!}
+    \end{center}
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cholesky Factorization Derivation}{Part 1}
+
+\begin{block}{Begin}
+We assume that $A = LDL^T$ and that $A$ is positive definite. 
+\end{block}
+
+\begin{itemize}
+
+\item Since $A$ is positive definite, for every $x\ne 0$,
+        \begin{align*}
+        x^T&Ax >0\\ 
+        x^T L&DL^T x > 0
+        \end{align*}
+\item Since we are free to choose $x$, let $x = L^{-T}e_i$ where $e_i=i^{th}$ column of $I$
+        \begin{align*}
+        (L^{-T}e_i)^T L&DL^T (L^{-T}e_i) > 0\\
+        e_i^T (L^{-1} L)&D(L^T L^{-T})e_i > 0\\
+        e_i^T&D e_i > 0\\
+           &d_{ii} > 0
+        \end{align*}
+
+\item Therefore, all \textbf{diagonal entries} of $D$ are positive.
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cholesky Factorization Derivation}{Part 2}
+
+\begin{itemize}
+    \item Since $d_{ii}>0$ for all $i$, we can decompose $D = D^{1/2} D^{1/2}$. 
+    
+    \item For instance, 
+    $$
+    D = 
+    \begin{bmatrix}
+    4 & 0 &0\\
+    0 & 7 &0\\
+    0 & 0 &9\\
+    \end{bmatrix} = 
+    \begin{bmatrix}
+    2 & 0 &0\\
+    0 & \sqrt{7} &0\\
+    0 & 0 &3\\
+    \end{bmatrix}
+    \begin{bmatrix}
+    2 & 0 &0\\
+    0 & \sqrt{7} &0\\
+    0 & 0 &3\\
+    \end{bmatrix}
+    $$
+
+    \item We can further decompose the LDL
+        \begin{align*}
+            A &= LDL^T\\ 
+              &= L D^{1/2} D^{1/2} L^T \\ 
+              &= (L D^{1/2}) (D^{1/2} L^T) \\ 
+              &=  (L D^{1/2})(L D^{1/2})^T
+        \end{align*}
+    \item Let $\tilde{L} = L D^{1/2}$. Then the factorization becomes $A = \tilde{L}\tilde{L}^T$
+    
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cholesky Factorization}
+
+\method{Cholesky Factorization}{SPD matrix $A$}
+{Lower triangular matrix $\tilde{L}$ such that $\tilde{L}\tilde{L}^T = A$}
+{This requires half the FLOPs and memory compared to LU}
+\vspace{3mm}
+Comments:\\[2mm]
+\begin{itemize}
+    \item The upper triangular $U$ from $A=LU$ is not needed
+    \item The diagonal $D$ from $A=LDL^T$ is not needed 
+    \item This is the most compact elimination-based decomposition 
+    \item Calculate $A=LDL^T$ first. Then $\tilde{L} = LD^{1/2}$.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Cholesky Factorization}
+\begin{lstlisting}[mathescape,label=algo:chol]
+given $A$
+output $L$
+                           
+for $k=1\dots n$          
+    $\ell_{kk}$ = $\left(a_{kk} - \sum_{s=1}^{k-1} \ell_{ks}^2\right)^{1/2}$
+    for $i = k+1 \ldots n$      
+        $\ell_{ik} = \left( a_{ik} - \sum_{s=1}^{k-1}
+                       \ell_{is}\ell_{ks} \right)/ \ell_{kk}$
+    end
+end                          
+\end{lstlisting}
+\begin{itemize}
+    \item This algorithm is also $\mO(n^3)$
+    \item Cholesky and LDL have similar operation counts and
+the same factor storage: $\frac{n(n+1)}{2}$ numbers.
+\end{itemize} 
+\[
+\ell_{kk}
+=
+\sqrt{a_{kk}-\sum_{s=1}^{k-1}\ell_{ks}^{\,2}},
+\qquad
+a_{kk}-\sum_{s=1}^{k-1}\ell_{ks}^{\,2}>0.
+\]
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Pivoting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Existence of a Factorization}
+
+
+\begin{itemize}
+    \item $A=LDL^T$ only exists when $A$ is symmetric
+        \vfill 
+\item $A=\widetilde L\widetilde L^T$ exists if and only if
+$A$ is SPD.
+\end{itemize}
+\vfill 
+\question{When does $LU$ factorization exist? Does it exist for any square matrix?}
+    \vfill 
+\end{frame}
+
+% --------------
+
+\begin{frame}{Why Pivoting Is Needed}
+\begin{itemize}
+    \item Recall that Naive GE finds multipliers by dividing the pivot entries $a_{kk}$
+    \vfill
+    \item This can cause issues if the pivot is zero or very small, e.g. 
+\[
+A =
+\begin{bmatrix}
+\boxed{0} & 1\\
+1 & 1
+\end{bmatrix}
+\]
+    \item \textbf{LU factorization is the same as GE so it needs pivoting}
+
+\vfill
+\end{itemize}
+\keyidea{
+Pivoting is needed in LU factorization for stability and avoiding zero pivots
+}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Permutation Matrix}
+
+\begin{itemize}
+    \item A \textbf{permutation matrix} $P$ is the identity matrix with some rows swapped
+    \vfill 
+    \item Example: 
+    $$
+    P =   \begin{bmatrix}
+    0 & 1 & 0\\
+    1 & 0 & 0\\
+    0 & 0 & 1\\
+    \end{bmatrix}
+    $$
+    \vfill 
+
+    \item Multiplying another matrix by a permutation matrix causes rows to swap
+        $$PA = 
+    \begin{bmatrix}
+    0 & 1 & 0\\
+    1 & 0 & 0\\
+    0 & 0 & 1\\
+    \end{bmatrix}
+\begin{bmatrix}
+x&x & x\\
+y & y & y\\
+z & z & z\\
+\end{bmatrix} =
+\begin{bmatrix}
+y & y & y\\
+x & x & x\\
+z & z & z\\
+\end{bmatrix}
+    $$
+    \vfill
+
+    \item $P$ matrix is very easy to invert
+    $$
+        P^{-1} = P^T
+    $$
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Pivoting with LU Factorization}
+\begin{itemize}
+    \item If pivoting is necessary, multiply by $P$
+    $$PA = 
+    \begin{bmatrix}
+    0 & 1 & 0\\
+    1 & 0 & 0\\
+    0 & 0 & 1\\
+    \end{bmatrix}
+\begin{bmatrix}
+\red{0} & 1 & 2\\
+2 & 5 & 8\\
+1 & 6 & 9\\
+\end{bmatrix} =
+\begin{bmatrix}
+2 & 5 & 8\\
+\red{0} & 1 & 2\\
+1 & 6 & 9\\
+\end{bmatrix} \text{swap $R_1$ and $R_2$}
+    $$
+
+    \item Thus, partial pivoting fits seamlessly into the factorization algorithm, e.g.
+    $$
+        M_2 P_2 M_1 P_1 A = U
+    $$
+    
+    \item In practice, $LU$ factorization with pivoting matrix $P$ has the form
+            \[ PA = L U\]
+
+    \keyidea{
+    Not all matrices have an $LU$ factorization, but all matrices have a pivoted $LU$ factorization.
+    }
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile,shrink]{Pivoting with LU Factorization}
+\begin{itemize}
+    \item Matlab's \texttt{lu()} function uses partial pivoting
+\end{itemize}
+\begin{lstlisting}
+[L,U,P]=lu(A)
+L =
+    1.0000         0         0         0
+    0.9917    1.0000         0         0
+    0.8920   -0.3250    1.0000         0
+    0.1390   -0.4552    0.2567    1.0000
+
+U =
+    0.9134    0.5469    0.9706    0.1419
+         0   -0.4448    0.0024    0.3447
+         0         0    0.0925    0.9426
+         0         0         0    0.6955
+
+P =
+     0     0     0     1
+     0     1     0     0
+     1     0     0     0
+     0     0     1     0
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile,shrink]{Pivoting with LU Factorization}
+\begin{itemize}
+    \item This is how you would explicitly use the factorizations 
+    $$
+    P^{-1}LUx=b \quad \implies \quad x = U^{-1}L^{-1}Pb
+    $$
+\begin{lstlisting}
+>> x=U\(L\(P*b)) 
+x = 0.5326 0.5416 -1.2765 1.1315
+>> A\b
+    0.5326 0.5416 -1.2765 1.1315
+\end{lstlisting}
+
+\vspace{1cm}
+
+\item Here is another way, use the function \texttt{decomposition()}
+\begin{lstlisting}
+>> dA = decomposition(A,'lu');
+>> x = dA\b
+\end{lstlisting}
+
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cost}
+
+\begin{block}{$LU$ cost}
+    $LU$ factorization requires partial pivoting but the extra cost is only $\mO(n^2)$. The total cost is still 
+    $$
+    \frac23 n^3+\mO(n^2)
+    $$
+\end{block}
+
+\vfill 
+\begin{itemize}
+    \item Memory Cost: although $P$ is a matrix it can be compressed to a vector
+
+    \vfill
+    \item Example: 
+    $$
+      P=  \begin{bmatrix}
+    0 & 1 & 0\\
+    1 & 0 & 0\\
+    0 & 0 & 1\\
+    \end{bmatrix} \longrightarrow \begin{bmatrix}
+        2\\1\\3
+    \end{bmatrix}
+    $$
+    \vfill
+    \item Permutation just adds $\mO(n)$ extra memory
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Pivoting for $LDL^{T}$ Factorization}
+
+{
+\question{What is the cost of pivoting for $LDL^T$?}
+}
+
+\begin{block}{Symmetric Pivoting}
+Instead of swapping only rows, we apply the same permutation to
+\textbf{both rows and columns}:
+\[
+P A P^{T} = L D L^{T}
+\]
+\end{block}
+
+\begin{itemize}
+    \item Symmetry is preserved: $(PAP^{T})^T = PAP^{T}$
+    \item Symmetric pivoting costs $\mO(n^2)$
+\end{itemize}
+
+\keyidea{
+LDL requires a slightly more expensive form of pivoting to maintain symmetry of the matrix but it is still $\mO(n^2)$.
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Pivoting for Cholesky Factorization}
+
+\begin{itemize}
+    \item Cholesky applies only to \textbf{symmetric positive definite (SPD)} matrices
+    \item Recall the factorization:
+    \[
+        A = \tilde{L}\tilde{L}^T
+    \]
+    \item Unlike LU and LDL, \textbf{no pivoting is required}
+    \[
+        a_{kk} - \sum_{j=1}^{k-1} \ell_{kj}^2 > 0
+    \]
+\item For SPD matrices, every Cholesky pivot is positive
+in exact arithmetic.
+
+\item The SPD structure allows Cholesky to operate stably
+without pivoting.
+
+\item An ill-conditioned matrix can still lead to an
+inaccurate computed solution.
+    
+\end{itemize}
+
+\keyidea{
+Cholesky factorization does not require pivoting due to the structure of SPD matrices.
+}
+\end{frame}
+
+% ------------------------------
+
+\begin{frame}[fragile]{LU vs Cholesky}
+\begin{columns}
+    \begin{column}{0.45\textwidth}
+\begin{lstlisting}[mathescape]
+given $A$, $b$
+                           
+for $k=1\dots n-1$          
+    for $i = k+1\ldots n$      
+        $xmult = a_{ik}/a_{kk}$
+        $a_{ik} = xmult$      
+        for $j = k+1\ldots n$      
+            $a_{ij} = a_{ij} - (xmult) a_{kj}$
+        end                      
+    end                        
+end                          
+\end{lstlisting}
+\begin{center}
+    LU (no pivoting)
+\end{center}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+\begin{lstlisting}[mathescape,label=algo:chol]
+given $A$
+output $L$
+                           
+for $k=1\dots n$          
+    $\ell_{kk}$ = $\left(a_{kk} - \sum_{s=1}^{k-1} \ell_{ks}^2\right)^{1/2}$
+    for $i = k+1 \ldots n$      
+        $\ell_{ik} = \left( a_{ik} - \sum_{s=1}^{k-1}
+                       \ell_{is}\ell_{ks} \right)/ \ell_{kk}$
+    end
+end                          
+\end{lstlisting}
+\begin{center}
+    Cholesky
+\end{center}
+    \end{column}
+\end{columns}
+\vspace{0.5cm}
+\begin{center}
+\begin{itemize}
+    \item $LU$ costs $\frac{2}{3}n^3+\mO(n^2)$ and needs pivoting
+    \item Cholesky costs $\frac{1}{3}n^3+\mO(n^2)$ and does \textbf{not} need pivoting
+\end{itemize}
+\end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Benchmark}
+\begin{itemize}
+\item Use Matlab's \texttt{chol} function 
+\item Cholesky has two main advantages:
+\begin{itemize}
+    \item Save 50\% of the flops and many memory operations with Cholesky
+    \item No pivoting required 
+\end{itemize}
+\end{itemize}
+\bigskip
+\begin{alertblock}{}
+   See \texttt{time\_LU\_vs\_Cholesky.m} 
+\end{alertblock}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{LU, LDL, Cholesky}
+\begin{center}
+    \includegraphics[scale=0.5]{figs/meme-spd.jpg}
+\end{center}
+\end{frame}
+
+\end{document}

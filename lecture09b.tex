@@ -1,0 +1,738 @@
+\documentclass[10pt]{beamer}
+% \documentclass[handout,10pt]{beamer}
+\usepackage{my_style}
+
+\title[Math/CS 375]{Lecture 09 - B}
+\subtitle{\S 4.1 Newton Interpolation }
+
+\begin{document}
+% -------------------------------------------------
+\begin{frame}
+  \titlepage
+\end{frame}
+% -------------------------------------------------
+
+\begin{frame}{Goals}
+We will answer these questions:\\[3mm]
+\begin{itemize}
+    \item What is the benefit of nesting polynomials? 
+    \item What are the Newton polynomial basis functions?
+    \item What type of linear system is involved in Newton interpolation?
+    \item What are the advantages of Newton interpolation? 
+    \item How do you use the Tabular method for calculating interpolation by hand?
+\end{itemize}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Nesting Polynomials}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Polynomial Operation Count}
+\begin{itemize}
+    \item Consider the polynomial   
+    $$p_3(x) = 5 + 4x +7x^2 + 2x^3$$
+
+    \item When implemented in Matlab, it is 
+        $$p_3(x) = \texttt{5 + 4*x + 7*x*x + 2*x*x*x}$$
+
+    \item 3 additions AND (1+2+3) multiplications = 9 FLOPs\\[3mm]
+
+   
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{In General}
+
+\begin{itemize}
+    \item A general polynomial has the form 
+    $$
+    p_n(x) =  a_0 + a_1x+ a_2x^2+\cdots +a_nx^n
+    $$
+    \item There are exactly $n$ additions 
+    \vfill 
+    \item Zeroth term has zero multiplications
+    \vfill 
+    \item The first term has one multiplication... 
+    \vfill 
+    \item The second term has two multiplication... 
+    \vfill 
+\end{itemize}
+\begin{block}{Number of FLOPs}
+    
+    In general, evaluating $p_n(x)$ costs $n$ additions and $\sum_{i=1}^n i$ multiplications or 
+    $$\text{Total} = n+\left(\frac{n(n+1)}{2}\right) \text{ FLOPs}$$
+\end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Factoring}
+\begin{itemize}
+    \item We can rewrite this polynomial 
+    \begin{align*}
+    p_3(x) &= 5 + 4x +7x^2 + 2x^3\\
+           &= 5 + x(4 +7x + 2x^2)\\
+           &= 5 + x(4 +x(7 + 2x))
+    \end{align*}
+
+    \item When implemented in Matlab, it is 
+        $$p_3(x) = \texttt{5 + x*(4 + x*(7 + 2*x))}$$
+
+    \item 3 additions AND 3 multiplications = 6 FLOPs\\[3mm]
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Optimal polynomial representation}
+\begin{itemize}
+    \item Given a polynomial
+\begin{equation*}
+  p(x) = -5 + 4x -7x^2 + 2x^3 + 3x^4,\quad (14 \text{ FLOPs})
+\end{equation*}
+we can write this equivalently as
+\begin{equation*}
+  p(x) = -5 + x(4 + x(-7 + x(2 + 3x))),\quad (8\text{ FLOPs})
+\end{equation*}
+
+\item This technique is called \textbf{nesting polynomials} or \textbf{Horner's Method}
+\method{Nesting}{Standard polynomial}{Nested polynomial}{Factor out x to minimize the number of multiplications.}
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Nesting}
+
+\begin{itemize}
+    \item The standard polynomial costs $\mO(n^2)$ FLOPs to evaluate 
+    \item The fully nested polynomial costs exactly $2n$ FLOPs
+    \item Compare $$ p(x) = -5 + 4x -7x^2 + 2x^3 + 3x^4,$$ versus $$ p(x) = -5 + x(4 + x(-7 + x(2 + 3x)))$$
+\end{itemize}
+
+    \keyidea{Nested polynomials are evaluated more optimally.}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Summary so far:}
+\begin{itemize}
+  
+   \item \textbf{Monomial basis}: $p(x) = a_0 + a_1 x +\dots+a_n x^n$ results in a poorly conditioned Vandermonde matrix that can lead to inaccurate coefficients.\bigskip
+
+  \item \textbf{Nesting}: It is trivial to minimize the cost of polynomial evaluation. \bigskip
+  
+  \item \textbf{Lagrange basis}: $p(x) = \ell_0(x) y_0 + \dots + \ell_n(x) y_n$. There is no error in the coefficients. It's easy to compute by hand.  \bigskip
+
+  \begin{itemize}
+    \item When adding an additional data point, you cannot re-use previous polynomial easily (for monomials and Lagrange)
+  \end{itemize}
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Newton Interpolation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Monomial Basis}
+\begin{itemize}
+\item Consider interpolating the data
+\begin{center}
+  \begin{tabular}{c | c | c}
+  $x_0$ & $x_1$ & $x_2$\\\hline
+  $y_0$ & $y_1$ & $y_2$\\
+  \end{tabular}
+\end{center}
+\item Our polynomial using a \textbf{monomial basis} will be   
+\begin{equation*}
+  p_2(x) = a + bx + cx^2
+\end{equation*}
+
+\item We can write out a system of equations for $a,b,c$
+\[
+\begin{alignedat}{4}
+  \text{at }x_0:\quad 
+    &p(x_0)=y_0= a &+ bx_0 &+ c x_0^2,\\
+  \text{at }x_1:\quad 
+    &p(x_1)=y_1 =a &+ bx_1 &+ c x_1^2, \\
+  \text{at }x_2:\quad 
+    &p(x_2)=y_2 =a &+ bx_2 &+ c x_2^2. \\
+\end{alignedat}\implies
+    \begin{bmatrix}
+      1 & x_0 & x_0^2 \\
+      1 & x_1 & x_1^2 \\
+      1 & x_2 & x_2^2 
+    \end{bmatrix}
+    \begin{bmatrix}
+      a\\
+      b\\
+      c\\
+    \end{bmatrix}
+     =
+    \begin{bmatrix}
+      y_0\\
+      y_1\\
+      y_2\\
+    \end{bmatrix}
+\]
+\item Solve the $3\times3$ \textbf{Vandermonde} system
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Another Basis?}
+
+\question{
+What if we use this basis instead? 
+\begin{center}
+  \begin{tabular}{l | c}
+  Function & Order \\\hline
+  $1$ & 0\\
+  $x-x_0$ & 1\\
+  $(x-x_0)(x-x_1)$ & 2
+  \end{tabular}
+\end{center}
+}
+\begin{itemize}
+    \item Then our interpolation would be 
+    $$ p_2(x) = a + b(x-x_0) + c(x-x_0)(x-x_1).$$
+
+    \item The three unknowns are $a$, $b$, $c$
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Conditions}
+
+        \begin{itemize}
+            \item The polynomial must pass through $(x_0,y_0)$, $(x_1,y_1)$, and $(x_2,y_2)$
+
+            \item The conditions are 
+            \begin{align*}
+                y_0=p_2(x_0)\\ 
+                y_1=p_2(x_1)\\ 
+                y_1=p_2(x_2) 
+            \end{align*}
+    \item If $p_2(x) = a + b(x-x_0) + c(x-x_0)(x-x_1)$ then
+    $$
+    \begin{alignedat}{4}
+  \text{at }x_0:\quad 
+    &y_0  &={}&\,a
+            &{}+&\,0
+            &{}+&\,0,\\
+  \text{at }x_1:\quad 
+    &y_1  &={}&\,a
+            &{}+&\,b\,(x_1 - x_0)
+            &{}+&\,0,\\
+  \text{at }x_2:\quad 
+    &y_2  &={}&\,a
+            &{}+&\,b\,(x_2 - x_0)
+            &{}+&\,c\,(x_2 - x_0)(x_2 - x_1).
+\end{alignedat}
+    $$
+        \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Matrix Form}
+\begin{itemize}
+    \item The matrix form of 
+    $$
+    \begin{alignedat}{4}
+    \text{at }x_0:\quad 
+    &y_0  &={}&\,a
+    &{}+&\,0
+    &{}+&\,0,\\
+    \text{at }x_1:\quad 
+    &y_1  &={}&\,a
+    &{}+&\,b\,(x_1 - x_0)
+    &{}+&\,0,\\
+    \text{at }x_2:\quad 
+    &y_2  &={}&\,a
+    &{}+&\,b\,(x_2 - x_0)
+    &{}+&\,c\,(x_2 - x_0)(x_2 - x_1).
+    \end{alignedat}
+    $$
+    is
+\begin{equation*}
+  \begin{bmatrix}
+    1 & 0 & 0\\
+    1 & x_1 - x_0 & 0\\
+    1 & x_2 - x_0 & (x_2-x_0)(x_2-x_1)\\
+  \end{bmatrix}
+  \begin{bmatrix}
+    a\\ b\\ c\\
+  \end{bmatrix} =
+  \begin{bmatrix}
+    y_0\\ y_1\\ y_2\\
+  \end{bmatrix}
+\end{equation*}
+
+% \item This is preferable to solving the \textbf{Vandermonde matrix}
+% $$
+%     \begin{bmatrix}
+%       1 & x_0 & x_0^2 \\
+%       1 & x_1 & x_1^2 \\
+%       1 & x_2 & x_2^2 
+%     \end{bmatrix}
+%     \begin{bmatrix}
+%       a\\
+%       b\\
+%       c\\
+%     \end{bmatrix}
+%      =
+%     \begin{bmatrix}
+%       y_0\\
+%       y_1\\
+%       y_2\\
+%     \end{bmatrix}
+% $$
+\end{itemize}
+
+\keyidea{
+This is a \textbf{triangular system}! This is great news!
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Comparison}
+
+\begin{block}{Monomial Basis}
+ Fitting a polynomial of the form   $p(x) = a + bx + cx^2$  
+ results in a \textbf{full matrix}
+$$
+    \begin{bmatrix}
+      1 & x_0 & x_0^2 \\
+      1 & x_1 & x_1^2 \\
+      1 & x_2 & x_2^2 
+    \end{bmatrix}
+    \begin{bmatrix}
+      a\\
+      b\\
+      c\\
+    \end{bmatrix}
+     =
+    \begin{bmatrix}
+      y_0\\
+      y_1\\
+      y_2\\
+    \end{bmatrix}
+$$ 
+Costs $\mO(n^3)$ to solve
+\end{block}
+
+
+\begin{block}{Alternate Basis}
+     Fitting a polynomial of the form   $ p = a + b(x-x_0) + c(x-x_0)(x-x_1)$  
+ results in a \textbf{triangular matrix}
+\begin{equation*}
+  \begin{bmatrix}
+    1 & 0 & 0\\
+    1 & x_1 - x_0 & 0\\
+    1 & x_2 - x_0 & (x_2-x_0)(x_2-x_1)\\
+  \end{bmatrix}
+  \begin{bmatrix}
+    a\\ b\\ c\\
+  \end{bmatrix} =
+  \begin{bmatrix}
+    y_0\\ y_1\\ y_2\\
+  \end{bmatrix}
+\end{equation*}
+Costs $\mO(n^2)$ to solve
+\end{block}
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Newton Polynomials}
+\begin{itemize}
+\item \textbf{Newton Polynomials} are of the form
+  \begin{equation*}
+    p_n(x) = a_0 + a_1(x-x_0) + a_2(x-x_0)(x-x_1) + a_3(x-x_0)(x-x_1)(x-x_2) + \dots
+  \end{equation*}
+
+\item The \textbf{Newton basis functions} have the form:
+\begin{center}
+  \begin{tabular}{l | c}
+  Function & Order \\
+  \hline
+  $1$ & 0\\
+  $x-x_0$ & 1\\
+  $(x-x_0)(x-x_1)$ & 2\\
+  $(x-x_0)(x-x_1)(x-x_2)$ & 3\\
+  \end{tabular}
+\end{center}
+\vspace{3mm}
+\define{Newton Basis}{
+
+The \textbf{Newton basis functions } are the family of polynomials 
+    $$\mathcal{F} = \{ 1, x-x_0, (x-x_0)(x-x_1), \ldots  \} $$
+where $x_k$ are distinct data points.
+}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Newton Interpolation Method}
+    \method{Newton Interpolation}{Data $n+1$ points $(x_i,y_i)$ for $i=0,\ldots,n$}{Interpolating polynomial $p_n(x)$}{The system obtained with the Newton interpolation is triangular.}
+
+\begin{itemize}
+    \item Monomial vs. Newton 
+    $$
+        \begin{bmatrix}
+      1 & x_0 & x_0^2 \\
+      1 & x_1 & x_1^2 \\
+      1 & x_2 & x_2^2 
+    \end{bmatrix}
+    \;\text{vs.}\;
+      \begin{bmatrix}
+    1 & 0 & 0\\
+    1 & x_1 - x_0 & 0\\
+    1 & x_2 - x_0 & (x_2-x_0)(x_2-x_1)\\
+  \end{bmatrix}
+    $$
+\item Can be solved in $\mO(n^2)$ FLOPs 
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Solving for the Coefficients}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Forward Substitution}
+\begin{itemize}
+    \item We can solve this system with forward substitution 
+    \begin{equation*}
+  \begin{bmatrix}
+    1 & 0 & 0\\
+    1 & x_1 - x_0 & 0\\
+    1 & x_2 - x_0 & (x_2-x_0)(x_2-x_1)\\
+  \end{bmatrix}
+  \begin{bmatrix}
+    a_0\\ a_1\\ a_2\\
+  \end{bmatrix} =
+  \begin{bmatrix}
+    y_0\\ y_1\\ y_2\\
+  \end{bmatrix}
+\end{equation*}
+
+\item First row:
+    $$
+    a_0 = y_0
+    $$
+\item Second row: 
+\begin{align*}    
+a_0 + (x_1-x_0) a_1 &= y_1\\ 
+ a_1 &= \frac{y_1-a_0}{x_1-x_0}\\ 
+\end{align*}
+\item Third row:
+\begin{align*}    
+a_0 + (x_2-x_0) a_1 + (x_2-x_0)(x_2-x_1)a_2&= y_2\\ 
+ a_2 &= \frac{y_2-a_0 - (x_2-x_0) a_1}{(x_2-x_0)(x_2-x_1)}\\ 
+\end{align*}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Pattern for Coefficients?}
+\question{Do you see a pattern?}
+\begin{align*}
+  a_0 & = y_0 = f(x_0)\\
+  a_1 & = \frac{y_1 - a_0}{x_1 - x_0} = \frac{f(x_1)-f(x_0)}{x_1 - x_0}\\
+  a_2 & = \frac{y_2 - a_0 - (x_2-x_0)a_1}{(x_2-x_1)(x_2-x_0)}\\
+      & = \frac{f(x_2)-f(x_0)-(x_2-x_0)\frac{f(x_1)-f(x_0)}{x_1-x_0}}{(x_2-x_1)(x_2-x_0)}\\
+      & = \frac{\frac{f(x_2)-f(x_1)}{x_2-x_1} - \frac{f(x_1)-f(x_0)}{x_1-x_0} }{x_2-x_0}
+\end{align*}
+\begin{center}
+    There is a \textbf{recursive pattern} of $\frac{\Delta f}{\Delta x}$.
+\end{center}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Divided Differences}
+\begin{itemize}
+    \item  We see many instances of the fraction
+\begin{equation*}
+  \frac{f(x_j)-f(x_i)}{x_j-x_i}
+\end{equation*}
+\item They're called \textbf{divided differences} and are denoted:
+\begin{equation*}
+  f[x_i,x_j] := \frac{f(x_j)-f(x_i)}{x_j-x_i}
+\end{equation*}
+
+\item For example 
+    $$  f[a,b] = \frac{f(a) - f(b)}{a - b}$$
+
+\item Notice that $a$ and $b$ can be switched 
+$$ f[b,a] = \frac{f(b)-f(a)}{b-a} = \frac{-(f(a) - f(b)))}{-(a-b)} = \frac{f(a) - f(b)}{a - b} = f[a,b]$$
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Bracket Notation}
+\begin{itemize}
+    \item The \textbf{zeroth order divided difference} is just a base case 
+      $$a_0= f[x_0] = f(x_0)$$ 
+    \item The \textbf{first order divided difference} is defined to be
+     $$ a_1 = f[x_1,x_0] = \frac{f[x_1]-f[x_0]}{x_1-x_0} $$
+    \item The \textbf{second order divided difference} is 
+     $$ a_2 = f[x_0,x_1,x_2] = \frac{f[x_1,x_2]-f[x_0,x_1]}{x_2-x_0} $$
+    \item For higher order terms we use recursion
+\end{itemize}
+\begin{block}{Recursive Property}
+$$ f[x_0,\dots,x_k] = \frac{f[x_1,\dots,x_k]-f[x_0,\dots,x_{k-1}]}{x_k - x_0}$$
+\end{block}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Recursive Property}
+
+\begin{block}{Recursive Property}
+$$ f[x_0,\dots,x_k] = \frac{f[x_1,\dots,x_k]-f[x_0,\dots,x_{k-1}]}{x_k - x_0}$$
+\end{block}
+
+$$ f\underbrace{[x_0,\dots,x_k]}_{0 \text{ to } k} = \frac{\underbrace{[x_1,\dots,x_k]}_{1 \text{ to } k}-f\underbrace{[x_0,\dots,x_{k-1}]}_{0 \text{ to }k-1}}{x_k - x_0}$$
+
+\begin{itemize}
+    \item Let's call $f[x_0,\dots,x_k]$ the $k^{th}$ level divided difference
+    \item $k^{th}$ level divided difference requires two $(k-1)^{th}$ level divided differences
+\end{itemize}
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{The Pattern}
+\begin{itemize}
+    \item These are the coefficients 
+\begin{align*}
+  a_0 &  = f(x_0)\\
+  a_1 & = \frac{f(x_1)-f(x_0)}{x_1 - x_0}\\
+  a_2 & = \frac{\frac{f(x_2)-f(x_1)}{x_2-x_1} - \frac{f(x_1)-f(x_0)}{x_1-x_0} }{x_2-x_0}
+\end{align*}
+
+\item They can be expressed compactly using the \textbf{bracket notation}
+\begin{align*}
+  a_0 &  = f[x_0]\\
+  a_1 & = f[x_0,x_1]\\
+  a_2 & = \frac{f[x_1, x_2] - f[x_0, x_1] }{x_2-x_0} =: f[x_0, x_1, x_2]
+\end{align*}
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Newton Polynomial Coefficients}
+\begin{itemize}
+    \item The Newton polynomial is 
+    $$
+    p(x) = a_0 + a_1(x-x_0) + a_2(x-x_0)(x-x_1)+a_3(x-x_0)(x-x_1)(x-x_2) + \text{etc.}
+    $$
+    \item The coefficients are
+    \begin{align*}
+  a_0 &  = f[x_0]\\
+  a_1 & = f[x_0,x_1]\\
+  a_2 & =  f[x_0, x_1, x_2]\\
+  a_3 & =  f[x_0, x_1, x_2,x_3]\\
+  & \vdots\\ 
+  a_n &= f[x_0,x_1\dots ,x_n]
+\end{align*}
+\end{itemize}
+\keyidea{Just add one extra point in the bracket. For example
+$$
+a_{n+1} = f[x_0,x_1,\dots,x_n,x_{n+1}]
+$$}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[shrink]{Newton Polynomials using Divided Differences}
+\begin{example}
+  Find the 2nd order interpolating Newton polynomial for the data points 
+  \begin{center}
+    \begin{tabular}{c | c c c}
+      $x$ & 1 & -4 & 0\\\hline
+      $y$ & 3 & 13 & -23\\
+    \end{tabular}
+  \end{center}
+\end{example}
+\begin{itemize}
+    \item[1.] First, write the general 2nd degree Newton polynomial
+\begin{equation*}
+  p_2(x) = a_0  + a_1(x-x_0) + a_2(x-x_0)(x-x_1)
+\end{equation*}
+\item[2.] Next, compute the coefficients
+\begin{align*}
+  a_0 & = f[x_0] = f[1] = f(1) = 3\\
+  a_1 & = f[x_0,x_1] = \frac{f(x_1)-f(x_0)}{x_1 - x_0} = \frac{13-3}{-4-1} =
+  -2\\
+  a_2 & = f[x_0,x_1,x_2] = \frac{f[x_1,x_2]-f[x_0,x_1]}{x_2-x_0} = \frac{\frac{-23-13}{0--4} - \frac{13-3}{-4-1}}{0-1} = \frac{-9+2}{-1} = 7
+\end{align*}
+\item[3.] Finally, substitute the values
+\begin{equation*}
+  p_2(x) = 3 -2(x-1) + 7(x-1)(x+4)
+\end{equation*}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{Nesting}
+% \begin{itemize}
+%     \item The Newton polynomial $p_2(x) = 3 -2(x-1) + 7(x-1)(x+4)$ costs 2 additions and 3 additions = \textbf{5 FLOPs}
+% \vfill 
+%     \item The standard form $p_2(x)=7 x^2 + 19 x - 23$ would cost \textbf{6 FLOPs}
+% \vfill 
+%     \item The most optimal form costs \textbf{4 FLOPs} 
+% \vfill 
+% \end{itemize}
+%     \keyidea{The Newton polynomial naturally introduces partial nesting.}
+% \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Invariance}
+\begin{block}{Invariance Theorem}
+    $f[x_0,\dots,x_k]$ is invariant under all permutations of the arguments
+    $x_0,\dots,x_k$
+\end{block}
+\vspace{4mm}
+
+Why is this important? 
+\begin{itemize}
+    \item The nodes $x_i$ do not have to arranged from least to greatest 
+    \item We can apply the recursive formula easily 
+    \item If an additional interpolation point is added $(x_{n+1}, y_{n+1})$, we can easily find the next coefficient
+\end{itemize}
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Example}
+    \begin{block}{Existing Interpolation}
+      \begin{center}
+    \begin{tabular}{c | c c c}
+      $x$ & 1 & -4 & 0\\\hline
+      $y$ & 3 & 13 & -23\\
+    \end{tabular}
+  \quad $p_2(x) = 3 -2(x-1) + 7(x-1)(x+4)$
+  \end{center}
+    \end{block}
+    \begin{block}{Extra Point}
+        If we add an extra point
+              \begin{center}
+    \begin{tabular}{c | c c c c}
+      $x$ & 1 & -4 & 0   &2\\\hline
+      $y$ & 3 & 13 & -23 &3 \\
+    \end{tabular}
+  \end{center}
+   then our new interpolation is
+   $$p_3(x) = 3 -2(x-1) + 7(x-1)(x+4)+a_3(x-1)(x+4)(x)$$
+    \end{block}
+
+    \keyidea{
+    When adding a new point, we may reuse the previously calculated coefficients.
+    }
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Newton Interpolation}
+    \method{Newton Divided Differences}{$n+1$ data points $(x_i,y_i)$}{Degree $n$ interpolating polynomial $p_n(x)$}{Take advantage of the recursive formula of divided differences}
+
+    \keyidea{
+    Advantages to using Newton interpolation:
+\begin{itemize}
+        \item Newton system can be solved in $\mO(n^2)$ FLOPs
+        % \item Newton polynomials are partially nested
+        \item When an additional points, we can build off of the existing interpolation
+        \item<2> Can be easily calculated by hand using the \textbf{tabular method}
+    \end{itemize}
+    }
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Tabular Method}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Divided Differences with the Table}
+\begin{block}{Recursive Property}
+Use this to fill out the table
+$$ f[x_0,\dots,x_k] = \frac{f[x_1,\dots,x_k]-f[x_0,\dots,x_{k-1}]}{x_k - x_0}$$
+\end{block}
+We can compute the divided differences much easier using tables.  To
+construct the divided difference table for $f(x)$ for the $x_0,\dots,x_3$
+\begin{center}
+\begin{tabular}{l | l | l | l | l}
+$x$ & $f[\cdot]$ & $f[\cdot,\cdot]$ & $f[\cdot,\cdot,\cdot]$ & $f[\cdot,\cdot,\cdot,\cdot]$\\\hline
+\alt<2,5,7>{\color{red}$x_0$}{$x_0$}    & \alt<2>{\color{red}$f[x_0]$}{$f[x_0]$}&              &                  &                      \\
+                                     &                                        & \alt<2,5>{\color{red}$f[x_0,x_1]$}{$f[x_0,x_1]$} &                  &                      \\
+\alt<2,3,6>{\color{red}$x_1$}{$x_1$}  & \alt<2,3>{\color{red}$f[x_1]$}{$f[x_1]$} &              & \alt<5,7>{\color{red}$f[x_0,x_1,x_2]$}{$f[x_0,x_1,x_2]$} &                      \\ 
+                                     &                                        & \alt<3,5,6>{\color{red}$f[x_1,x_2]$}{$f[x_1,x_2]$} &                  & \alt<7>{\color{red}$f[x_0,x_1,x_2,x_3]$}{$f[x_0,x_1,x_2,x_3]$} \\
+\alt<3,4,5>{\color{red}$x_2$}{$x_2$}  & \alt<3,4>{\color{red}$f[x_2]$}{$f[x_2]$}   &              & \alt<6,7>{\color{red}$f[x_1,x_2,x_3]$}{$f[x_1,x_2,x_3]$} &                      \\
+                                     &                                        & \alt<4,6>{\color{red}$f[x_2,x_3]$}{$f[x_2,x_3]$} &                  &                      \\
+\alt<4,6,7>{\color{red}$x_3$}{$x_3$}  & \alt<4>{\color{red}$f[x_3]$}{$f[x_3]$} &              &                  &                      \\
+\end{tabular}
+\end{center}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Tabular Method Example}
+\begin{example}
+Construct the divided differences table for the data
+\begin{center}
+\begin{tabular}{c | c c c c}
+ \smallskip 
+ $x$ & 1 & 3 & 0 & 2\\
+ \hline
+ $y$ & 0 & 6 & 3 & 7\\
+\end{tabular}
+\end{center}
+and construct the largest order interpolating polynomial.\\\smallskip
+\end{example}
+
+Start by filling the first 2 columns with the given data. Then fill each column from left to right. 
+
+\begin{center}
+\begin{tabular}{c | c | c | c | c}
+$x$ & $f[\cdot]$ & $f[\cdot,\cdot]$ & $f[\cdot,\cdot,\cdot]$ & $f[\cdot,\cdot,\cdot,\cdot]$\\\hline
+\alt<2,5,7>{\color{red}$1$}{$1$}  & \alt<2>{\color{red}$0$}{$0$} &              &                  &                      \\
+                                  &                               & \onslide<2->{\alt<2,5>{\color{red}$3$}{$3$}} &                  &                      \\
+\alt<2,3,6>{\color{red}$3$}{$3$}  & \alt<2,3>{\color{red}$6$}{$6$} &            & \onslide<5->{\alt<5,7>{\color{red}$2$}{$2$}} &  \\ 
+                                  &                                & \onslide<3->{\alt<3,5,6>{\color{red}$1$}{$1$}} &                  & \onslide<7->{\alt<7>{\color{red}$-3$}{$-3$}} \\
+\alt<3,4,5>{\color{red}$0$}{$0$}  & \alt<3,4>{\color{red}$3$}{$3$}  &           & \onslide<6->{\alt<6,7>{\color{red}$-1$}{$-1$}} &                      \\
+                                  &                                 & \onslide<4->{\alt<4,6>{\color{red}$2$}{$2$}} &                  &                      \\
+\alt<4,6,7>{\color{red}$2$}{$2$}      & \alt<4>{\color{red}$7$}{$7$} &          &                  &                      \\
+\end{tabular}
+\end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Writing the polynomial}
+\begin{center}
+\begin{tabular}{c | c | c | c | c}
+$x$ & $f[\cdot]$ & $f[\cdot,\cdot]$ & $f[\cdot,\cdot,\cdot]$ & $f[\cdot,\cdot,\cdot,\cdot]$\\\hline
+$1$  & {\color{red}$0$} &    &                  &                      \\
+      &             & {\color{red}$3$}&                  &                      \\
+{$3$}  &  {$6$} &    &  {\color{red}$2$} &  \\ 
+      &               & {$1$}&                  &  {\color{red}$-3$} \\
+{$0$}  & {$3$}  &           & {$-1$}&                      \\
+       &                                 & {$2$} &                  &                      \\
+{$2$}   & {$7$} &          &                  &                      \\
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item After completing the table, write the general form for a cubic
+$$
+p_3(x) = a_0 + a_1(x-x_0) + a_2(x-x_0)(x-x_1) -  a_3 (x-x_0)(x-x_1)(x-x_2)
+$$      
+\item The coefficients $a_0$ through $a_3$ is along the upper diagonal
+\begin{align*}
+  p_2(x) &= {\color{red}{0}} + {\color{red}{3}}(x-1) + {\color{red}{2}}(x-1)(x-3)   {\color{red}{-3}}(x-1)(x-3)(x-0)\\
+\end{align*}
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Math Joke Revisited}
+
+What is the next number in the sequence? 
+$$ 1, 2, 3,\underline{\hspace{ 6 mm}} $$
+
+\onslide<2->{
+It's whatever you want it to be!
+
+\vspace{3mm}
+
+Create an interpolating polynomial that passes through 
+$$ (1,1), (2,2), (3,3), (4,x)$$ 
+}
+
+\end{frame}
+
+\end{document}

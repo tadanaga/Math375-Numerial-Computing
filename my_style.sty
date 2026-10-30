@@ -1,0 +1,247 @@
+% =================================================
+% Imports 
+% =================================================
+\usepackage{pgf,pgfarrows,pgfnodes,pgfautomata,pgfheaps,pgfshade}
+\usepackage{pxfonts}
+\usepackage{eulervm}
+\usepackage{listings}
+\usepackage{pdfpages}
+\usepackage{pgfplots}
+\usepackage{systeme,mathtools} % dcases
+\usepackage{multicol}
+\usepackage{soul} % need for strikeout /st
+\usepackage{pifont}
+\usepackage{ulem}
+\usepackage{cancel}
+\usepackage{alltt} % Enhanced text formatting
+\usepackage{fancyvrb}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{media9}          % play video with acrobat
+\usepackage{pdfpc}  % play video with pdfpc : type pdfpc yourslides.pfd in bash
+\usepackage{multimedia}
+\usepackage{multirow}
+\usepackage{array}
+\RequirePackage{graphicx} % For including images
+\RequirePackage{tikz} % For custom graphics
+\usetikzlibrary{backgrounds} % For background graphics
+\usepgfplotslibrary{fillbetween} % for shading regions 
+\RequirePackage{amsmath} % For math support
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{positioning, shapes.geometric, arrows.meta}
+\usetikzlibrary{automata, positioning}
+\usetikzlibrary{calc}
+
+
+% =================================================
+% Colors
+% =================================================
+% UNM colors 
+\definecolor{mesa}{RGB}{214, 164, 97}   % mesa brown 
+\definecolor{chile}{RGB}{168, 170, 25}   % green chile color 
+\definecolor{dusk}{RGB}{138, 56, 124}    % deep dusk, purple color 
+\definecolor{cherry}{RGB}{186, 12, 47}    % cherry red color
+\definecolor{sunset}{RGB}{237, 139, 0}   % sandia sunset amber 
+% select colors 
+\definecolor{main_bg}{RGB}{214, 164, 97}   % main solid color
+\definecolor{dark_fg}{RGB}{70, 80, 85}   % dark text color 
+\definecolor{light_fg}{RGB}{225, 225, 225} % light text color
+
+\definecolor{ex_color}{RGB}{0, 122, 134} % example block color 
+\definecolor{key_color}{RGB}{255, 49, 49} % key idea color 
+\definecolor{method_color}{RGB}{0, 190, 0} % example color 
+\definecolor{def_color}{RGB}{255,255,100} % definition color 
+\definecolor{question_color}{RGB}{51,51,255} % question color 
+\definecolor{alert_color}{RGB}{160, 0, 0} % alert block color
+% =================================================
+% Customize Slide Info 
+% =================================================
+\author[Takahashi]{\phantom{-}T. Takahashi\\}
+\institute[UNM]
+{Department of Mathematics and Statistics\\
+University of New Mexico\\
+}
+\date{}
+\logo{\includegraphics[scale = 0.10]{figs/logo.png}}
+
+% =================================================
+% Presentation vs. Handout 
+% =================================================
+\mode<presentation>
+{
+  \usetheme{Boadilla}
+  \usefonttheme[onlymath]{serif}
+  \setbeamercovered{invisible}
+}
+\mode<handout>{
+  \usetheme{Boadilla}
+  \usecolortheme{whale} % Use a color theme suitable for printing
+  \setbeamercolor{frametitle}{fg=black} % Set frame title color to black
+  \usefonttheme[onlymath]{serif} % Use serif fonts for math
+  \setbeamercovered{invisible} % Hide uncovered items
+}
+
+\mode<presentation>
+\setbeamercolor{structure}{fg=dark_fg}
+\setbeamercolor{palette primary}{fg=dark_fg,bg=main_bg!90}
+\setbeamercolor{palette secondary}{fg=dark_fg,bg=main_bg!70}
+\setbeamercolor{palette tertiary}{fg=dark_fg,bg=main_bg!90}
+\setbeamercolor{palette quaternary}{fg=dark_fg,bg=main_bg}
+\setbeamercolor{titlelike}{parent=palette quaternary}
+\setbeamercolor{sidebar}{bg=main_bg!70}
+\setbeamercolor{palette sidebar primary}{fg=dark_fg}
+\setbeamercolor{palette sidebar secondary}{fg=dark_fg!75}
+\setbeamercolor{palette sidebar tertiary}{fg=dark_fg!75}
+\setbeamercolor{palette sidebar quaternary}{fg=dark_fg}
+\setbeamercolor*{separation line}{}
+\setbeamercolor*{fine separation line}{}
+\setbeamercolor{block body}{parent=normal text,use=block title,bg=block title.bg!25!bg}
+\setbeamercolor{block title}{fg=dark_fg,bg=main_bg}
+% alert block 
+\setbeamercolor{block title alerted}{fg=light_fg, bg=alert_color}
+\setbeamercolor{block body alerted} {fg=black,    bg=alert_color!25}
+% example block 
+\setbeamercolor{block title example}{fg=light_fg ,bg=ex_color}
+\setbeamercolor{block body example} {fg=black,    bg=ex_color!25}
+% definition block
+\setbeamercolor{block title definition}{fg=light_fg ,bg=ex_color}
+\setbeamercolor{block body definition} {fg=black,    bg=ex_color!25}
+
+
+\mode<all>
+
+
+% =================================================
+% Matlab Code
+% =================================================
+\definecolor{mygray}{rgb}{0.95,0.95,0.95}
+\definecolor{mygreen}{RGB}{0,128,19} 
+\definecolor{mylilas}{RGB}{167,9,245}
+\lstset{language=Matlab,
+        basicstyle=\ttfamily\small,
+        keywordstyle=\color{blue},
+        commentstyle=\color{mygreen},
+        stringstyle=\color{mylilas},
+        numbers=left,
+        numberstyle=\tiny\color{gray},
+        stepnumber=1,
+        numbersep=5pt,
+        backgroundcolor=\color{mygray},
+        showspaces=false,
+        showstringspaces=false,
+        showtabs=false,
+        frame=single,
+        tabsize=4,
+        captionpos=b,
+        breaklines=true,
+        breakatwhitespace=false,
+        escapeinside={\%*}{*)}
+}
+
+
+% =================================================
+% Shortcuts 
+% =================================================
+\newcommand{\vb}{{\bf{b}}}
+\newcommand{\ve}{{\bf{e}}}
+\newcommand{\vg}{{\bf{g}}}
+\newcommand{\vp}{{\bf{p}}}
+\newcommand{\vr}{{\bf{r}}}
+\newcommand{\vu}{{\bf{u}}}
+\newcommand{\vx}{{\bf{x}}}
+\newcommand{\vz}{{\bf{z}}}
+\newcommand{\vA}{{\bf{A}}}
+\newcommand{\vU}{{\bf{U}}}
+\newcommand{\mO}{{\mathcal{O}}} %for big O - \mO(n^2) 
+\newcommand{\mF}{{\mathcal{F}}} 
+\newcommand{\fl}{\text{fl}}     % for floating point
+
+\newcommand{\norm}[1]{{\ensuremath{{\|#1\|}}}}
+\newcommand{\matdim}[2]{\ensuremath{#1\times#2}}
+\newcommand{\rank}[1]{\ensuremath{\mathrm{rank}(#1)}}
+\newcommand{\epsm}{\ensuremath{\varepsilon_m}}
+\newcommand{\cmd}[1]{{\normalfont\ttfamily\bfseries#1}}
+
+\newcommand<>{\xxcancel}[1]{\alt<2>{\cancel{#1}\vphantom{#1}}{#1}}
+% usage \xxcancel{}
+
+% Double Coulmns 
+\newcommand{\cols}[2]{
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+        #1 % content in 1st col
+        \end{column}
+        
+        \begin{column}{0.45\textwidth}
+        #2 % content in 2nd col
+        \end{column}
+    \end{columns}
+}
+% usage: \cols{ bunch of text here}{\includegraphics[fig.png]}
+
+
+%% SECTION FRAME %%
+\newcommand{\sectionframe}[1]{
+\addtocounter{framenumber}{-1}
+\begin{frame}
+    \begin{block}{}
+    \begin{center}
+    \huge 
+    #1
+    \end{center}
+    \end{block}
+\end{frame}
+}
+
+% usage: \sectionframe{name of section}, makes a slide 
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+
+% =================================================
+% My Boxes 
+% =================================================
+
+%% EXAMPLE %% 
+% already defined just do \example{}
+
+%% DEFINE %%
+\newcommand{\define}[2]{
+\setbeamercolor{block title}{use=structure,fg=dark_fg,bg=def_color}
+\setbeamercolor{block body}{use=structure,fg=black,bg=def_color!25}
+\begin{block}{Definition: #1} 
+#2 % text 
+\end{block}
+}
+
+%% KEY IDEA %%
+\newcommand{\keyidea}[1]{
+\setbeamercolor{block title}{use=structure,fg=light_fg,bg=key_color}
+\setbeamercolor{block body}{use=structure,fg=black,bg=key_color!25}
+\begin{block}{Key Idea} 
+#1 % text 
+\end{block}
+}
+
+%% QUESTION %%
+\newcommand{\question}[1]{
+\setbeamercolor{block title}{use=structure,fg=light_fg,bg=question_color}
+\setbeamercolor{block body}{use=structure,fg=black,bg=question_color!25}
+\begin{block}{Question} 
+#1 % text 
+\end{block}
+}
+
+%% METHOD %%
+\newcommand{\method}[4]{
+\setbeamercolor{block title}{use=structure,fg=dark_fg,bg=method_color}
+\setbeamercolor{block body}{use=structure,fg=black,bg=method_color!25}
+\begin{block}{Method: #1}
+\color{green} 
+\begin{itemize}
+    \item \textbf{Given}: #2
+    \item \textbf{Output}: #3
+    \item \textbf{Idea}: #4
+\end{itemize}
+\end{block}
+}
+

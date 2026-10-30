@@ -1,0 +1,1267 @@
+\documentclass[10pt]{beamer}
+%\documentclass[handout,10pt]{beamer}
+\usepackage{my_style}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title[Math/CS 375]{Lecture 06 - B}
+\subtitle{\S 2.1, 2.2 Pivoting}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Goals}
+We will answer these questions:\\[3mm]
+\begin{itemize}
+    \item How do row and column swaps affect a linear system?
+    \item What is the problem with a small non-zero pivot element? 
+    \item What is the difference between partial pivoting, full pivoting, and scaled partial pivoting?
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Row and Column Swapping}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Naive Gaussian Elimination}
+
+{
+\define{Pivot}{The \textbf{pivot element} refers to the boxed elements in the matrix. The \textbf{pivot row} refers to the row containing pivot element.}
+}
+
+\bigskip
+
+\begin{itemize}
+    \item The pivot element controls the \textbf{scalar multiplier }
+    
+    \item Algorithmically, the pivot row is the current row in the iteration process
+
+
+\item Naive GE chosen to be the diagonal elements 
+\begin{equation*}
+A=
+\begin{bmatrix}
+  \boxed{0} & 2 & 3\\
+  4 & \boxed{5} & 6\\
+  7 & 8 & 9\\
+\end{bmatrix}
+\end{equation*}
+Naive GE \underline{does not work} if there is a zero on the diagonal.
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Fix: Row Swap}
+
+\begin{itemize}
+        \item Recall this example from the previous lecture
+\begin{equation*}
+    \left[
+           \left.\negthickspace\begin{array}{rrrr}  \boxed{2} &  4 & -2  \\
+                                                    1 &  2 &  4  \\
+                                                   -2 & -3 &  8  \end{array}
+           \right|\begin{array}{r} -4 \\  5 \\ 7  \end{array}\negthickspace\right]
+           \quad \begin{aligned}
+                       &R_2 \leftarrow R_2 -\frac{1}{2}R_1 \\
+         &R_3 \leftarrow R_3 + R_1 
+           \end{aligned}
+\end{equation*}
+
+    \item \textbf{Fix:} Swap rows $R_2 \leftrightarrow R_3$
+        \begin{equation*}
+        \left[\left.\negthickspace\begin{array}{rrrr}  2 &  4 & -2 \\
+                                                        0 &  \boxed{0} &  5 \\
+                                                        0 &  1 &  6  \end{array}
+               \right|\begin{array}{r} -4 \\ 7 \\ -3 \end{array}\negthickspace\right]
+        \rightarrow
+        \left[\left.\negthickspace\begin{array}{rrrr}  2 &  4 & -2 \\
+                                                        0 &  \boxed{1} &  6\\  
+                                                        0 &  0 &  5 \\
+                                                        \end{array}
+               \right|\begin{array}{r} -4 \\ -3 \\ 7 \end{array}\negthickspace\right]
+    \end{equation*}
+    \item GE is now complete. Do back sub to solve the system.
+    \end{itemize}
+    
+    \onslide<2>{
+    \question{But why is row swapping allowed?}
+    }
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Row Swapping}
+
+\question{What happens when you swap Equations 1 and 2?}
+\begin{itemize}
+    \item \textbf{Problem A}: Solve
+    $$
+    \begin{aligned}
+        &\text{Equation 1:} & x + y  &= 3 \\
+        &\text{Equation 2:} & -x + 2y  &= 0 
+    \end{aligned}
+    \quad\quad or \quad\quad 
+            \begin{bmatrix}
+            1 &  1 \\
+            -1 & 2 \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            x \\
+            y \\
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+            3 \\
+            0 \\
+        \end{bmatrix}
+    $$
+    
+\item<2> \textbf{Problem B:} Solve 
+    $$
+    \begin{aligned}
+        &\text{Equation 2:} & -x + 2y  &= 0 \\
+        &\text{Equation 1:} & x + y  &= 3 \\
+    \end{aligned}
+        \quad\quad or \quad\quad  
+            \begin{bmatrix}
+            -1 & 2 \\
+            1 &  1 \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            x \\
+            y \\
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+            0 \\
+            3 \\
+        \end{bmatrix}
+    $$
+\end{itemize}
+
+\onslide<2>{
+\keyidea{
+Swapping two complete equations, including their
+right-hand sides, preserves the solution set.
+}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{What about Column Swapping?}
+\begin{itemize}
+    \item Suppose your system is 
+$$
+        \begin{aligned}
+        &\text{Equation 1:} & x + y  &= 3 \\
+        &\text{Equation 2:} & -x + 2y  &= 0 
+    \end{aligned}\qquad\longrightarrow\qquad
+    \left[ \left.\negthickspace\begin{array}{rrrr}  1 &  1   \\
+                                                   -1 & 2  \end{array}
+    \right|\begin{array}{r} -3 \\ 0   \end{array}\negthickspace\right]
+$$
+    \item<2> Are you allowed to swap columns?
+\[
+\left[
+\begin{array}{rr|r}
+    1&1&3\\
+    -1&2&0
+\end{array}
+\right]
+\xrightarrow{C_1\leftrightarrow C_2}
+\left[
+\begin{array}{rr|r}
+    1&1&3\\
+    2&-1&0
+\end{array}
+\right].
+\]
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{What about Column Swapping?}
+\begin{itemize}
+    \item \textbf{Problem A}: 
+    $$
+        \begin{bmatrix}
+            1 &  1 \\
+            -1 & 2 \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            x \\
+            y \\
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+            3 \\
+            0 \\
+        \end{bmatrix}
+    \quad\quad or \quad\quad 
+    \begin{aligned}
+        &\text{Equation 1:} & x + y  &= 3 \\
+        &\text{Equation 2:} & -x + 2y  &= 0 
+    \end{aligned}
+    $$
+    Solution: $x=2, y=1$
+\item \textbf{Problem B:} Row-swapped version of Problem A
+    $$
+        \begin{bmatrix}
+            1 & 1  \\
+            2 & -1 \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            x \\
+            y \\
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+            3 \\
+            0 \\
+        \end{bmatrix}
+        \quad\quad or \quad\quad  
+    \begin{aligned}
+        &\text{Equation 1:} & x + y  &= 3 \\
+        &\text{Equation 2:} & 2x  -y  &= 0 \\
+    \end{aligned}
+    $$
+    Solution: $y=2, x=1$
+\end{itemize}
+\keyidea{
+Column swapping is \textit{allowed}, but you must track the \textit{permutation}.
+}
+\end{frame}
+
+\begin{frame}{Swapping}
+
+\begin{itemize}
+    \item Row swapping is free 
+\begin{equation*}
+    \left[\left.\negthickspace\begin{array}{rrrr}  2 &  4 & -2  \\
+                                                    1 &  2 &  4  \\
+                                                   -2 & -3 &  8  \end{array}
+           \right|\begin{array}{r} -4 \\  5 \\ 7  \end{array}\negthickspace\right]
+           \quad R_2\leftrightarrow R_3 \quad 
+    \left[\left.\negthickspace\begin{array}{rrrr}  2 &  4 & -2  \\
+                                                   -2 & -3 &  8 \\  
+                                                    1 &  2 &  4  \\
+                                                   \end{array}
+           \right|\begin{array}{r} -4 \\  7 \\ 5  \end{array}\negthickspace\right]
+\end{equation*}
+\item Column swapping requires you to memorize permutations 
+\begin{equation*}
+    \left[\left.\negthickspace\begin{array}{rrrr}  2 &  4 & -2  \\
+                                                    1 &  2 &  4  \\
+                                                   -2 & -3 &  8  \end{array}
+           \right|\begin{array}{r} -4 \\  5 \\ 7  \end{array}\negthickspace\right]
+           \quad \begin{aligned}
+               C_2&\leftrightarrow C_3 \\
+               x_2&\leftrightarrow x_3
+           \end{aligned}\quad 
+    \left[\left.\negthickspace\begin{array}{rrrr}  2 &  -2 & 4  \\
+                                                    1 &  4 &  2  \\
+                                                   -2 & 8 &  -3  \end{array}
+           \right|\begin{array}{r} -4 \\  5 \\ 7  \end{array}\negthickspace\right]
+\end{equation*}
+\end{itemize}
+
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Small Pivots}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}[fragile]{Review: Adding Numbers of Different Sizes}
+
+\begin{itemize}
+    \item A sufficiently small contribution can disappear
+    when a floating-point sum is rounded.
+
+    \item In double precision, choose
+    \[
+        \epsilon=2^{-56},
+        \qquad M=\frac{1}{\epsilon}=2^{56}.
+    \]
+    Then
+    \[
+        \operatorname{fl}(1+\epsilon)=1,
+        \qquad
+        \operatorname{fl}(M+1)=M.
+    \]
+\end{itemize}
+
+\begin{lstlisting}
+e = 2^(-56);
+M = 1/e;
+
+1 + e == 1
+M + 1 == M
+\end{lstlisting}
+
+\keyidea{
+Floating-point spacing determines whether the
+smaller contribution survives rounding.
+}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{System with a Small Parameter}
+\begin{block}{Problem}
+\[
+\begin{aligned}
+    y &= 2,\\
+    x+2y &= 6.
+\end{aligned}
+\]
+\end{block}
+
+\begin{itemize}
+    \item Notice that there is one solution $x=y=2$
+    \item Now consider the the slightly perturbed problem for 
+    $$ 0 < \epsilon \ll 1$$
+
+\begin{block}{Perturbed Problem}
+\[
+\begin{alignedat}{4}
+    &\epsilon x  &{}+ y  &= 2 \\
+    &x &{}+ 2y   &= 6 \\
+\end{alignedat},\quad 0<\epsilon\ll1
+\]
+\end{block}
+    \item The solution should still be around $x\approx y\approx  2$
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{GE with Small Pivots}
+
+\begin{block}{Perturbed Problem}
+\[
+\begin{alignedat}{4}
+    &\epsilon x  &{}+ y  &= 2 \\
+    &x &{}+ 2y   &= 6 \\
+\end{alignedat}
+\]
+\end{block}
+\begin{itemize}
+    \item Suppose we solve this with Naive GE
+\begin{equation*}
+    \left[
+           \left.\negthickspace\begin{array}{rrrr}  \boxed{\epsilon} &  1 \\
+                                                    1 &  2 \end{array}
+           \right|\begin{array}{r} 2 \\  6  \end{array}\negthickspace\right]
+           \quad 
+                       R_2 \leftarrow-\frac{1}{\epsilon}R_1 + R_2 
+\end{equation*}
+    \item In \textit{exact} math, this results in
+    \begin{equation*}
+    \left[
+           \left.\negthickspace\begin{array}{rrrr} \epsilon &  1   \\
+                                                    0 &  2-\frac{1}{\epsilon}  \end{array}
+           \right|\begin{array}{r} 2 \\  6-\frac{2}{\epsilon}  \end{array}\negthickspace\right]
+    \end{equation*}
+\end{itemize}
+\onslide<2>{
+\question{How would this look in Matlab?}
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{GE with Small Pivots}
+
+\begin{itemize}
+
+    \item If we used floating point operations fl()
+    \begin{equation*}
+    \left[
+           \left.\negthickspace\begin{array}{ccc} \epsilon &  1 \\
+                                                    0 &  \text{fl}(2-\frac{1}{\epsilon})  \end{array}
+           \right|\begin{array}{r} 2 \\  \text{fl}(6-\frac{2}{\epsilon}) \end{array}\negthickspace\right]
+           \rightarrow 
+               \left[
+           \left.\negthickspace\begin{array}{rrrr} \epsilon &  1 \\
+                                                    0 &  -\frac{1}{\epsilon}   \end{array}
+           \right|\begin{array}{r} 2 \\  -\frac{2}{\epsilon} \end{array}\negthickspace\right]
+    \end{equation*}
+
+    \item Next, let $M=1/\epsilon$
+    $$
+                   \left[
+           \left.\negthickspace\begin{array}{rrrr} \epsilon &  1 \\
+                                                    0 &  -M   \end{array}
+           \right|\begin{array}{r} 2 \\  -2M \end{array}\negthickspace\right]
+           \rightarrow 
+           \begin{dcases}
+               \epsilon x + y = 2\\
+               -My = -2M
+           \end{dcases}
+    $$
+    \item That means $y=2M/M=2$ (which is what we expect) 
+    \vfill 
+\end{itemize}
+    
+\onslide<2>{
+\begin{alertblock}{Problem!}
+ Naive elimination in double precision gives
+$y=2$ and $x=0$, although the exact solution has
+$x\approx y\approx2$.
+\end{alertblock}
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Why Small Pivots Can Be Dangerous}
+
+\begin{itemize}
+    \item Small pivot $\implies$ large multipliers
+    \[
+    \left[
+    \begin{array}{c|ccc}
+        \boxed{\epsilon} & 1 & 1 & 1\\
+        1 & a & b & c\\
+        1 & d & e & f
+    \end{array}
+    \right],
+    \qquad M=\frac{1}{\epsilon}.
+    \]
+
+    \item Elimination subtracts large quantities:
+    \[
+    \left[
+    \begin{array}{c|ccc}
+        \boxed{\epsilon} & 1 & 1 & 1\\
+        0 & a-M & b-M & c-M\\
+        0 & d-M & e-M & f-M
+    \end{array}
+    \right].
+    \]
+
+\item If the entries are too small then
+    \[
+    \xrightarrow{\text{floating-point rounding}}
+    \left[
+    \begin{array}{c|ccc}
+        \boxed{\epsilon} & 1 & 1 & 1\\
+        0 & -M & -M & -M\\
+        0 & -M & -M & -M
+    \end{array}
+    \right].
+    \]
+\end{itemize}
+
+\keyidea{
+Large elimination multipliers can cause partial or
+complete loss of smaller contributions through rounding.
+}
+
+\end{frame}
+
+\begin{frame}{Choosing Better Pivots}
+
+\begin{itemize}
+    \item A zero pivot prevents division during elimination.
+
+    \item A pivot that is small relative to other entries
+    can produce large multipliers and a loss of accuracy.
+
+    \item Row and column swaps let us change which
+    entry becomes the pivot.
+\end{itemize}
+
+\vfill
+
+\begin{block}{Objective}
+Develop a \textbf{systematic rule} for choosing pivots
+that avoids zeros whenever possible and keeps
+elimination multipliers from becoming too large.
+\end{block}
+
+\vfill
+
+\question{
+How should we choose the pivot at each elimination step?
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Partial Pivoting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Pivoting Strategies}
+
+\begin{block}{Goal}
+Learn how to algorithmically avoid zero and small pivots.
+\end{block}
+
+\begin{block}{Types}
+   \begin{enumerate}
+       \item Partial pivoting
+       \item Full pivoting
+       \item Scaled partial pivoting
+   \end{enumerate}
+\end{block}
+
+\bigskip
+
+\define{Partial Pivoting}{
+At elimination step $i$, \textbf{partial pivoting}
+selects the entry with the largest absolute value
+in column $i$, among rows $i,\ldots,n$.
+Its row is swapped with row $i$.
+}
+
+\begin{itemize}
+    \item   Exchanging rows does not affect the order of the $x_i$
+    \item   Increased stability over naive GE 
+    \item   Easy to implement
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Partial Pivoting}
+
+\begin{center}
+    \pgfimage[height=5cm]{./figs/partial_pivoting}
+\end{center}
+At elimination step $i$:
+\begin{enumerate}
+    \item Find a row $k\in\{i,\ldots,n\}$ such that
+    \[
+        |a_{ki}|=\max_{j=i,\ldots,n}|a_{ji}|.
+    \]
+    \item Swap rows $R_i$ and $R_k$, including their right-hand-side entries.
+
+    \item Proceed with elimination below the pivot.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Why Choose the Largest Pivot?}
+
+\begin{itemize}
+    \item Elimination below the pivot uses
+    \[
+        R_j\leftarrow R_j-m_{ji}R_i,
+        \qquad
+        m_{ji}=\frac{a_{ji}}{a_{ii}}.
+    \]
+
+    \item After partial pivoting, the pivot satisfies
+    \[
+        |a_{ii}|\ge |a_{ji}|,
+        \qquad j>i.
+    \]
+    Therefore, assuming the pivot is nonzero,
+    \[
+        \boxed{|m_{ji}|\le1.}
+    \]
+
+
+\end{itemize}
+
+\keyidea{
+Big pivot $\implies$ small multiplier
+}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Example}{Part 1}
+
+\begin{example}
+    Perform GE with partial pivoting on the system $Ax=b$ where 
+\[
+A=
+\begin{bmatrix}
+    0&2&4\\
+    2&-3&4\\
+    -4&8&2
+\end{bmatrix},
+\qquad
+b=
+\begin{bmatrix}
+    2\\-2\\6
+\end{bmatrix}.
+\]
+\end{example}
+
+\begin{itemize}
+    \item Compare the pivot element to all below it in absolute value $|-4|>|2|>0 \implies R_1 \leftrightarrow R_3$
+    \[
+    \left[
+    \begin{array}{rrr|r}
+        \boxed{0}&2&4&2\\
+        2&-3&4&-2\\
+        -4&8&2&6
+    \end{array}
+    \right]
+    \xrightarrow{R_1\leftrightarrow R_3}
+    \left[
+    \begin{array}{rrr|r}
+        \boxed{-4}&8&2&6\\
+        2&-3&4&-2\\
+        0&2&4&2
+    \end{array}
+    \right].
+    \]
+    \item Proceed with elimination $R_2 \leftarrow R_2 +\frac{1}{2}R_1$
+\[
+\left[
+\begin{array}{rrr|r}
+    \boxed{-4}&8&2&6\\
+    2&-3&4&-2\\
+    0&2&4&2
+\end{array}
+\right]
+\xrightarrow{R_2\leftarrow R_2+\frac12R_1}
+\left[
+\begin{array}{rrr|r}
+    \boxed{-4}&8&2&6\\
+    0&1&5&1\\
+    0&2&4&2
+\end{array}
+\right].
+\]
+    
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Example}{Part 2}
+
+\begin{itemize}
+    \item In column 2, compare $|1|$ and $|2|$.
+    Since $|2|>|1|$, swap $R_2\leftrightarrow R_3$:
+    \[
+    \left[
+    \begin{array}{rrr|r}
+        -4&8&2&6\\
+        0&\boxed{1}&5&1\\
+        0&2&4&2
+    \end{array}
+    \right]
+    \longrightarrow
+    \left[
+    \begin{array}{rrr|r}
+        -4&8&2&6\\
+        0&\boxed{2}&4&2\\
+        0&1&5&1
+    \end{array}
+    \right].
+    \]
+
+    \item Eliminate using
+    $R_3\leftarrow R_3-\frac12R_2$:
+    \[
+    \left[
+    \begin{array}{rrr|r}
+        -4&8&2&6\\
+        0&\boxed{2}&4&2\\
+        0&1&5&1
+    \end{array}
+    \right]
+    \longrightarrow
+    \left[
+    \begin{array}{rrr|r}
+        -4&8&2&6\\
+        0&2&4&2\\
+        0&0&\boxed{3}&0
+    \end{array}
+    \right].
+    \]
+
+    \vfill
+
+    \item Elimination is complete. Backward substitution gives
+    \[
+        x_3=0,\qquad x_2=1,\qquad x_1=\frac12.
+    \]
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{A Limitation of Partial Pivoting}
+\begin{itemize}
+\begin{example}    
+Perform GE with partial pivoting on the system using floating point arithmetic assuming $M\gg1$  
+    \begin{equation*}
+        \left[\left.\negthickspace\begin{array}{rr}  2 &  2M\\
+                                                        1 &  1\end{array}
+               \right|\begin{array}{r} 2M \\ 2\end{array}\negthickspace\right]
+    \end{equation*}
+\end{example}
+
+\item No row swap. Do elimination $R_2 \leftarrow R_2 -\frac{1}{2}R_1$
+\begin{equation*}
+        \left[\left.\negthickspace\begin{array}{rr}  \boxed{2} &  2M\\
+                                                        1 &  1\end{array}
+               \right|\begin{array}{r} 2M \\ 2\end{array}\negthickspace\right]
+               \quad\rightarrow\quad 
+    \left[ \left.\negthickspace\begin{array}{rr}  2 &  2M\\
+                                                    0 &  1-M\end{array}
+           \right|\begin{array}{r} 2M \\ 2-M\end{array}\negthickspace\right]
+\end{equation*}
+\item Perform floating point arithmetic 
+\begin{equation*}
+    \left[ \left.\negthickspace\begin{array}{rr}  2 &  2M\\
+                                                    0 &  \text{fl}(1-M)\end{array}
+           \right|\begin{array}{r} 2M \\ \text{fl}(2-M)\end{array}\negthickspace\right]
+               \quad\rightarrow\quad 
+    \left[ \left.\negthickspace\begin{array}{rr}  2 &  2M\\
+                                                    0 &  -M\end{array}
+           \right|\begin{array}{r} 2M \\ -M\end{array}\negthickspace\right]
+\end{equation*}
+
+so  the solution would now be $y = 1$ and $x=0$.
+\item The true answer without the rounding is around $x\approx y \approx 1$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Takeaway: What Partial Pivoting Misses}
+
+\begin{itemize}
+    \item Partial pivoting examines only the current
+    pivot column.
+        \vfill
+    \item Partial pivoting updates numbers as follows
+    \[
+        a_{jk}\leftarrow a_{jk}-\underbrace{m_{ji}}_{\text{small}} \times \underbrace{a_{ik}}_{\text{large}}.
+    \]
+    Even when $|m_{ji}|$ is small, a large $a_{ik}$ can still cause large errors! 
+        \vfill 
+    \item All entries below $a_{ik}$ receive loss in precision
+\end{itemize}
+
+\keyidea{
+Partial pivoting controls the multipliers, but does
+not check the size of other entries in the pivot row.
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Full Pivoting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Full Pivoting}
+
+\define{Full (or Complete) Pivoting}{
+At elimination step $i$, \textbf{full pivoting}
+chooses the entry with the largest absolute value
+in the remaining submatrix
+\[
+    A_{i:n,i:n}.
+\]
+}
+
+\begin{itemize}
+    \item Search includes the current pivot row and column.
+
+    \item Move the chosen entry to position $(i,i)$
+    using row and column swaps as needed.
+
+    \item Row swaps also reorder the right-hand side.
+
+    \item Column swaps require tracking the order
+    of the unknowns.
+
+    \item Searching the entire remaining submatrix
+    requires more comparisons than partial pivoting.
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Full Pivoting Graphic}
+
+\begin{center}
+    \pgfimage[height=5cm]{./figs/complete_pivoting}
+\end{center}
+At elimination step $i$:
+\begin{enumerate}
+    \item Find indices $p,q\in\{i,\ldots,n\}$ such that
+    \[
+        |a_{pq}|=\max_{j,k=i,\ldots,n}|a_{jk}|.
+    \]
+
+    \item Swap rows $R_i$ and $R_p$, swap columns $C_i$ and $C_q$
+
+    \item Proceed with elimination below the pivot.
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{Full Pivoting}{Example}
+
+\begin{example}
+Choose the first pivot for
+\[
+A=
+\begin{bmatrix}
+    0&2&4\\
+    2&5&6\\
+    -4&8&2
+\end{bmatrix},
+\qquad
+b=
+\begin{bmatrix}
+    2\\4\\6
+\end{bmatrix}.
+\]
+How must we track the unknowns?
+\end{example}
+
+\begin{itemize}
+    \item The largest absolute entry is $8$, at
+    position $(3,2)$. Swap
+    \[
+        R_1\leftrightarrow R_3,
+        \qquad C_1\leftrightarrow C_2.
+    \]
+
+    \item The resulting system is
+    \[
+    \begin{bmatrix}
+        \boxed{8}&-4&2\\
+        5&2&6\\
+        2&0&4
+    \end{bmatrix}
+    \begin{bmatrix}
+        x_2\\x_1\\x_3
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        6\\4\\2
+    \end{bmatrix}.
+    \]
+
+    \item Column swap means solution swap $x_2\leftrightarrow x_1$.
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Cost of Pivoting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Cost Analysis}{Finding the Largest Element}
+\begin{lstlisting}[mathescape,caption=max function,label=algo:max]
+given vector $v$, length m
+
+largest = $|v_1|$
+for $k=2,\dots,m$ 
+    if ($|v_k| > $ largest) then 
+        largest = $|v_k|$
+    end
+end                          
+\end{lstlisting}
+\begin{itemize}
+    \item Here we count comparisons between magnitudes, not arithmetic FLOPs.
+    \item Cost to find largest element in vector of size $m$: $m-1$ comparisons
+    \item Cost =  $\mO(m)$
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Finding the Largest Element}
+
+Suppose $x$ is a vector of size $m$. 
+\begin{itemize}
+    \item It costs exactly $m-1$ floating point comparisons
+    \item The cost = $\mO(m)$
+\end{itemize}
+
+\bigskip
+Suppose $P$ is a matrix of size $m\times m$. 
+\begin{itemize}
+    \item It costs exactly $m^2-1$ comparisons 
+    \item The cost = $\mO(m^2)$
+\end{itemize}
+
+\bigskip 
+\question{
+    What is the cost of full pivoting versus partial pivoting?
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Cost of Partial Pivoting}
+Suppose the full matrix is $n \times n$ 
+\begin{itemize}
+    \item For the first pivot, compare against $n-1$ elements
+    \item Second time, compare $n-2$ elements
+    \item Third time, $n-3$ elements... 
+    \item Total number of pivot-search comparisons:
+\[
+    C_{\mathrm{partial}}
+    = (n-1)+(n-2)  + \cdots 2+1=
+    \sum_{j=1}^{n-1}j
+    =
+    \frac{n(n-1)}{2}
+    =
+    \mO(n^2).
+\]
+
+
+\end{itemize}
+
+\begin{center}
+    \pgfimage[height=3cm]{./figs/partial_pivoting}
+\end{center}
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Cost of Full Pivoting}
+\begin{itemize}
+    \item First pivot: search an $n\times n$ submatrix,
+    requiring $n^2-1$ comparisons.
+
+    \item Second pivot: search an $(n-1)\times(n-1)$
+    submatrix.
+
+    \item Continue down to a $2\times2$ submatrix.
+    The final $1\times1$ requires no comparisons.
+
+    \item Total number of pivot-search comparisons:
+    \[
+    \begin{aligned}
+        C_{\mathrm{full}}
+        &=\sum_{j=2}^{n}(j^2-1)\\
+        &=\frac{n(n+1)(2n+1)}{6}-n\\
+        &=\frac13n^3+\mO(n^2).
+    \end{aligned}
+    \]
+\end{itemize}
+
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cost Analysis}
+
+For dense $n\times n$ systems:
+
+\begin{itemize}
+    \item Gaussian elimination requires
+    \[
+        \frac23n^3+\mO(n^2)
+        \quad \text{arithmetic FLOPs}.
+    \]
+
+    \item Partial pivoting adds
+    \[
+        \frac12n^2+\mO(n)
+        \quad \text{pivot-search comparisons}.
+    \]
+
+    \item Full pivoting adds
+    \[
+        \frac13n^3+\mO(n^2)
+        \quad \text{pivot-search comparisons}.
+    \]
+\end{itemize}
+
+\keyidea{
+Partial pivoting adds a lower-order search cost.
+Full pivoting adds a search cost of the same order
+as elimination itself.
+}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Cost Comparison}
+
+\begin{block}{Consider the following }
+    Suppose it took 60,000 seconds to solve $Ax=b$ with \textbf{Naive GE}. 
+\end{block}
+
+\begin{itemize}
+    \item If Naive GE costs 60,000 then
+        \begin{align*}
+            \frac{2}{3}n^3 &= 60000\\
+            n^3 &= \frac{3}{2}60000 = 90000\\
+            n^2 &= (90000)^{2/3} \approx 2000 
+        \end{align*}
+
+    \item \textbf{Partial pivoting}: add 2,000 extra seconds (30 minutes)
+
+    \item \textbf{Full pivoting}: add extra 30,000 seconds (8 hours)
+\end{itemize}
+
+    
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Scaled Partial Pivoting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{A compromise between partial and full}
+
+\define{Scaled Partial Pivoting}{
+
+\textbf{Scaled partial pivoting} is a strategy where pivot element is chosen to be the largest numeber (in abs. value) within the column below the pivot scaled by the largest element in the row
+}
+
+\begin{center}
+    \pgfimage[height=3.5cm]{./figs/partial_pivoting}
+\end{center}
+\begin{itemize}
+   \item Calculate $s_i$ = the largest entry in row $i$ in absolute value
+
+   \item Swap pivot row with largest \textbf{scaled pivot value} $\max_j \left| \frac{a_{ij}}{s_i}\right|$
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{SPP Implementation Details}
+%   \begin{enumerate}
+%     \item Determine a scale vector $s$.  For each row
+% \begin{equation*}
+%   s_i = \max_{1\leq j \leq n} |a_{ij}|
+% \end{equation*}
+
+%   \item Initialize permutation vector ${\bf{\ell}} = [\ell_1,\dots,\ell_n]' = [1,\dots,n]'$.
+%   \item Start at pivot element $\boxed{a_{11}}$. Compute scaled ratios for $a_{11}$ and all elements below it:
+%   \begin{equation*}
+%     r_i = \frac{|a_{\ell_i1}|}{s_{\ell_i}}\qquad 1\leq i\leq n
+% \end{equation*}
+
+%   \item Swap $\ell_{1}$ with the largest $\ell_{j}$ in the $\ell$ vector, where 
+%     $$j = \mathrm{argmax}_{1\le i\le n}(r_i)$$
+
+%   \item Proceed with the forward elimination
+% \end{enumerate}
+% \end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{SPP Implementation}{Part 2}
+% \begin{enumerate}
+%   \item Move on to next $\boxed{a_{22}}$. Compute scaled ratios for $a_{22}$ and all elements below it:
+%   \begin{equation*}
+%     r_i = \frac{|a_{\ell_i1}|}{s_{\ell_i}}\qquad 2\leq i\leq n
+% \end{equation*}
+
+%   \item Swap $\ell_{j}$ with $\ell_{2}$ in ${\bf{\ell}}$ where 
+%   $$j = \mathrm{argmax}_{2\le i\le n}(r_i)$$
+
+%   \item Proceed with forward elimination 
+  
+%   \item Repeat
+
+% \end{enumerate}
+% \vspace{3mm}
+%   note: scale factors in $s_i$ are \emph{only computed once} 
+% \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{SPP By Hand}{Part 1}
+\begin{example}
+    
+Perform GE with scaled partial pivoting to triangularize the following system
+    \[
+    \begin{aligned}
+    2x_1+ 6x_2 - 2x_3  &= -4 \\
+    x_1  + 3x_2 - 10x_3  &= 0 \\
+    -2x_1 - 4x_2 + 4x_3  &= 8 \\
+    \end{aligned}
+    \]
+\end{example}
+\begin{itemize}
+    \item Start by computing the largest value in each row (not including $b_i$)
+    \[
+    \left[\begin{array}{rrr|r}
+    2 & 6 & -2 & -4 \\
+    1 & 3 & -10 & 0 \\
+    -2 & -4 & 4 & 8 \\
+    \end{array}\right]\quad \begin{aligned}
+        R_1:& 2, \red{6}, 2\\
+        R_2:& 1, 3, \red{10}\\
+        R_3:& 2, \red{4}, 4
+    \end{aligned}
+    \]
+    \item These values are calculated \textit{only once}
+    \[
+    s_1 = 6, \quad s_2 = 10, \quad s_3 = 4 
+    \]
+\textbf{}
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{SPP By Hand}{Part 2}
+    
+\begin{itemize}
+    \item Compare the scaled pivot values at and below $\boxed{2}$
+    \[
+    \left[\begin{array}{rrr|r}
+    \boxed{2} & 6 & -2 & -4 \\
+    1 & 3 & -10 & 0 \\
+    -2 & -4 & 4 & 8 \\
+    \end{array}\right]\quad \begin{aligned}
+    \frac{|a_{11}|}{s_1} = \frac{2}{6}, \quad
+    \frac{|a_{21}|}{s_2} = \frac{1}{10}, \quad
+    \frac{|a_{31}|}{s_3} = \frac{2}{4}
+    \end{aligned}
+    \]
+    
+    \item Largest ratio is \( \frac{2}{4} \), so swap \( R_1 \leftrightarrow R_3 \).
+    \[
+    \left[\begin{array}{rrr|r}
+    \boxed{2} & 6 & -2 & -4 \\
+    1 & 3 & -10 & 0 \\
+    -2 & -4 & 4 & 8 \\
+    \end{array}\right]\quad  \rightarrow \quad  \left[\begin{array}{rrr|r}
+    \boxed{-2} & -4 & 4 & 8 \\
+    1 & 3 & -10 & 0 \\
+    2 & 6 & -2 & -4 \\
+    \end{array}\right]
+    \]
+    \item Because $R_1 \leftrightarrow R_3$, we must also swap $s_1 \leftrightarrow s_3$
+        \begin{align*}
+            \mathrm{old:} & s_1 = 6, \quad s_2 = 10, \quad s_3 = 4\\
+            \mathrm{new:} & s_1 = 4, \quad s_2 = 10, \quad s_3 = 6\\
+        \end{align*}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{SPP By Hand}{Part 3}
+\begin{itemize}
+
+    \item Do elimination $R_2 \leftarrow R_2 + \frac{1}{2}R_1$ and $ R_3 \leftarrow R_3 +  R_1$
+    \[
+    \left[\begin{array}{rrr|r}
+    \boxed{-2} & -4 & 4 & 8 \\
+    1 & 3 & -10 & 0 \\
+    2 & 6 & -2 & -4 \\
+    \end{array}\right] \quad \rightarrow \quad 
+    \left[\begin{array}{rrr|r}
+    \boxed{-2} & -4 & 4 & 8 \\
+    0 & 1 & -8 & 4 \\
+    0 & 2 & 2 & 4 \\
+    \end{array}\right]
+    \]
+
+    \item Compare the scaled pivot values at and below $\boxed{1}$
+    \[
+    \left[\begin{array}{rrr|r}
+    -2 & -4 & 4 & 8 \\
+    0 & \boxed{1} & -8 & 4 \\
+    0 & 2 & 2 & 4 \\
+    \end{array}\right]
+    \quad \begin{aligned}
+    \frac{|a_{22}|}{s_2} = \frac{1}{10}, \quad \frac{|a_{32}|}{s_3} = \frac{2}{6}
+    \end{aligned}
+    \]
+    \item The largest ratio is \( \frac{2}{6} \), so swap \( R_2 \leftrightarrow R_3 \).
+    \[
+        \left[\begin{array}{rrr|r}
+    -2 & -4 & 4 & 8 \\
+    0 & \boxed{1} & -8 & 4 \\
+    0 & 2 & 2 & 4 \\
+    \end{array}\right]
+    \quad \rightarrow \quad 
+    \left[\begin{array}{rrr|r}
+    -2 & -4 & 4 & 8 \\
+    0 & \boxed{2} & 2 & 4 \\
+    0 & 1 & -8 & 4 \\
+    \end{array}\right]
+    \]
+    \item Carry on with final elimination. Done.
+    
+    
+    
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cost of Scaled Partial Pivoting}
+
+\begin{itemize}
+    \item Compute the row scales once:
+    \[
+        n(n-1)=\mO(n^2)
+        \quad\text{comparisons}.
+    \]
+
+    \item Evaluate the candidate ratios at each step:
+    \[
+        \sum_{m=2}^{n}m
+        =
+        \frac{n(n+1)}{2}-1
+        =
+        \mO(n^2)
+        \quad\text{divisions}.
+    \]
+
+    \item Select the largest ratio at each step:
+    \[
+        \sum_{m=2}^{n}(m-1)
+        =
+        \frac{n(n-1)}{2}
+        =
+        \mO(n^2)
+        \quad\text{comparisons}.
+    \]
+\end{itemize}
+
+\keyidea{
+Scaled partial pivoting adds $\mO(n^2)$ comparisons because
+the row scales are computed only \textbf{once}.
+}
+
+\end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Comparing the Pivoting Techniques}
+
+\question{
+Can you list the advantages and disadvantages of PP, FP, and SPP with respect to each other?
+}
+
+Factors to consider:
+\begin{itemize}
+    \item Pivot-search cost: comparisons and arithmetic
+    \item Protection against rounding errors
+    \item Additional storage and permutation bookkeeping
+    \item Implementation effort
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The truth about pivoting}
+\begin{center}
+    \includegraphics[scale=0.35]{figs/meme-pivoting.jpg}
+\end{center}
+\keyidea{
+In practice, most gravitate to partial pivoting because it is stable enough without the implementation overhead
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\end{document}

@@ -1,0 +1,1267 @@
+\documentclass[10pt]{beamer}
+% \documentclass[handout,10pt]{beamer}
+\usepackage{my_style}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title[Math/CS 375]{Lecture 07 - A}
+\subtitle{\S 8.1 LU Factorization}
+
+\begin{document}
+% -------------------------------------------------
+\begin{frame}
+  \titlepage
+\end{frame}
+% -------------------------------------------------
+\begin{frame}{Goals}
+We will answer these questions:\\[3mm]
+\begin{itemize}
+    \item What are efficient strategies for solving $AX=B$, a multiple right-hand side problem?
+    \item What is the benefit of factorizing $A=LU$ in terms of solving $Ax=b$?
+    \item How is Gaussian elimination expressed in terms of matrix multiplication?
+    \item How do you construct an LU factorization.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Multiple Right Hand Side}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{Motivation}
+
+\begin{block}{Single Solve}
+Suppose $A\in\mathbb{R}^{n\times n}$. The singular problem
+$$
+    Ax=b
+$$
+costs $\mO(n^3)$ to solve.
+\end{block}
+
+Many applications require solving $Ax=b_i$ repeatedly
+with the \textbf{same matrix $A$}:
+\[
+    Ax^{(1)}=b^{(1)},\quad
+    Ax^{(2)}=b^{(2)},\quad \ldots,\quad
+    Ax^{(m)}=b^{(m)}.
+\]
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Consider this problem...}
+
+\begin{block}{Equivalent Problems}
+\begin{itemize}
+    \item Solving $Ax=b$ for \textbf{multiple right hand sides} (RHS), i.e.
+    $$ Ax_1 = b_1,\; Ax_2=b_2,\; \dots,\; Ax_m = b_m$$ 
+    
+    \item Solving for $X$ in the equation 
+    $$ \underbrace{A}_{n \times n} \underbrace{X}_{n\times m} = \underbrace{B}_{n\times m}.$$
+\end{itemize}
+\end{block}
+
+\question{
+    What are the strategies to solve $AX=B?$ What will they cost?
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Multiple Right Hand Sides}{Options}
+
+
+\begin{block}{Option A: Do Gaussian elimination (GE) $m$ times }
+
+        \begin{itemize}
+            \item Pro: Never compute $A^{-1}$
+            \item Con: But it's expensive $\mO(m n^3)$
+        \end{itemize}
+
+\end{block}
+
+\onslide<2->{
+\begin{block}{Option B: Compute $A^{-1}$ once and reuse it }
+\begin{itemize}
+            \item Pro: Get to reuse $A^{-1}$ for each RHS
+            \item Con: but you're computing $A^{-1}$ 
+\end{itemize}
+\end{block}
+}
+
+
+\vspace{2mm}
+
+\onslide<3->{
+\keyidea{
+    \begin{itemize}
+        \item Options A and B are \textbf{both bad}
+        \item \textbf{Matrix decomposition} combines the best parts of Options A and B
+    \end{itemize}
+}
+}
+
+\end{frame}
+
+\begin{frame}{What is Matrix Decomposition?}
+
+{
+\define{Matrix Decomposition}{\textbf{Matrix decomposition} or \textbf{matrix factorization} is a factorization of a matrix $A$ into a product of matrices, e.g. 
+$$ A = A_1 A_2 $$}
+}
+
+\begin{block}{Three Types}
+We will learn three types of decompositions
+\begin{itemize}
+    \item $A = LU$
+    \item $A = LDL^T$
+    \item $A = L L^T$
+\end{itemize}
+\end{block}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{LU Solve}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{$LU$ Factorization}
+\define{LU Factorization}{\textbf{LU factorization} or \textbf{LU decomposition} is a factorization for a $n\times n$ matrix $A$ into a product
+\begin{equation*}
+    A = LU
+\end{equation*}
+where $L$ is lower triangular with ones on the diagonal, and $U$ is upper triangular.
+}
+\begin{equation*}
+    L = \begin{bmatrix}   1       &     0      & \cdots &             & 0 \\
+                       \ell_{2,1} &     1      &   0    &             & 0 \\
+                       \ell_{3,1} & \ell_{3,2} &   1    &             & 0 \\
+                          \vdots  &  \vdots    &        & \ddots      & \vdots  \\
+                       \ell_{n,1} & \ell_{n,2} & \cdots & \ell_{n,n-1} & 1
+        \end{bmatrix} \quad 
+    U = \begin{bmatrix} u_{1,1} & u_{1,2} & u_{1,3} & \cdots & u_{1,n} \\
+                          0     & u_{2,2} & u_{2,3} & \cdots & u_{2,n} \\
+                          0     &   0     & \ddots  & \ddots & \vdots \\
+                         \vdots & \vdots  &         &        & u_{n-1,n} \\
+                          0     &   0     &         &        & u_{n,n}
+        \end{bmatrix}
+\end{equation*}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Main Advantage}
+
+\begin{itemize}
+    \item Usually, solving $Ax=b$ costs $\mO(n^3)$, but...
+\begin{theorem}
+    If $A$ is factorized as $A=LU$ then $Ax=b$ can be solved in $\mO(n^2)$ operations.
+\end{theorem}
+\vspace{3mm}
+        \item If $A=LU$, then it is an \textbf{entire order cheaper} to solve the system
+    \end{itemize}
+\vspace{3mm}
+\question{How does this work?}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The $LU$ Solve}
+\textbf{Steps to solve $Ax=b$:}\\[4mm]
+
+\begin{enumerate}
+    \item Substitute $A=LU$ in $Ax=b$ to get 
+        $$ LUx=b$$
+
+    \item Set $y=Ux$ so that 
+        $$ Ly = b$$
+    \item Use forward substitution $(\mO(n^2))$ to compute 
+        $$ y = L^{-1}b$$
+    \item Use backward substitution $(\mO(n^2))$ to compute 
+        $$ x = U^{-1}y$$
+\end{enumerate}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Revisit Options for Solving $AX=Bs$ }
+
+
+\begin{block}{Option A: Do Gaussian elimination (GE) $m$ times }
+
+        \begin{itemize}
+            \item Pro: Never compute $A^{-1}$
+            \item Con: But it's expensive $\mO(m n^3)$
+        \end{itemize}
+
+\end{block}
+
+
+\begin{block}{Option B: Compute $A^{-1}$ once and reuse it }
+\begin{itemize}
+            \item Pro: Get to reuse $A^{-1}$ for each RHS
+            \item Con: but you're computing $A^{-1}$ 
+\end{itemize}
+\end{block}
+
+
+\begin{block}{Option C: Factorize $A=LU$ once and reuse it}
+        \begin{itemize}
+            \item $A^{-1}$ is never computed
+            \item Cheaper: $\mO(n^3 + mn^2)$
+        \end{itemize}    
+
+\end{block}
+
+    \keyidea{
+        LU factorization is safer and faster than both options 
+    }
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{$LU$ Solve Method}
+
+\method{$LU$ Solve}
+{Factorization $A=LU$, RHS $b$}
+{Solution to $Ax=b$}
+{The LU solve costs only $\mO(n^2)$ which is cheaper than GE.}
+\vspace{3mm}
+Comments:
+\begin{itemize}
+    \item The triangular solves are both cost $\mO(n^2)$
+    \item The LU solve costs around $2n^2$ FLOPs
+    \item Especially useful when solving multiple RHS, $m\gg1$
+\end{itemize}
+
+
+\onslide<2>{
+\question{So how do you find $A=LU$?}
+}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Elimination Matrices}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[shrink]{Consider This}
+    \begin{example}
+        Calculate the following matrix vector product
+            
+            $$  Mv =     
+            \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix} \begin{bmatrix}2 \\ 4 \\ -2\end{bmatrix}$$ 
+    \end{example}
+
+\begin{itemize}
+    \item Product is 
+        \[
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix}
+        \begin{bmatrix}
+        2 \\ 4 \\ -2
+        \end{bmatrix}  =
+        \begin{bmatrix}
+        2 \\ 0 \\ 0
+        \end{bmatrix}
+        \]
+    \item Think of $M$ as an \emph{operator} that zeros out certain elements in $v$
+    $$
+    \begin{bmatrix}2 \\ 4 \\ -2\end{bmatrix} \longrightarrow          \begin{bmatrix}
+        2 \\ 0 \\ 0
+        \end{bmatrix}
+    $$
+    \item $M$ is an example of an \textbf{elimination matrix}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Understanding the Operator}
+    
+     $$\begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix} \begin{bmatrix}2 \\ 4 \\ -2\end{bmatrix} =
+        \begin{bmatrix}
+        2 \\ 0 \\ 0
+        \end{bmatrix}$$ 
+
+    \begin{block}{Top Row}
+         Top row $\begin{bmatrix}
+                1 & 0 & 0
+            \end{bmatrix}$ says leave the 2 alone.\\
+            The 2 remains a 2.
+    \end{block}
+    
+    \begin{block}{Second Row}
+            Second row $\begin{bmatrix}
+                -2 & 1 & 0
+            \end{bmatrix}$ says to add -2 copies of 2 to the 4\\
+            The 4 becomes $4-2*2 = 0$.
+    \end{block}
+
+       \begin{block}{Third Row}
+            Third row $\begin{bmatrix}
+                1 & 0 & 1
+            \end{bmatrix}$ says to add 1 copy of 2 to the -2.\\
+            The -2 becomes $-2+1*2 = 0$.
+    \end{block}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Understanding the Operator}
+    
+     $$\begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix} \begin{bmatrix}2 \\ 4 \\ -2\end{bmatrix} =
+        \begin{bmatrix}
+        2 \\ 0 \\ 0
+        \end{bmatrix}$$ 
+
+    \begin{block}{Top Row}
+         Top row $\begin{bmatrix}
+                1 & 0 & 0
+            \end{bmatrix}$ says leave the 2 alone.\\
+            The 2 remains a 2.
+    \end{block}
+    
+    \begin{block}{Second Row}
+            Second row $\begin{bmatrix}
+                -2 & 1 & 0
+            \end{bmatrix}$ says to add -2 copies of 2 to the 4\\
+            The 4 becomes $4-2*2 = 0$.
+    \end{block}
+
+       \begin{block}{Third Row}
+            Third row $\begin{bmatrix}
+                1 & 0 & 1
+            \end{bmatrix}$ says to add 1 copy of 2 to the -2.\\
+            The -2 becomes $-2+1*2 = 0$.
+    \end{block}
+\end{frame}
+
+\begin{frame}{What about a Matrix?}
+
+    \begin{itemize}
+        \item This matrix is able to eliminate elements under the top element of $v$
+     $$Mv=\begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix} \begin{bmatrix}2 \\ 4 \\ -2\end{bmatrix} =
+        \begin{bmatrix}
+        2 \\ 0 \\ 0
+        \end{bmatrix}$$ 
+        \onslide<2>{
+        \question{
+        What is the effect of multiplying $M$ to another matrix?
+            $$  MA =     
+            \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix} \begin{bmatrix}2 &1&1\\ 4 &3&2\\ -2 &-1&5\end{bmatrix}$$ 
+        }
+
+        }
+     \end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[shrink]{What about a Matrix?}
+    \begin{example}
+        Calculate the following matrix  product
+            
+            $$  MA =     
+            \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix} \begin{bmatrix}2 &1&1\\ 4 &3&2\\ -2 &-1&5\end{bmatrix}$$ 
+    \end{example}
+
+\begin{itemize}
+    \item First row: do nothing
+        \[
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix}
+         \begin{bmatrix}2 &1&1\\ 4 &3&2\\ -2 &-1&5\end{bmatrix}  =
+        \begin{bmatrix}
+        2 & 1 & 1\\ \phantom0 &\phantom1 & \phantom1\\ \phantom0&\phantom0&\phantom6
+        \end{bmatrix}
+        \]
+          \item<2-> Second row: add -2 copies of $R_1$ to $R_2$
+        \[
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix}
+         \begin{bmatrix}2 &1&1\\ 4 &3&2\\ -2 &-1&5\end{bmatrix}  =
+        \begin{bmatrix}
+        2 &1 & 1\\ 0 &1 & 0\\ \phantom0&\phantom0&\phantom6
+        \end{bmatrix}
+        \]
+             \item<3-> Third row: add 1 copy of $R_1$ to $R_3$
+        \[
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix}
+         \begin{bmatrix}2 &1&1\\ 4 &3&2\\ -2 &-1&5\end{bmatrix}  =
+        \begin{bmatrix}
+        2 &1 & 1\\ 0 &1 & 0\\ 0&0&6
+        \end{bmatrix}
+        \]
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Elimination Matrix $\times$ Matrix}
+        \question{
+        What happens when you multiply an elimination matrix to another matrix?
+            $$  MA =     
+            \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix} \begin{bmatrix}2 &1&1\\ 4 &3&2\\ -2 &-1&5\end{bmatrix}$$ 
+        } 
+
+    \begin{itemize}
+        \item<1-> The first row is preserved 
+        \[
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix}
+         \begin{bmatrix}2 &1&1\\ 4 &3&2\\ -2 &-1&5\end{bmatrix}  =
+        \begin{bmatrix}
+        2 & 1 & 1\\ \phantom0 &\phantom1 & \phantom1\\ \phantom0&\phantom0&\phantom6
+        \end{bmatrix}
+        \]
+        \item<2-> Elements under $a_{11}$ are eliminated 
+        \[
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix}
+         \begin{bmatrix}2 &1&1\\ 4 &3&2\\ -2 &-1&5\end{bmatrix}  =
+        \begin{bmatrix}
+        \boxed{2} &1 & 1\\ \red{0} &1 & 0\\ \red{0} &0&6
+        \end{bmatrix}
+        \]
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Designing the Elimination Matrix}
+\begin{example}
+    
+    Find a matrix $4\times 4$ elimination matrix $M$ that eliminates the elements under $a_{11}=6$ when multiplied as $MA$, where
+    $A = \begin{bmatrix}
+    6 & -2 & 2 & 4\\
+    12 & -8 & 6 & 10\\
+    3 & -13 & 9 & 3\\
+    -6 & 4 & 1 & -18\\
+    \end{bmatrix}$
+\end{example}
+\begin{itemize}
+
+    \item Formula:  
+    $\begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    -m_2 & 1 & 0 & 0\\
+    -m_3 & 0 & 1 & 0\\
+    -m_4 & 0 & 0 & 1\\
+    \end{bmatrix}$, where $m_2= \frac{a_{21}}{a_{11}}$, $m_3=\frac{a_{31}}{a_{11}}$ and $m_4=\frac{a_{41}}{a_{11}}$
+    \item Thus our elimination matrix is 
+    $$
+    \begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    -2 & 1 & 0 & 0\\
+    -\frac{1}{2} & 0 & 1 & 0\\
+    1 & 0 & 0 & 1\\
+    \end{bmatrix}
+    \begin{bmatrix}
+    \boxed{6} & -2 & 2 & 4\\
+    12 & -8 & 6 & 10\\
+    3 & -13 & 9 & 3\\
+    -6 & 4 & 1 & -18\\
+    \end{bmatrix} = 
+    \begin{bmatrix}
+    6 & -2 & 2 & 4\\
+    0 & -4 & 2 & 2\\
+    0 & -12 & 8 & 1\\
+    0 & 2 & 3 & -14\\
+    \end{bmatrix}
+    $$
+\end{itemize}
+\end{frame}
+
+% \begin{frame}[shrink]{Recall: Gaussian Elimination Step}
+% \begin{itemize}
+%     \item Eliminate elements under the pivot element in the first column.
+%     \item $x'$ indicates a value that has been changed once.
+% \begin{center}
+% 	\renewcommand{\arraystretch}{1.3}
+% 	\footnotesize
+% 	\begin{tabular}{ccccc}
+% 		$\begin{bmatrix}\boxed{x} & x & x & x & x \\
+% 						   x  & x  & x  & x  & x  \\
+% 						   x  & x  & x  & x  & x \\
+% 						   x  & x  & x  & x  & x \end{bmatrix}$
+% 		& $\longrightarrow$ &
+% 		$\begin{bmatrix}\boxed{x} & x & x & x & x \\
+% 						   0  & x' & x' & x' & x' \\
+% 						   x  & x  & x  & x  & x \\
+% 						   x  & x  & x  & x  & x \end{bmatrix}$ \\[20pt]
+% 		& $\longrightarrow$ &
+% 		$\begin{bmatrix}\boxed{x} & x & x & x & x \\
+% 						   0  & x' & x' & x' & x' \\
+% 						   0  & x' & x' & x' & x' \\
+% 						   x  & x  & x  & x  & x \end{bmatrix}$ \\[20pt]
+% 		& $\longrightarrow$ &
+% 		$\begin{bmatrix}\boxed{x} & x & x & x & x \\
+% 						   0  & x' & x' & x' & x' \\
+% 						   0  & x' & x' & x' & x' \\
+% 						   0  & x' & x' & x' & x'\end{bmatrix}$ &
+% 	\end{tabular}
+% \end{center}
+%     \item You need to calculate the \textbf{multiplier} $m_k = a_{k1}/a_{11}$, $k>1$
+% \end{itemize}
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Constructing $U$}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Goal}
+
+\begin{itemize}
+    \item We want to construct the $U$ in $$A=LU$$ 
+
+    \item Multiply both sides by $L^{-1}$
+        \begin{align*} 
+        L^{-1}A&=L^{-1}LU\\
+        L^{-1}A&=U
+        \end{align*}
+
+    \begin{theorem}
+        If $L$ is lower triangular then $L^{-1}$ is also lower triangular.
+    \end{theorem}
+\end{itemize}
+
+\keyidea{
+This equation
+$$
+L^{-1}A=U
+$$
+tells us that we construct $U$ by multiplying $A$ by some \textit{lower triangular matrix.}
+}
+\end{frame}
+
+%%%%%%%%%%%%%
+
+\begin{frame}{What is the lower triangular matrix?}
+    \begin{itemize}
+        \item We know that elimination matrices are lower triangular 
+        $$
+        M_1=    \begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    -2 & 1 & 0 & 0\\
+    -\frac{1}{2} & 0 & 1 & 0\\
+    1 & 0 & 0 & 1\\
+    \end{bmatrix}
+    $$
+
+    \item<2-> But the multiplication doesn't always create an upper triangular 
+    $$\underbrace{
+    \begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    -2 & 1 & 0 & 0\\
+    -\frac{1}{2} & 0 & 1 & 0\\
+    1 & 0 & 0 & 1\\
+    \end{bmatrix}}_{M_1}
+    \underbrace{\begin{bmatrix}
+    \boxed{6} & -2 & 2 & 4\\
+    12 & -8 & 6 & 10\\
+    3 & -13 & 9 & 3\\
+    -6 & 4 & 1 & -18\\
+    \end{bmatrix}}_{A} = 
+    \underbrace{
+    \begin{bmatrix}
+    6 & -2 & 2 & 4\\
+    0 & -4 & 2 & 2\\
+    0 & -12 & 8 & 1\\
+    0 & 2 & 3 & -14\\
+    \end{bmatrix}}_{\text{not upper triangular :(}}
+    $$
+    \item<3-> What can we do?
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%
+
+\begin{frame}[shrink]{Use Multiple Elimination Matrices}
+
+\begin{center}
+	\renewcommand{\arraystretch}{1.3}
+	\footnotesize
+	\begin{tabular}{ccccc}
+		$\underbrace{\begin{bmatrix}\boxed{x} & x & x & x   \\
+						   x  & x  & x  & x   \\
+						   x  & x  & x  & x  \\
+						   x  & x  & x  & x  \end{bmatrix}}_{A}$
+		& $\longrightarrow$ &
+		$\begin{bmatrix}\boxed{x} & x & x & x    \\
+						   0  & x' & x' & x'  \\
+						   0  & x' & x' & x'   \\
+						   0  & x' & x' & x'  \end{bmatrix}$ multiply by $M_1$\\
+        & $\longrightarrow$ &
+		$\begin{bmatrix} x &   x        & x   & x     \\
+						 0 & \boxed{x'} & x'  & x'   \\
+						 0 &   0        & x'' & x''  \\
+						 0 &   0        & x'' & x''  \end{bmatrix}$ multiply by $M_2$\\
+        & $\longrightarrow$ &
+		$\underbrace{\begin{bmatrix} x & x  &     x       & x     \\
+						 0 & x' &     x'      & x'   \\
+						 0 & 0  & \boxed{x''} & x''  \\
+						 0 & 0  &     0       & x'''  \end{bmatrix}}_{\text{Let's call this $U$}}$ multiply by $M_3$
+	\end{tabular}
+\end{center}
+
+\keyidea{
+Repeatedly multiply $A$ by \textbf{elimination matrices} to make it upper triangular. 
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%
+
+\begin{frame}{How to Construct $U$}
+\begin{itemize}
+    \item Repeatedly multiply $A$ from the left by elimination matrices 
+        \begin{align*}
+         A & \\
+         M_1A  &\\
+         M_2 M_1A  &\\
+                  \vdots  &\\ 
+         (M_{n-1} \dots M_1)A & = U
+        \end{align*}
+\end{itemize}
+
+\question{
+\begin{itemize}
+    \item What does the product $(M_{n-1}\dots M_1)$ look like?
+    \item How do you construct $L$?
+\end{itemize}
+
+}
+
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{The Elimination Matrix}
+% \define{Elimination Matrix}{ The \textbf{elimination matrix } $M_k$ is a unit lower triangular matrix which satisfies the following multiplication property
+% \[
+% M_k a = 
+% \begin{bmatrix}
+% 1 & \dots & 0 & 0 & \dots & 0\\
+% \vdots & \ddots & \vdots & \vdots &  & \vdots \\
+% 0 & \dots & 1 & 0 & \dots & 0\\
+% 0 & \dots & -m_{k+1} & 1 & \dots & 0\\
+% \vdots &  & \vdots & \vdots & \ddots & \vdots \\
+% 0 & \dots & -m_{n} & 0 & \dots & 1\\
+% \end{bmatrix}
+% \begin{bmatrix}
+% a_1 \\ \vdots \\ a_k \\ a_{k+1}\\ \vdots \\ a_n
+% \end{bmatrix}
+% =
+% \begin{bmatrix}
+% a_1 \\ \vdots \\ a_k \\ 0\\ \vdots \\ 0
+% \end{bmatrix}
+% \]
+% }
+% \begin{itemize}
+% \item $M_k$ is designed to eliminate all entries of $a$ \underline{below the $k^{th}$ element}
+% \item The multipliers are given by  $$m_i = \frac{a_i}{a_k}, \quad i=k+1,\dots,n$$
+% \end{itemize}
+% \end{frame}
+
+\sectionframe{Some Properties}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Formula for Elimination Matrices}
+\begin{itemize}
+    \item This is the $M_1$ elimination matrix because it eliminates elements under the first pivot 
+        $$
+        M_1=\begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    -2 & 1 & 0 & 0\\
+    -\frac{1}{2} & 0 & 1 & 0\\
+    1 & 0 & 0 & 1\\
+    \end{bmatrix}
+        $$
+    \item Notice that this matrix can be written as
+            $$
+        M_1=\begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    -2 & 1 & 0 & 0\\
+    -\frac{1}{2} & 0 & 1 & 0\\
+    1 & 0 & 0 & 1\\
+    \end{bmatrix} = \begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    0 & 1 & 0 & 0\\
+    0 & 0 & 1 & 0\\
+    0 & 0 & 0 & 1\\
+    \end{bmatrix}-\underbrace{\begin{bmatrix}
+    0 & 0 & 0 & 0\\
+    2 & 0 & 0 & 0\\
+    \frac{1}{2} & 0 & 0 & 0\\
+    -1 & 0 & 0 & 0\\
+    \end{bmatrix}}_{m^{(1)}e_1^T},
+        $$
+    where
+    \[
+    m^{(1)}=
+    \begin{bmatrix}
+        0\\2\\\frac12\\-1
+    \end{bmatrix},
+    \qquad
+    e_1^T=
+    \begin{bmatrix}
+        1&0&0&0
+    \end{bmatrix}.
+    \]
+   
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Elimination Matrix Properties}
+    \begin{block}{Elimination Matrix}
+    Elimination matrices have the form
+        $$ M_k = I - m^{(k)} e_k^T,$$
+        where 
+    \begin{itemize}
+    \item $e_k$ is the $k^{th}$ column of the identity matrix $I$
+    \item $m^{(k)} = [0,\dots,0,m_{k+1},\dots,m_n]'$ vector with multipliers
+    \end{itemize}
+    \end{block}
+
+  \begin{block}{Property 1: Inverse}
+  The inverse is $M^{-1}_k = I + m^{(k)} e_k^T$
+  \end{block}
+  
+  \begin{block}{Property 2: Multiplication}
+  Product of two elimination matrices $M_k$ and $M_j$ is a combined elimination matrix      
+  \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{General Form}
+% \begin{itemize}
+%     \item Let $a=\begin{bmatrix} 1\\  2 \\ 4 \\ -2\end{bmatrix}$ and 
+%     $I =     \begin{bmatrix}
+%     1 & 0 & 0 &0\\
+%     0 & 1 & 0 & 0\\
+%     0 & 0 & 1 & 0\\
+%     0 & 0 & 0 & 1\\
+%     \end{bmatrix}$. 
+%     \item For $k=2
+%     $, we have  $m^{(k)}=\begin{bmatrix} 0\\  0 \\ 2 \\ -1\end{bmatrix}$ and $e_k =\begin{bmatrix} 0\\  1 \\ 0 \\ 0\end{bmatrix}$.
+%     \item Thus the elimination matrix is $M_k = I - m^{(k)} e_k^T$ 
+%     \begin{align*}
+%     M_k &= \begin{bmatrix}
+%     1 & 0 & 0 &0\\
+%     0 & 1 & 0 & 0\\
+%     0 & 0 & 1 & 0\\
+%     0 & 0 & 0 & 1\\
+%     \end{bmatrix} - \begin{bmatrix} 0\\  0 \\ 2 \\ -1\end{bmatrix} 
+%     \begin{bmatrix} 0 & 1 & 0 & 0\end{bmatrix}\\
+%     &=  \begin{bmatrix}
+%     1 & 0 & 0 &0\\
+%     0 & 1 & 0 & 0\\
+%     0 & 0 & 1 & 0\\
+%     0 & 0 & 0 & 1\\
+%     \end{bmatrix}
+%     - \begin{bmatrix} 
+%     0 & 0 & 0 & 0 \\ 
+%     0 & 0 & 0 & 0 \\ 
+%     0 & 2 & 0 & 0 \\ 
+%     0 & -1 & 0 & 0
+%     \end{bmatrix}
+%     = \begin{bmatrix} 
+%     1 & 0 & 0 & 0 \\ 
+%     0 & 1 & 0 & 0 \\ 
+%     0 & -2 & 1 & 0 \\ 
+%     0 & 1 & 0 & 1
+%     \end{bmatrix}.
+%     \end{align*}
+    
+% \end{itemize}
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[shrink]{Inverse Property}
+\begin{theorem}
+If $M_k = I - m^{(k)} e_k'$ then $M_k^{-1} = I+ m^{(k)} e_k'$. 
+\end{theorem}
+Proof: 
+\begin{align*}
+    M_k M_k^{-1} &= (I - m^{(k)} e_k')(I + m^{(k)} e_k') \\
+    &= II + Im^{(k)} e_k' - m^{(k)} e_k'I - m^{(k)} e_k' m^{(k)} e_k' \\
+    &= I + \underbrace{m^{(k)} e_k' - m^{(k)} e_k'}_{\text{cancel}} - m^{(k)} (e_k' m^{(k)}) e_k' \\
+    &= I -  m^{(k)} \underbrace{(e_k' m^{(k)})}_{\text{i.p.}=0} e_k' \\
+    &= I 
+\end{align*}
+
+\keyidea{
+\begin{itemize}
+    \item To find the inverse simply \underline{flip the signs of the multipliers}.
+    \item For instance:
+        \[
+        \textrm{If }\; M_1  =  
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix},
+         \quad \textrm{then} \;\;
+         M_1^{-1}=
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        2 & 1 & 0\\
+        -1 &  0 & 1\\
+        \end{bmatrix}
+        \]
+\end{itemize}
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[shrink]{Multiplication Property}
+
+\begin{theorem}
+    Suppose $M_j$ and $M_k$ are elementary elimination matrices with $j>k$,
+    then their product is $I - m^{(k)}e_k^T - m^{(j)} e_j^T$. 
+\end{theorem}
+
+    Proof: 
+    \begin{align*}
+      M_k M_j & = I - m^{(k)} e_k^T - m^{(j)} e_j^T + m^{(k)} e_k^T m^{(j)} e_j^T\\
+    & = I - m^{(k)} e_k^T - m^{(j)} e_j^T + m^{(k)} (e_k^T m^{(j)}) e_j^T\\
+    & = I - m^{(k)} e_k^T - m^{(j)} e_j^T
+    \end{align*}
+    
+\keyidea{
+\begin{itemize}
+    \item To multiply $M_k M_j$ simply \underline{combine their columns}.
+    \item For instance: 
+        \[
+        M_1 M_2 =  
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 0 & 1\\
+        \end{bmatrix}
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        0 & 1 & 0\\
+        0 & 1/2 & 1\\
+        \end{bmatrix} = 
+        \begin{bmatrix}
+          1 & 0 & 0\\
+        -2 & 1 & 0\\
+        1 & 1/2 & 1\\
+        \end{bmatrix}
+        \]
+\end{itemize}
+}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Constructing $L$ and $U$}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Objective}
+The goal is write $A$ as $A = LU$, where 
+\begin{equation*}
+    L = \begin{bmatrix}   1       &     0      & \cdots &             & 0 \\
+                       \ell_{2,1} &     1      &   0    &             & 0 \\
+                       \ell_{3,1} & \ell_{3,2} &   1    &             & 0 \\
+                          \vdots  &  \vdots    &        & \ddots      & \vdots  \\
+                       \ell_{n,1} & \ell_{n,2} & \cdots & \ell_{n,n-1} & 1
+        \end{bmatrix} \quad 
+    U = \begin{bmatrix} u_{1,1} & u_{1,2} & u_{1,3} & \cdots & u_{1,n} \\
+                          0     & u_{2,2} & u_{2,3} & \cdots & u_{2,n} \\
+                          0     &   0     & \ddots  & \ddots & \vdots \\
+                         \vdots & \vdots  &         &        & u_{n-1,n} \\
+                          0     &   0     &         &        & u_{n,n}
+        \end{bmatrix}
+\end{equation*}
+
+\onslide<2>{
+\question{Don't we already know a way to make $A$ upper triangular?}
+}
+
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{LU Factorization}{Part 1}
+\begin{itemize}
+    \item[1.] Repeatedly multiply $A$ from the left by elimination matrices 
+        \begin{align*}
+         A & \\
+         M_1A  &\\
+         M_2 M_1A  &\\
+                  \vdots  &\\ 
+         \underbrace{(M_{n-1} \dots M_1)A}_{\textrm{upper triangular}} & = U
+        \end{align*}
+    \item[2.] In the end, the product will be upper triangular
+\end{itemize}
+
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{LU Factorization}{Part 2}
+
+\begin{itemize}
+    \item[3.] Multiply both sides from the left by
+    $(M_{n-1}\cdots M_1)^{-1}$:
+    \begin{align*}
+        (M_{n-1}\cdots M_1)A &= U,\\
+        A &= (M_{n-1}\cdots M_1)^{-1}U.
+    \end{align*}
+
+    \item[4.] Reverse the order when taking the inverse:
+    \[
+        A=M_1^{-1}\cdots M_{n-1}^{-1}U.
+    \]
+\end{itemize}
+
+\begin{block}{Inverse of a Product}
+For square nonsingular matrices $P$ and $Q$,
+\[
+    (PQ)^{-1}=Q^{-1}P^{-1}.
+\]
+\end{block}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{LU Factorization}{Part 3}
+
+\begin{itemize}
+        
+    \item[5.] Use the two \textbf{multiplication and inverse properties}: 
+
+    $$(M_1^{-1} \dots M_{n-1}^{-1}) = I + \sum_{k=1}^{n-1} m^{(k)}e_k^T = L$$
+    Invert each elimination matrix by changing the signs
+of its off-diagonal entries, then combine the columns.
+
+    \item[6.] We are done with the LU factorization 
+           \begin{align*}
+            A & = (M_1^{-1} \dots M_{n-1}^{-1})U\\
+            A & = LU
+        \end{align*}
+        
+\keyidea{
+To construct $L$:
+\begin{itemize}
+    \item Put ones on the diagonal.
+    \item Store each elimination multiplier
+    $m_{ik}=a_{ik}/a_{kk}$ in position $(i,k)$.
+    \item These entries have the opposite signs
+    to the corresponding entries in $M_k$.
+\end{itemize}
+}
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Factorization Example}{Part 1}
+
+\begin{example}
+    Find the $LU$ factorization of $A  =
+\begin{bmatrix}
+1 & -2 & 3\\
+-1 & 4 & -2\\
+2 & 2 & 13\\
+\end{bmatrix}$.
+\end{example}
+
+\begin{itemize}
+    \item[1.] Construct elimination matrix $M_1$. Left-multiply it to $A$.
+\begin{align*}
+M_1 A = 
+\begin{bmatrix}
+1 & 0 & 0\\
+1 & 1 & 0\\
+-2 & 0 & 1\\
+\end{bmatrix}
+\begin{bmatrix}
+\boxed{1} & -2 & 3\\
+-1 & 4 & -2\\
+2 & 2 & 13\\
+\end{bmatrix} = \begin{bmatrix}
+1 & -2 & 3\\
+0 & 2 & 1\\
+0 & 6 & 7\\
+\end{bmatrix}
+\end{align*}
+
+\item[2.] Construct elimination matrix $M_2$. Left-multiply it. \underline{$U$ is complete}.
+\begin{align*}
+M_2 M_1 A = 
+\begin{bmatrix}
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & -3 & 1\\
+\end{bmatrix}
+\begin{bmatrix}
+1 & -2 & 3\\
+0 & \boxed{2} & 1\\
+0 & 6 & 7\\
+\end{bmatrix} = \begin{bmatrix}
+1 & -2 & 3\\
+0 & 2 & 1\\
+0 & 0 & 4\\
+\end{bmatrix} =: U
+\end{align*}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Factorization Example}{Part 2}
+
+\begin{itemize}
+
+\item[3.] Derive a formula for $L$ based on the equation $A=LU$
+\begin{align*}
+    M_2 M_1 A &= U\\
+    A &= M_1^{-1} M_2^{-1} U\\ 
+      \therefore L &= M_1^{-1} M_2^{-1}
+\end{align*}
+
+\item[4.] Construct $L$ using the properties of elimination matrices:
+$$
+M_1 = \begin{bmatrix}
+1 & 0 & 0\\
+1 & 1 & 0\\
+-2 & 0 & 1\\
+\end{bmatrix} \implies 
+M_1^{-1} = \begin{bmatrix}
+1 & 0 & 0\\
+-1 & 1 & 0\\
+2 & 0 & 1\\
+\end{bmatrix}\quad\text{just flip sign}
+$$
+$$
+M_2 = \begin{bmatrix}
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & -3 & 1\\
+\end{bmatrix} \implies 
+M_2^{-1} = \begin{bmatrix}
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & 3 & 1\\
+\end{bmatrix} \quad\text{just flip sign}
+$$
+$$
+L = M_1^{-1}M_2^{-1}= \begin{bmatrix}
+1 & 0 & 0\\
+-1 & 1 & 0\\
+2 & 3 & 1\\
+\end{bmatrix} \quad\text{just combine columns}
+$$
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Summary}
+\begin{itemize}
+    \item The $LU$ factorization of the matrix is 
+    $$
+    \begin{bmatrix}
+1 & -2 & 3\\
+-1 & 4 & -2\\
+2 & 2 & 13\\
+\end{bmatrix} = 
+\begin{bmatrix}
+1 & 0 & 0\\
+-1 & 1 & 0\\
+2 & 3 & 1\\
+\end{bmatrix}
+\begin{bmatrix}
+1 & -2 & 3\\
+0 & 2 & 1\\
+0 & 0 & 4\\
+\end{bmatrix}
+    $$
+    \item You may multiply $LU$ to verify that it equals $A$\\[3mm]
+
+    \item Main steps:
+    \begin{enumerate}
+        \item Perform GE with elimination matrices
+        \item Repeat until the result is upper triangular - that is $U$
+        \item Construct $L$ by combining all eliminations but with sign-flipped multipliers
+    \end{enumerate}
+\end{itemize}
+
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Coded Example}
+
+\begin{block}{Matlab: \texttt{matrix\_form\_LU.m}}
+    
+The code demonstrates the $LU$ factorization of $A  =
+\begin{bmatrix}
+1 & 2 & 3\\
+2 & 5 & 1\\
+3 & 4 & 1\\
+\end{bmatrix}$.
+\end{block}
+
+\begin{itemize}
+    \item Run one section at a time
+    \item Understand how row operations are coded into elimination matrices
+\end{itemize}
+
+
+$$ 
+L =
+\begin{bmatrix}
+1 & 0 & 0\\
+2 & 1 & 0\\
+3 & -2 & 1\\
+\end{bmatrix} \quad 
+U = 
+\begin{bmatrix}
+1 & 2 & 3\\
+0 & 1 & -5\\
+0 & 0 & -18\\
+\end{bmatrix}
+$$
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{LU versus GE}
+\begin{columns}
+    \begin{column}{0.45\textwidth}
+\begin{lstlisting}[mathescape]
+given $A$
+                           
+for $k=1\dots n-1$          
+    for $i = k+1\ldots n$      
+        $xmult = a_{ik}/a_{kk}$
+        $a_{ik} = xmult$      
+        for $j = k+1\ldots n$      
+            $a_{ij} = a_{ij} - (xmult) a_{kj}$
+        end                      
+        % doesn't affect b
+    end                        
+end                          
+\end{lstlisting}
+\begin{center}
+    LU factorization 
+\end{center}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+\begin{lstlisting}[mathescape,label=algo:fwdelim]
+given $A$, $b$
+                               
+for $k=1\dots n-1$          
+    for $i = k+1\ldots n$      
+        $xmult = a_{ik}/a_{kk}$
+        $a_{ik} = 0$     
+        for $j = k+1\ldots n$      
+            $a_{ij} = a_{ij} - (xmult) a_{kj}$
+        end                      
+        $b_{i} = b_{i} - (xmult) b_{k}$
+    end                        
+end                          
+\end{lstlisting}
+\begin{center}
+    GE
+\end{center}
+    \end{column}
+\end{columns}
+\vspace{0.5cm}
+\begin{center}
+They are basically the same algorithm.
+\end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{LU Factorization}
+    \method{LU Factorization}{Square matrix $A$}{Unit lower $L$ and upper triangular $U$, such that $LU=A$}
+    {Factorization of $A$ comes naturally from GE.}
+
+\vspace{3mm}
+Recap:
+\begin{itemize}
+    \item $U$ is naturally constructed as part of Gaussian elimination.
+        $$U = (M_{n-1}\cdots M_1)A$$
+    \item $L$ is a byproduct of GE adding no extra cost (just save the multipliers) 
+        $$ L = M_1^{-1} \cdots M_{n-1}^{-1}$$
+\end{itemize}
+\keyidea{
+LU factorization performs elimination and saves the
+multipliers: $\mO(n^3)$ FLOPs.
+
+Once the factors are available, an LU solve uses
+forward and backward substitution: $\mO(n^2)$ FLOPs
+per right-hand side.
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Questions}
+
+\begin{enumerate}
+    \item Do all matrices have an $LU$ factorization? 
+\vfill
+    \item Does $LU$ factorization need pivoting like GE?
+\vfill
+    \item Are there other useful factorizations? 
+\vfill
+\end{enumerate}
+    
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

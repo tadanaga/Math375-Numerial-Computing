@@ -1,0 +1,1088 @@
+\documentclass[10pt]{beamer}
+%\documentclass[handout,10pt]{beamer}
+\usepackage{my_style}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title[Math/CS 375]{Lecture 06 - A}
+\subtitle{\S 2.1, 2.2 Gaussian Elimination}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Goals}
+We will answer these questions:\\[3mm]
+\begin{itemize}
+    \item How do you solve a \emph{general} linear system?
+    \item How expensive is it to perform Gaussian elimination?
+    \item What are some problems with the "naive" algorithm?
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Special Systems}
+    \begin{itemize}
+    \item \textbf{Diagonal} - Costs $\mO(n)$ FLOPs
+    $
+    \begin{bmatrix}
+    \bullet & 0 & 0 & 0 \\
+    0 & \bullet & 0 & 0 \\
+    0 & 0 & \bullet & 0 \\
+    0 & 0 & 0 & \bullet
+    \end{bmatrix}
+    $ 
+
+    \item \textbf{Banded} - Costs $\mO(m^2n)$ FLOPs
+    $
+    \begin{bmatrix}
+    \bullet & \bullet & 0 & 0 \\
+    \bullet & \bullet & \bullet & 0 \\
+    0 & \bullet & \bullet & \bullet \\
+    0 & 0 & \bullet & \bullet
+    \end{bmatrix}
+    $
+    
+    \item \textbf{Triangular} - Costs $\mO(n^2)$ FLOPs
+    $
+    \begin{bmatrix}
+    \bullet & \bullet & \bullet & \bullet \\
+    0 & \bullet & \bullet & \bullet \\
+    0 & 0 & \bullet & \bullet \\
+    0 & 0 & 0 & \bullet
+    \end{bmatrix}
+    $
+
+\end{itemize}
+\question{
+    \begin{itemize}
+        \item What if $A$ is a general matrix? 
+        \item What is the cost of solving $Ax=b$?
+    \end{itemize}
+}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Gaussian Elimination}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% \begin{frame}{Sparse vs. Dense}
+  
+%     \begin{block}{Sparse Matrix}
+%         \begin{itemize}
+%             \item A matrix is considered \textbf{sparse} if the majority of its elements are zero. 
+%             \item Example: triangular matrix, diagonal matrix, banded matrix 
+%             \item $A$ is sparse with special pattern $\implies$ $Ax=b$ can be solved quickly 
+%         \end{itemize}        
+%     \end{block}
+%         \begin{itemize}
+%             \item Diagonal systems cost $\mO(n)$ FLOPs
+%             \item Triangular systems cost $\mO(n^2)$ FLOPS
+%         \end{itemize}
+%         \bigskip
+%     \begin{block}{Dense Matrix}
+%         \begin{itemize}
+%             \item A matrix is considered \textbf{dense} if the majority of its elements are non-zero. 
+%             \item $A$ is dense $\implies$ $Ax=b$ takes more time to solve 
+%         \end{itemize}        
+%     \end{block}
+%     \begin{alertblock}{Question}
+%         How much does it cost to solve a dense matrix?
+%     \end{alertblock}
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}[fragile]
+% \frametitle{Solving a general system}
+% \begin{itemize}
+%     \item Diagonal systems cost $\mO(n)$ FLOPs
+%     \item Triangular systems cost $\mO(n^2)$ FLOPS
+% \begin{alertblock}{Question}
+%     What is the algorithm to solve a general system $Ax=b$?
+% \end{alertblock}
+% \bigskip
+%     \item Formally the solution to $Ax=b$ is 
+%  \begin{equation*}
+%          x = A^{-1}b
+%  \end{equation*}
+%  \item \textbf{In MATLAB:}
+%  \begin{lstlisting}[language=matlab]
+%  >> A = ...
+%  >> b = ...
+%  >> x = A\b
+%  \end{lstlisting}
+% \end{itemize}
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Simple $2\times2$ Example}
+
+\begin{example}
+Solve
+\begin{align*}
+      x_1 + 3x_2 &= 5\\
+    2 x_1 + 4x_2 &= 6
+\end{align*}
+\end{example}
+\begin{itemize}
+    \item Subtract 2 times the first equation from the second equation
+\begin{align*}
+      x_1 + 3x_2 &= 5\\
+          - 2x_2 &= -4
+\end{align*}
+
+\onslide<2->{
+   \item  The system is now in upper triangular form 
+    \begin{equation*}
+    \begin{bmatrix}1 & 3 \\ 0 & -2 \end{bmatrix}
+    \left[\negthickspace\begin{array}{r}  x_1 \\ x_2 \end{array}\negthickspace\right] = 
+    \left[\negthickspace\begin{array}{r}  5 \\ -4 \end{array}\negthickspace\right]
+    \end{equation*}
+    We can now use \textbf{backward substitution}.
+}
+\end{itemize}
+ \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Simple $2\times2$ Example}
+
+
+\begin{itemize}
+    \item Solve the second equation for $x_2$
+    \begin{equation*}
+        x_2 = \frac{-4}{-2} = 2
+    \end{equation*}
+    \item Substitute  $x_2$ into the first equation and solve for $x_1$.
+    \begin{equation*}
+        x_1 = 5 - (3)(2) = -1
+    \end{equation*}
+\end{itemize}
+
+\onslide<2>{
+
+\keyidea{
+
+    Change a system to triangular form and then do backward substitution!
+    \begin{equation*}
+    \begin{bmatrix}1 & 3 \\ 2 & 4 \end{bmatrix}
+    \left[\negthickspace\begin{array}{r}  x_1 \\ x_2 \end{array}\negthickspace\right] = 
+    \left[\negthickspace\begin{array}{r}  5 \\ 6 \end{array}\negthickspace\right]
+    \rightarrow
+    \begin{bmatrix}1 & 3 \\ 0 & -2 \end{bmatrix}
+    \left[\negthickspace\begin{array}{r}  x_1 \\ x_2 \end{array}\negthickspace\right] = 
+    \left[\negthickspace\begin{array}{r}  5 \\ -4 \end{array}\negthickspace\right]
+    \rightarrow
+    \text{back sub}
+    \end{equation*}
+}
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{General Procedure for $n\times n$}{Part 1}
+
+\begin{itemize}
+    \item[1.] Form the \textbf{augmented system} - matrix formed by appending $[A|b]$
+    \[
+    \begin{bmatrix}
+        x & x & x & x & \big| & x \\
+        x & x & x & x & \big| & x \\
+        x & x & x & x & \big| & x \\
+        x & x & x & x & \big| & x
+    \end{bmatrix}
+    \]
+
+(The $x$'s represent numbers, they are generally \emph{not} the same
+values.)\\
+\vspace{0.5cm}
+\item[2.] Choose your \textbf{pivot element} - the element which controls the multiplier. Start with the very first element $A_{11}$. The row containing the pivot element is called the \textbf{pivot row}.
+    \[
+    \begin{bmatrix}
+        \boxed{x} & x & x & x  & x \\
+        x & x & x & x &  x \\
+        x & x & x & x &  x \\
+        x & x & x & x &  x
+    \end{bmatrix}
+    \]
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[shrink]{General Procedure for $n\times n$}{Part 2}
+\begin{itemize}
+    \item[3.] Eliminate elements under the pivot element in the first column by performing \textbf{row operations} - multiply the pivot row by a scalar and add to a row below
+\begin{center}
+	\renewcommand{\arraystretch}{1.3}
+	\footnotesize
+	\begin{tabular}{cccc}
+		$\begin{bmatrix}\boxed{x} & x & x & x & x \\
+						   x  & x  & x  & x  & x  \\
+						   x  & x  & x  & x  & x \\
+						   x  & x  & x  & x  & x \end{bmatrix}$
+		& $\longrightarrow$ &
+		$\begin{bmatrix}\boxed{x} & x & x & x & x \\
+						   0  & x' & x' & x' & x' \\
+						   x  & x  & x  & x  & x \\
+						   x  & x  & x  & x  & x \end{bmatrix}$ \\[10pt]
+		& $\longrightarrow$ &
+		$\begin{bmatrix}\boxed{x} & x & x & x & x \\
+						   0  & x' & x' & x' & x' \\
+						   0  & x' & x' & x' & x' \\
+						   x  & x  & x  & x  & x \end{bmatrix}$ \\[10pt]
+		& $\longrightarrow$ &
+		$\begin{bmatrix}\boxed{x} & x & x & x & x \\
+						   0  & x' & x' & x' & x' \\
+						   0  & x' & x' & x' & x' \\
+						   0  & x' & x' & x' & x'\end{bmatrix}$ &
+	\end{tabular}
+\end{center}
+    ($x'$ indicates a value that has been changed once.)
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{General Procedure for $n\times n$}{Part 3}
+\begin{itemize}
+    \item[4.] Choose next pivot element: diagonal element in the second row.
+    \item[5.] Eliminate elements under the pivot element in the second column.
+\begin{center}
+	\renewcommand{\arraystretch}{1.3}
+	\footnotesize
+	\begin{tabular}{ccccc}
+		$\begin{bmatrix} x &   x        & x & x & x    \\
+						 0 & \boxed{x'} & x' & x' & x' \\
+						 0 &   x'       & x' & x' & x' \\
+						 0 &   x'       & x' & x' & x' \end{bmatrix}$
+		& $\longrightarrow$ &
+		$\begin{bmatrix} x &   x        & x   & x   & x   \\
+						 0 & \boxed{x'} & x'  & x'  & x'  \\
+						 0 &   0        & x'' & x'' & x'' \\
+						 0 &   x'       & x'  & x'  & x'\end{bmatrix}$ \\[30pt]
+		& $\longrightarrow$ &
+		$\begin{bmatrix} x &   x        & x   & x   & x   \\
+						 0 & \boxed{x'} & x'  & x'  & x'  \\
+						 0 &   0        & x'' & x'' & x'' \\
+						 0 &   0        & x'' & x'' & x'' \end{bmatrix}$
+	\end{tabular}
+\end{center}
+    ($x''$ indicates a value that has been changed twice.)
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{General Procedure for $n\times n$}{Part 4}
+\begin{itemize}
+    \item[6.] Repeat until the system is upper triangular.
+\begin{center}
+	\renewcommand{\arraystretch}{1.3}
+	\footnotesize
+	\begin{tabular}{ccccc}
+		$\begin{bmatrix} x & x  &     x       & x   & x   \\
+						 0 & x' &     x'      & x'  & x'  \\
+						 0 & 0  & \boxed{x''} & x'' & x'' \\
+						 0 & 0  &     x''     & x'' & x'' \end{bmatrix}$ 
+		& $\longrightarrow$ &
+		$\begin{bmatrix} x & x  &     x       & x    & x   \\
+						 0 & x' &     x'      & x'   & x'  \\
+						 0 & 0  & \boxed{x''} & x''  & x'' \\
+						 0 & 0  &     0       & x''' & x''' \end{bmatrix}$ 
+	\end{tabular}
+\end{center}
+    ($x'''$ indicates a value that has been changed three times.)
+\end{itemize}
+
+\vspace{3mm}
+
+\onslide<2>{
+\define{Gaussian Elimination}{
+    The procedure of changing the augmented system to triangular form is called \textbf{Gaussian elimination} (GE).
+}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Gaussian Elimination}
+
+{\method{Gaussian Elimination}
+{ $n\times n$ matrix $A$, $n \times 1$ right hand side $b$ }
+{Upper triangular augmented system}
+{This algorithm does not assume anything about $A$. It is a general solver. }}
+
+
+\begin{block}{Getting the solution to $Ax=b$}
+\begin{enumerate}
+
+\item Construct the augmented system 
+
+\item Perform Gaussian elimination
+\begin{center}
+	\renewcommand{\arraystretch}{1.3}
+	\small
+	\begin{tabular}{ccccc}
+        $\begin{bmatrix}   x  & x & x & x & x \\
+                           x  & x  & x  & x  & x  \\
+                           x  & x  & x  & x  & x \\
+                           x  & x  & x  & x  & x \end{bmatrix}$
+		& $\longrightarrow$ &
+		$\begin{bmatrix} x & x  &  x   & x    & x   \\
+						 0 & x' &  x'  & x'   & x'  \\
+						 0 & 0  &  x'' & x''  & x'' \\
+						 0 & 0  &  0   & x''' & x''' \end{bmatrix}$ 
+	\end{tabular}
+\end{center}
+\item Solve system with back sub 
+\end{enumerate}
+\end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{GE Example}{Part 1}
+
+\begin{example}
+Perform Gaussian elimination on the system $Ax=b$ where 
+\begin{equation*}
+    A = \left[\negthickspace\begin{array}{rrr} -3 &  2 & -1  \\
+                                                6 & -6 &  7 \\
+                                                3 & -4 &  4 \end{array}\negthickspace\right]
+    \ \ \ \ \ \ \ \ \
+    b = \left[\negthickspace\begin{array}{r} -1 \\ -7 \\ -6 \end{array}\negthickspace\right]
+\end{equation*}
+\end{example}
+\begin{enumerate}
+    \item[1.] Form the\textbf{ augmented system}
+\begin{equation*}
+    \tilde{A} = \left[ A\ \ b \right] =
+      \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1  \\
+                                                    6 & -6 &  7 \\
+                                                    3 & -4 &  4 \end{array}
+           \right|\begin{array}{r} -1 \\ -7 \\ -6 \end{array}\negthickspace\right]
+\end{equation*}
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{GE Example}{Part 2}
+\begin{enumerate}
+    \item[2.] Choose 3 as the first pivot element. 
+\begin{equation*}
+    \tilde{A}  =
+      \left[
+           \left.\negthickspace\begin{array}{rrr}  \boxed{-3} &  2 & -1  \\
+                                                    6 & -6 &  7 \\
+                                                    3 & -4 &  4 \end{array}
+           \right|\begin{array}{r} -1 \\ -7 \\ -6 \end{array}\negthickspace\right]
+\end{equation*}
+
+    \item[3.] How many times does $\boxed{-3}$ divide into $6$? Perform row operation to zero out the element below.
+    \begin{itemize}
+        \item $xmult =6/-3=-2$
+        \item $R_2\leftarrow R_2-(xmult)R_1$
+    \end{itemize}
+\begin{equation*}
+    \tilde{A}_{(1)} = \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    3 & -4 &  4 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ -6 \end{array}\negthickspace\right]
+\end{equation*}
+\end{enumerate}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{GE Example}{Part 3}
+\begin{enumerate}
+
+    \item[4.] How many times does $\boxed{-3}$ divide into $3$? Perform row operation to zero out the element below.
+    \begin{itemize}
+        \item $xmult =3/-3=-1$
+        \item $R_3\leftarrow R_3-(xmult)R_1$
+    \end{itemize}
+    \begin{equation*}
+    \tilde{A}_{(1)} = \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    3 & -4 &  4 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ -6 \end{array}\negthickspace\right]
+\end{equation*}
+\begin{equation*}
+    \tilde{A}_{(1)} = \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    0 & -2 &  3 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ -7 \end{array}\negthickspace\right]
+\end{equation*}
+\end{enumerate}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{GE Example}{Part 4}
+\begin{enumerate}
+    \item[5.] Choose element -2 as the next pivot 
+    \begin{equation*}
+        \tilde{A}_{(1)} = \left[
+               \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                        0 & \boxed{-2} &  5 \\
+                                                        0 & -2 &  3 \end{array}
+               \right|\begin{array}{r} -1 \\ -9 \\ -7 \end{array}\negthickspace\right]
+    \end{equation*}
+
+    \item[6.] How many times does $\boxed{-2}$ divide into $-2$? Perform row operation to zero out the element below.
+    \begin{itemize}
+        \item $xmult = -2/-2=1$
+        \item $R_3\leftarrow R_3 -(xmult)R_2$
+    \end{itemize}
+
+\begin{equation*}
+    \tilde{A}_{(2)} = \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    0 &  0 & -2 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ 2 \end{array}\negthickspace\right]
+\end{equation*}
+\end{enumerate}
+\vfill
+\begin{center}
+    Done.
+\end{center}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Solving the System}
+
+\cols{ 
+\begin{block}{Option 1: Back Sub}   
+\begin{equation*}
+    \tilde{A}_{(2)} = \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    0 &  0 & -2 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ 2 \end{array}\negthickspace\right]
+\end{equation*}
+Solve by back substitution to get
+\begin{align*}
+    x_3 &= \frac{\ \,2}{-2} = -1                             \\
+    x_2 &= \frac{\ \,1}{-2}\left(-9 -5x_3 \right) = 2        \\
+    x_1 &= \frac{\ \,1}{-3}\left(-1 -2x_2 + x_3 \right) = 2  \\
+\end{align*}
+\end{block}
+}{
+
+\begin{block}{Option 2: Gauss-Jordan}   
+    Continue doing operations to transform matrix to an identity
+\begin{equation*}
+        \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    0 &  0 & \boxed{1} \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ -1 \end{array}\negthickspace\right]
+\end{equation*}
+\begin{equation*}
+           \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 &  0 \\
+                                                    0 & -2 &  0 \\
+                                                    0 &  0 & 1 \end{array}
+           \right|\begin{array}{r} -2 \\ -4 \\ -1 \end{array}\negthickspace\right]
+\end{equation*}
+           $$\vdots$$
+\begin{equation*}
+           \left[
+           \left.\negthickspace\begin{array}{rrr}  1 &  0 &  0 \\
+                                                    0 & 1 &  0 \\
+                                                    0 &  0 & 1 \end{array}
+           \right|\begin{array}{r} 2 \\ 2 \\ -1 \end{array}\negthickspace\right]
+\end{equation*}
+\end{block}
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Gaussian Elimination Algorithm}
+
+\begin{lstlisting}[mathescape,label=algo:fwdelimb]
+given $A$, $b$
+                           
+for $k=1\dots n-1$          
+    for $i = k+1\ldots n$      
+        for $j = k\ldots n$      
+            $a_{ij} = a_{ij} - (a_{ik}/a_{kk}) a_{kj}$
+        end                      
+        $b_{i} = b_{i} - (a_{ik}/a_{kk}) b_{k}$
+    end                        
+end                          
+\end{lstlisting}
+\vspace{0.3cm}
+
+\begin{block}{Two ways to Optimize}
+    
+\begin{itemize}
+    \item[1.] Precompute the multiplier $a_{ik}/a_{kk}$ before line 5
+    \item[2.] Line 6, if $j=k$ the value $a_{ij}$ is always zero. Just skip it.
+\end{itemize}
+\end{block}
+
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Gaussian Elimination Algorithm}
+%      $a_{ik} = xmult$
+\begin{lstlisting}[mathescape,label=algo:fwdelim,caption=Optimized Version]
+given $A$, $b$
+                               
+for $k=1\dots n-1$          
+    for $i = k+1\ldots n$      
+        $xmult = a_{ik}/a_{kk}$     % precompute multiplier
+        $a_{ik} = 0$                % zero out elements below pivot
+        for $j = k+1\ldots n$        % start loop at j=k+1
+            $a_{ij} = a_{ij} - (xmult) a_{kj}$
+        end                      
+        $b_{i} = b_{i} - (xmult) b_{k}$
+    end                        
+end                          
+\end{lstlisting}
+\vspace{3mm}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Gaussian Elimination Algorithm: Storing Multipliers}
+\begin{lstlisting}[mathescape,label=algo:fwdelim]
+given $A$, $b$
+                           
+for $k=1\dots n-1$          
+    for $i = k+1\ldots n$      
+        $xmult = a_{ik}/a_{kk}$
+        $a_{ik} = xmult$      % save multiplier
+        for $j = k+1\ldots n$      
+            $a_{ij} = a_{ij} - (xmult) a_{kj}$
+        end                      
+        $b_{i} = b_{i} - (xmult) b_{k}$
+    end                        
+end                          
+\end{lstlisting}
+\vspace{3mm}
+
+\begin{itemize}
+    \item This variant \textit{saves} the multipliers by writing them into the matrix 
+    \item We will discuss why this might be desirable 
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Zeroing vs. Storing Multipliers}
+
+\begin{itemize}
+    \item Zeroing out version 
+    $$
+      \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1  \\
+                                                    6 & -6 &  7 \\
+                                                    3 & -4 &  4 \end{array}
+           \right|\begin{array}{r} -1 \\ -7 \\ -6 \end{array}\negthickspace\right]\rightarrow \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    0 &  0 & -2 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ 2 \end{array}\negthickspace\right]
+    $$
+    \item Storing the multipliers $xmult$ in the lower triangle
+    $$
+      \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1  \\
+                                                    6 & -6 &  7 \\
+                                                    3 & -4 &  4 \end{array}
+           \right|\begin{array}{r} -1 \\ -7 \\ -6 \end{array}\negthickspace\right]\rightarrow \left[
+           \left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    \textcolor{red}{-2} & -2 &  5 \\
+                                                    \textcolor{red}{-1} &  \textcolor{red}{1} & -2 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ 2 \end{array}\negthickspace\right]
+    $$
+\end{itemize}
+
+\question{Why would you store multipliers?}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Cost of GE}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Naive Gaussian Elimination Algorithm}
+
+\question{
+    What is the cost of Gaussian elimination? \\[5pt]
+    \quad or rather\\[5pt]
+    What is the cost to solve a \underline{general system}?
+}
+
+
+\vspace{5mm}
+\begin{itemize}
+    \item Solve = Gaussian Elimination + Back Substitution
+    \item We already know Backward Substitution is $\mathcal{O}(n^2)$
+    \item What about Gaussian elimination?
+\end{itemize}
+\vfill
+
+% \begin{block}{GE\_naive.m $\quad$
+% GE\_naive\_test.m}
+% Since we have the algorithm, we can experimentally benchmark GE. 
+% \end{block}
+% ----------------------
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cost for a $3\times 3$}{Part 1}
+
+
+\question{
+What is the exact number of FLOPs for the $3\times 3$ example?
+\begin{equation*}
+\small
+      \left[\left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1  \\
+                                                    6 & -6 &  7 \\
+                                                    3 & -4 &  4 \end{array}
+       \right|\begin{array}{r} -1 \\ -7 \\ -6 \end{array}\negthickspace\right]
+            \longrightarrow
+            \left[\left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    0 &  0 & -2 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ 2 \end{array}\negthickspace\right]
+\end{equation*}
+}
+
+\begin{itemize}
+\item Step 1: Eliminate $a_{21}$
+$$
+      \left[\left.\negthickspace\begin{array}{rrr}  \boxed{-3} &  2 & -1  \\
+                                                    \red{6} & -6 &  7 \\
+                                                    3 & -4 &  4 \end{array}
+       \right|\begin{array}{r} -1 \\ -7 \\ -6 \end{array}\negthickspace\right]
+            \longrightarrow
+        \left[\left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    3 & -4 &  4 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ -6 \end{array}\negthickspace\right]
+$$
+\begin{itemize}
+    \item 1 division: $6/-3 = -2$
+    \item 3 multiplications: $-2R_1 = [\phantom{-}6 \phantom{-}-4\; \phantom{-}2\; | \phantom{-}2]$  
+    \item 3 subtractions: $R_2 - 2 R_1 = [\phantom{-}0\; -2\; \phantom{-}5\; | -9]$ 
+\end{itemize}
+\end{itemize}
+\begin{alertblock}{}
+Note: We don't count $6-(-3)(-2)=0$ at $A_{21}$ because the result it always $0$
+\end{alertblock}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cost for a $3\times 3$}{Part 2}
+\begin{itemize}
+
+\item Step 2: Eliminate $a_{31}$
+$$
+        \left[\left.\negthickspace\begin{array}{rrr} \boxed{-3} &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    \red{3} & -4 &  4 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ -6 \end{array}\negthickspace\right]
+            \longrightarrow
+        \left[\left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                    0 & -2 &  5 \\
+                                                    0 & -2 &  3 \end{array}
+           \right|\begin{array}{r} -1 \\ -9 \\ -7 \end{array}\negthickspace\right]
+$$
+\begin{itemize}
+    \item 1 division: $3/-3 = -1$
+    \item 3 multiplications: $-R_1 = [\phantom{-}3\; -2\; \phantom{-}1\; | \phantom{-}1]$
+    \item 3 subtractions: $R_3 - (-R_1) = [\phantom{-}0\; -2\; \phantom{-}3\; | -7]$ 
+\end{itemize}
+
+\item Step 3: Eliminate $a_{23}$
+$$
+    \left[\left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                0 & \boxed{-2} &  5 \\
+                                                0 & \red{-2} &  3 \end{array}
+       \right|\begin{array}{r} -1 \\ -9 \\ -7 \end{array}\negthickspace\right]
+        \longrightarrow
+        \left[\left.\negthickspace\begin{array}{rrr}  -3 &  2 & -1 \\
+                                                0 & -2 &  5 \\
+                                                0 &  0 & -2 \end{array}
+       \right|\begin{array}{r} -1 \\ -9 \\ 2 \end{array}\negthickspace\right]
+$$
+\begin{itemize}
+    \item 1 division: $-2/-2 = 1$
+    \item 2 multiplications: $ (1)R_1 = [\phantom{-}0\; -2\; \phantom{-}5\; | -9]$
+    \item 2 subtractions: $R_3 - R_1 = [\phantom{-}0\; \phantom{-}0\; -2\; | \phantom{-}2]$ 
+\end{itemize}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cost for a $3\times 3$}{Part 3}
+\begin{itemize}
+
+\vspace{5mm}
+\item FLOP summary
+\begin{center}
+\begin{tabular}{c c c c c c}\hline
+ Row & Step & Add & Multiply & Divide & Total \\\hline
+ 1 &  Eliminate element $a_{21}$ & 3 & 3& 1 & 7\\
+ 1 &  Eliminate element $a_{31}$ & 3 & 3& 1 & 7\\
+ 2 &  Eliminate element $a_{32}$ & 2 & 2 & 1 & 5\\\hline
+\end{tabular}
+\end{center}
+\vspace{5mm}
+\item Total cost: 19 FLOPs
+
+\begin{block}{What's the pattern?}
+Let $n=3$. 
+\begin{itemize}
+    \item In row 1, there are $n-1=2$ elements that need to be eliminated. Each elimination requires $n$ additions, $n$ multiplications, and 1 division. 
+    \item In row 2, there are $n-2=1$ element(s) that need to be eliminated. Each elimination requires $n-1$ additions, $n-1$ multiplications, and 1 division.
+    
+\end{itemize}
+\end{block}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[shrink]{What about a $4\times4$?}
+
+\begin{itemize}
+    \item We have 6 elimination targets: 
+    $
+    \begin{bmatrix}
+        x & x & x & x  \\
+        \red{x} & x & x & x  \\
+        \red{x} & \red{x}  & x & x  \\
+        \red{x} & \red{x}  & \red{x}  & x 
+    \end{bmatrix}
+    $
+    
+    \item This is the pattern for a $3\times 3$
+\begin{center}
+\begin{tabular}{c c c c c c}\hline
+ Row & Step & Add & Multiply & Divide & Total \\\hline
+ 1 &  Eliminate element $a_{21}$ & 3 & 3& 1 & 7\\
+ 1 &  Eliminate element $a_{31}$ & 3 & 3& 1 & 7\\
+ 2 &  Eliminate element $a_{32}$ & 2 & 2 & 1 & 5\\\hline
+\end{tabular}
+\vspace{1em}
+\end{center}
+\item<2>  This is the pattern for a $4\times 4$
+\begin{center}
+\begin{tabular}{c c c c c c}\hline
+ Row & Step & Add & Multiply & Divide & Total \\\hline
+ 1 &  Eliminate element $a_{21}$ & 4 & 4& 1 & 9\\
+ 1 &  Eliminate element $a_{31}$ & 4 & 4& 1 & 9\\
+ 1 &  Eliminate element $a_{41}$ & 4 & 4& 1 & 9\\
+ 2 &  Eliminate element $a_{32}$ & 3 & 3 & 1 & 7\\
+ 2 &  Eliminate element $a_{42}$ & 3 & 3 & 1 & 7\\
+ 3 &  Eliminate element $a_{34}$ & 2 & 2 & 1 & 5\\\hline
+\end{tabular}
+\end{center}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Pattern for $4\times4$}
+    \begin{center}
+\begin{tabular}{c c c c c c}\hline
+ Row & Step & Add & Multiply  \\\hline
+ 1 &  Eliminate element $a_{21}$ & 4 & 4\\
+ 1 &  Eliminate element $a_{31}$ & 4 & 4\\
+ 1 &  Eliminate element $a_{41}$ & 4 & 4\\
+ 2 &  Eliminate element $a_{32}$ & 3 & 3 \\
+ 2 &  Eliminate element $a_{42}$ & 3 & 3\\
+ 3 &  Eliminate element $a_{34}$ & 2 & 2 \\\hline
+\end{tabular}
+\end{center}
+Let $n=4$
+\begin{itemize}
+    \item \textbf{Row 1:} $4+4+4=n+n+n=(n-1)n$ Adds 
+    \item \textbf{Row 2:} $3+3=(n-1)+(n-1)=(n-2)(n-1)$ Adds
+    \item \textbf{Row 3:} $2=(n-2)=(n-3)(n-2)$ Adds
+\end{itemize}
+\begin{alertblock}{}
+    There is a consistent pattern in the way the number of operations decrease.
+\end{alertblock}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{How many additions?}
+
+\question{How many total additions are required for $4\times 4$ system?}
+
+$$
+\underbrace{(n-1)n}_{row\,1} + \underbrace{(n-2)(n-1)}_{row\,2}+\underbrace{(n-3)(n-2)}_{row \,3}=\sum_{j=2}^4(j-1)j
+$$
+\onslide<2>{
+\question{How many total additions are required for $n\times n$ system?}
+$$
+\sum_{j=2}^n j(j-1) \text{ additions}
+$$
+}
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cost for a $n\times n$}{Part 1}
+\begin{itemize}
+    \item Next, let's extrapolate the results for the $3 \times 3$ to determine cost for a general $n \times n$.\\[3mm]
+
+    \item Key is to count operations by rows\\[3mm]
+
+
+    \item Operation count:
+    
+\begin{center}
+\begin{tabular}{c c c c}\hline
+Row $j$ & Add & Multiply & Divide\\\hline
+1 & $n(n-1)$ & $n(n-1)$ & $n-1$\\
+2 & $(n-1)(n-2)$ & $(n-1)(n-2)$ & $n-2$\\
+\vdots & \vdots &\vdots &\vdots \\
+$n-1$ & $2$ & $2$ & $1$\\\hline
+Total: &  $\sum_{j=2}^{n} j(j-1)$ & $\sum_{j=2}^{n} j(j-1)$ &  $\sum_{j=1}^{n-1} j$
+\end{tabular}
+\end{center}
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cost for a $n\times n$}{Part 2}
+\begin{itemize}
+    \item Total operations as summations
+\begin{center}
+\begin{tabular}{c c}\hline\\
+add & $\sum_{j=2}^{n} j(j-1) \approx \sum_{j=1}^nj^2$ \\[5pt]
+multiply & $\sum_{j=2}^{n} j(j-1) \approx \sum_{j=1}^nj^2 $\\[5pt]
+divide & $\sum_{j=1}^{n-1} j$ \\[7pt]
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+
+\item Let's use the formulas $\sum_{j=1}^{p} j = \frac{p(p+1)}{2}$ and
+$\sum_{j=1}^{p} j^2= \frac{p(p+1)(2p+1)}{6}$
+\begin{center}
+\begin{tabular}{c c}\hline\\
+add & $\frac{n(n-1)(2n-1)}{6}$ \\[8pt]
+multiply & $\frac{n(n-1)(2n-1)}{6}$\\[8pt]
+divide & $\frac{n(n-1)}{2}$ \\[7pt] 
+\hline
+\end{tabular}
+\end{center}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Cost for a $n\times n$}{Part 3}
+\begin{itemize}
+    \item Solve = Gaussian Elimination + Back Substitution  
+    \item \textbf{Gaussian elimination}
+    \begin{center}
+\begin{tabular}{c c}\hline\\
+add & $\frac{n(n-1)(2n-1)}{6}$ \\[4pt]
+multiply & $\frac{n(n-1)(2n-1)}{6}$\\[4pt]
+divide & $\frac{n(n-1)}{2}$ \\[4pt] 
+\hline
+\end{tabular}
+\end{center}
+    \item \textbf{Back substitution}
+\begin{center}
+\begin{tabular}{c c}\hline \\
+add-subtracts & $\frac{n(n - 1)}{2}$\\[4pt]
+multiply-divides & $\frac{n(n + 1)}{2}$\\[4pt]
+\hline
+\end{tabular}
+\end{center}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Total Cost for Naive Gaussian Elimination}
+Combining the cost of forward elimination, updating $b$, and backward substitution
+gives
+\begin{center}
+\begin{tabular}{c c}\hline\\
+add-subtracts & $\frac{n(n-1)(2n-1)}{6} + \frac{n(n - 1)}{2} + \frac{n(n - 1)}{2}$\\[5pt]
+&  $=\frac{n(n-1)(2n+5)}{6}= \frac{1}{3}n^3 + \mO(n^2)$\\[6pt]
+multiply-divides & $\frac{n(n^2 - 1)}{3}+\frac{n(n - 1)}{2}+ \frac{n(n + 1)}{2}$\\[5pt]
+& $=\frac{n(n^2 + 3n-1)}{3}=\frac{1}{3}n^3 + \mO(n^2)$\\[6pt]
+\hline
+\end{tabular}
+\end{center}
+
+\keyidea{
+\begin{itemize}
+    \item The cost to solve a general system $Ax=b$ is
+\begin{equation*}
+  \frac{2}{3} n^3  + \mO(n^2) \quad \textrm{FLOPs}
+\end{equation*}
+    \item $\mO(n^3)$ is expensive but it is necessary 
+\end{itemize}
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Why ``Naive''?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}
+
+\question{
+Why is the algorithm called the ``Naive'' Gaussian elimination?
+}
+\vfill
+
+\begin{itemize}
+    \item  It is called naive because of the simplistic \textbf{choice of pivot elements }
+    \[
+    \begin{bmatrix}
+        \boxed{x} & x & x & x  & x \\
+        x & \boxed{x} & x & x &  x \\
+        x & x & \boxed{x} & x &  x \\
+        x & x & x & x &  x
+    \end{bmatrix}
+    \]
+    \item Naive GE choose the pivot elements to be $a_{ii}$ for $i = 1$ to $n-1$
+    \vfill 
+    \item There are \textit{drawbacks} to this method
+    \vfill 
+\end{itemize}
+
+    
+% \begin{equation*}
+% A=
+% \begin{bmatrix}
+%   0 & 2 & 3\\
+%   4 & 5 & 6\\
+%   7 & 8 & 9\\
+% \end{bmatrix}
+% \end{equation*}
+
+% \bigskip
+% \begin{equation*}
+% B=
+% \begin{bmatrix}
+%   10^{-10} & 2 & 3\\
+%   4 & 5 & 6\\
+%   7 & 8 & 9\\
+% \end{bmatrix}
+% \end{equation*}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Zero on $a_{11}$}
+
+\begin{itemize}
+    \item Consider performing GE on this matrix
+\begin{equation*}
+A=
+\begin{bmatrix}
+  0 & 2 & 3\\
+  4 & 5 & 6\\
+  7 & 8 & 9\\
+\end{bmatrix}
+\end{equation*}
+    \item Naively choosing the pivot $a_{11} = 0$ results in division by zero 
+\begin{equation*}
+A=
+\begin{bmatrix}
+  \boxed{0} & 2 & 3\\
+  4 & 5 & 6\\
+  7 & 8 & 9\\
+\end{bmatrix}
+\end{equation*}
+$$
+R_2 \leftarrow R_2 - \frac{4}{\red{0}} R_1
+$$
+\item Naive GE will not work whenever $a_{11} = 0$
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Another Example}
+\begin{itemize}
+    \item Try Naive GE on
+        \begin{equation*}
+            A = \left[\negthickspace\begin{array}{rrrr}  2 &  4 & -2  \\
+                                                         1 &  2 &  4   \\
+                                                        -2 & -3 &  8   \end{array}\negthickspace\right]
+            \ \ \ \ \ \ \ \ \
+            b = \left[\negthickspace\begin{array}{r} -4 \\  5 \\ 7 \end{array}\negthickspace\right]
+        \end{equation*}
+        \item Choose $a_{11}=2$ as the pivot element
+\begin{equation*}
+%   \tilde{A} =
+    \left[
+           \left.\negthickspace\begin{array}{rrrr}  \boxed{2} &  4 & -2  \\
+                                                    1 &  2 &  4  \\
+                                                   -2 & -3 &  8  \end{array}
+           \right|\begin{array}{r} -4 \\  5 \\ 7  \end{array}\negthickspace\right]
+           \quad \begin{aligned}
+                       &R_2 \leftarrow-\frac{1}{2}R_1 + R_2 \\
+         &R_3 \leftarrow R_1 + R_3
+           \end{aligned}
+\end{equation*}
+    \item Result: 
+        \begin{equation*}
+        \left[\left.\negthickspace\begin{array}{rrrr}  2 &  4 & -2 \\
+                                                        0 &  \boxed{0} &  5 \\
+                                                        0 &  1 &  6  \end{array}
+               \right|\begin{array}{r} -4 \\ 7 \\ -3 \end{array}\negthickspace\right]
+    \end{equation*}
+    \item \textbf{Problem!} The next pivot element $a_{22}$  is a zero!
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Small Pivots}
+\begin{itemize}
+    \item But this is \textbf{even worse}
+    \begin{equation*}
+A=
+\begin{bmatrix}
+  \boxed{10^{-16}} & 2 & 3\\
+  4 & 5 & 6\\
+  7 & 8 & 9\\
+\end{bmatrix}
+\end{equation*}
+    \item<2> After one row operation... 
+        \begin{equation*}
+    \begin{bmatrix}
+  10^{-16} & 2 & 3\\
+  0 & ??? & ???\\
+  7 & 8 & 9\\
+\end{bmatrix}
+\end{equation*}
+    \question{What happens to the $5$ and $6$ in the second row?}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{What's Next?}
+\begin{itemize}
+\item How to deal with a zero pivot  
+\vfill
+
+\item Three types of pivoting algorithms: 
+\begin{enumerate}
+    \item Partial Pivoting
+    \item Full Pivoting 
+    \item Scaled Partial Pivoting
+\end{enumerate}
+\vfill
+
+\item Cost of each pivoting algorithm
+\vfill
+
+\item Effect of small pivot elements in rounding
+\vfill
+\end{itemize}
+\end{frame}
+
+\end{document}
