@@ -310,7 +310,7 @@ We will answer these questions:\\[3mm]
 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{No Formula}
+\begin{frame}{Composite Gauss}
 
 \begin{itemize}
     \item Composite Trapezoid has a neat formula 
@@ -318,7 +318,7 @@ We will answer these questions:\\[3mm]
     \int_a^b f(x)\,dx \approx    h    \left(\frac{1}{2} f(x_0) +   f(x_1) +  f(x_2) + \dots +   f(x_{n-1}) + \frac{1}{2} f(x_n)\right)
     $$
         \vfill 
-    \item Composite Gauss does not have a formula
+    \item Composite Gauss adds the contributions from interior nodes on each subinterval.
         \vfill 
     \question{How do you implement composite Gauss?}
 \end{itemize}
@@ -327,17 +327,17 @@ We will answer these questions:\\[3mm]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Implementation}
 \begin{enumerate}
-    \item Implement the Gauss with the interval change  
+    \item Map the Gauss nodes to each subinterval  
     \begin{equation*}
     \int_{x_i}^{x_{i+1}} f(x)\,dx \approx \frac{h}{2} \left[ u\left(-\frac{\sqrt{3}}{3}
   \right) + u\left(\frac{\sqrt{3}}{3}\right)\right], u(t) = f\left(\frac{ht}{2}+\frac{x_i+x_{i+1}}{2}\right)
   \end{equation*}
 
-  \item Divide the interval $[a,b]$ into $n$ even subintervals 
+  \item Divide the interval $[a,b]$ into $n$ equal subintervals 
         \vfill 
   \item Apply Gauss to each subinterval $[x_i,x_{i+1}]$ 
         \vfill  
-  \item Add up the result
+  \item Add up the results
         \vfill
 \end{enumerate}
 
@@ -349,10 +349,10 @@ We will answer these questions:\\[3mm]
     \method{Composite Two-Point Gauss}
     {function $f(x)$, interval $[a,b]$, number of subintervals $n$}
     {Approximate integral $\int_a^b f(x)\,dx$}
-    {Create $n$ even subintervals and add up two-point Gauss quadratures for each subinterval}
+    {Create $n$ equal subintervals and add up two-point Gauss quadratures for each subinterval}
     \vspace{3mm}
     \begin{itemize}
-        \item Unlike the Newton-Cotes, composite Gauss has no formulas
+        \item Adjacent Gauss panels do not share endpoint evaluations.
         \item Composite Gauss is implemented \textit{modularly}
     \end{itemize}
 \end{frame}
@@ -502,7 +502,7 @@ has \textbf{no error}!
     \item We assume $q(x)$ is degree $n+1$
     \item We can do polynomial division
     $$
-        \frac{f(x)}{q(x)} = \underbrace{p(x)}_{\text{degree } n} + \underbrace{R(x)}_{\text{remainder}}
+        f(x)=p(x)q(x)+r(x), \qquad \deg r\le n
     $$
 \end{itemize}
     
@@ -521,7 +521,7 @@ has \textbf{no error}!
         \]
         where:
      \item \( p(x) \) is a polynomial of degree at most \( n \), and
-    \item \( r(x) =R(x)q(x)\) must be degree \( \leq n \).
+    \item \( r(x)\) must be degree \( \leq n \).
      
     \end{itemize}
     \vspace{1em}
@@ -621,12 +621,12 @@ We have shown that it is possible to derive a quadrature with a degree of precis
 
 \begin{block}{Result of the Gauss Quadrature Theorem}
     The quadrature with $n+1$ nodes 
-        $$\int_a^b f(x) \approx \sum_{i=0} ^{n} A_i f(x_i) $$
+        $$\int_a^b f(x)\,dx \approx \sum_{i=0} ^{n} A_i f(x_i) $$
     has a theoretical limit on the degree of precision  $r = 2n+1$ . 
 \end{block}
 \vfill 
 {
-\question{So how do get the formula for $x_i$ and $A_i$?}
+\question{So how do we get the formula for $x_i$ and $A_i$?}
 }
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -658,7 +658,7 @@ The \textbf{Legendre Polynomials} are a family of polynomials
     \[
     \mathcal{F} = \{\phi_0(x), \phi_1(x), \phi_2(x), \dots \}
     \]
-such that $\phi_n(x)$ is a polynomial of degree $n$ and they are all orthongal to each other, i.e. for \(i \neq j\):
+such that $\phi_n(x)$ is a polynomial of degree $n$ and they are all orthogonal to each other, i.e. for \(i \neq j\):
     \[
     \int_{-1}^1 \phi_i(x) \phi_j(x) \, dx = 0.
     \]
@@ -666,7 +666,7 @@ such that $\phi_n(x)$ is a polynomial of degree $n$ and they are all orthongal t
 
 \begin{itemize}
     \item By convention, we let the first polynomial be $\phi_0(x) = 1.$
-    \item The orthogonality condition requires the 2nd polynomial to be $\phi_1(x)=x$
+    \item With the standard normalization, the second polynomial is $\phi_1(x)=x$
 \end{itemize}
         $$\vdots$$
 
@@ -855,7 +855,7 @@ is exact for all polynomials of degree at most $2n+1$.
   \pgfimage[width=7.8cm]{./figs/GaussNodes}
 \end{center}
 \begin{itemize}
-    \item The bold ticks show location of the nodes are placed
+    \item The bold ticks show the locations of the nodes
     \item The numbers above them show the weight
     \item Both the node locations and weights are symmetric
 \end{itemize}
@@ -911,7 +911,7 @@ What is the degree of precision of the quadrature
         $$\int_{-1}^1 f(x)\,dx \approx \frac59\,f\left(-\sqrt{3/5}\right) + \frac89\, f(0) + \frac59 \,f\left(\sqrt{3/5}\right)?$$
 \end{example}
 \begin{itemize}
-    \item This is a $n+1=3$ point quadrature which means $n=2$
+    \item This rule has $n+1=3$ nodes which means $n=2$
     \item Degree of precision is 
     $$ 2n+1 = 5$$
     \item The 3-point Newton-Cotes (Simpson's Rule) has degree of precision 3
@@ -949,7 +949,7 @@ What is the degree of precision of the quadrature
   This script uses int\_gauss.m to integrate $\int_{0}^{5} x e^{-x}\,dx$ with
   \begin{enumerate}
     \item 1 subinterval, increasing number of nodes
-    \item 3 nodes, increases number of intervals 
+    \item 3 nodes per panel, increasing number of panels 
   \end{enumerate}
 \end{block}
 
@@ -1051,3 +1051,4 @@ points (where $n$ is the 1-D number of points).
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
+
