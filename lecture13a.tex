@@ -163,9 +163,9 @@ Proof:
     $$B = \begin{bmatrix}
         2 & -1\\ 0 & 2
     \end{bmatrix}$$
-    \item<2> Solve $0=\det(\lambda I- A)$
+    \item<2> Solve $0=\det(\lambda I- B)$
     $$
-        0=\det(\lambda I- A) = \begin{vmatrix}
+        0=\det(\lambda I- B) = \begin{vmatrix}
             \lambda - 2& 1 \\ 0 & \lambda-2
         \end{vmatrix} = (\lambda-2)(\lambda-2) \implies \lambda = 2 \text{ same}
      $$
@@ -244,7 +244,7 @@ Proof:
 \begin{itemize}
     \item Suppose that \( A \) is \( n \times n \) and has real eigenvalues
     \[
-    \lambda_1 > \lambda_2 \geq \lambda_3 \geq \dots \geq \lambda_n
+    |\lambda_1| > |\lambda_2| \geq |\lambda_3| \geq \dots \geq |\lambda_n|
     \]
         \vfill 
     \item Assume $A$ is diagonalizable
@@ -309,17 +309,13 @@ How can we find the dominant eigenvector $v_1$?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Finding the Largest Eigenvalue}{Part 3}
 \begin{itemize}
-    \item Notice that the fractions are all less than 1
+    \item Notice that the ratios all have magnitude less than 1
     \[
-    x^{(k)} = \lambda_1^k \left( v_1 + \underbrace{\left(\frac{\lambda_2}{\lambda_1}\right)^k}_{<1} v_2 + \dots + \left(\frac{\lambda_n}{\lambda_1}\right)^k v_n \right)
+    x^{(k)} = \lambda_1^k \left( v_1 + \underbrace{\left(\frac{\lambda_2}{\lambda_1}\right)^k}_{\to 0} v_2 + \dots + \left(\frac{\lambda_n}{\lambda_1}\right)^k v_n \right)
     \]
     \item Therefore, in the limit 
-    \begin{align*}
-    \lim_{k\rightarrow \infty} x^{(k)} &= \lim_{k\rightarrow \infty} \lambda_1^k \left( v_1 + \left(\frac{\lambda_2}{\lambda_1}\right)^k v_2 + \dots + \left(\frac{\lambda_n}{\lambda_1}\right)^k v_n \right)\\
-    &= \lim_{k\rightarrow \infty} \lambda_1^k \left( v_1 + 0 + \dots + 0 \right) \\
-    &= \lim_{k\rightarrow \infty} \lambda_1^k  v_1
-    \end{align*}
-    \item That means $x^{(k)}$ approximates the eigenvector $v_1$
+    \[ \lim_{k\to\infty} x^{(k)}/\lambda_1^k = v_1 \qquad (c_1=\cdots=c_n=1). \]
+    \item The direction of $x^{(k)}$ approaches the line spanned by $v_1$.
 
 \end{itemize}
 \end{frame}
@@ -336,9 +332,9 @@ How can we find the dominant eigenvector $v_1$?
 \vspace{6mm}
 How it works:
 \begin{itemize}
-    \item Start with any non-zero initial guess 
+    \item Start with an initial guess whose coefficient of $v_1$ is nonzero. 
     \item Keep multiplying the vector by $A$ 
-    \item Eventually, the vector becomes parallel to $v_1$
+    \item The direction approaches the line spanned by $v_1$.
 \end{itemize}
 \vspace{2mm}
 If we know an eigenvector, then finding its eigenvalue is nearly free
@@ -352,17 +348,19 @@ If we know an eigenvector, then finding its eigenvalue is nearly free
 Memory efficient implementation:
 \begin{lstlisting}[mathescape]
 initialize old
+% Use a nonzero component; here we use component 1.
 for k=1:kmax
     new = A*old           % get next vector 
     lam = new(1)/old(1)   % estimate eigenvalue 
     old = new             % update 
+end
 \end{lstlisting}
 
 \vspace{6mm}
 
 \begin{block}{Getting the Eigenvalue}
     Since $x^{(k+1)}  = A x^{(k)}$ and $\lambda = (Av)_i/v_i$, we have the formula 
-    $$ \lambda \approx \frac{(A x ^{(k)})_1}{x_1^{(k)}} = \frac{x_1^{(k+1)}}{x^k_1} $$
+    $$ \lambda \approx \frac{(A x ^{(k)})_1}{x_1^{(k)}} = \frac{x_1^{(k+1)}}{x_1^{(k)}} $$
 \end{block}
 
 \end{frame}
@@ -526,11 +524,7 @@ $$
 \begin{frame}{Need for Normalization}
 \begin{itemize}
     \item Starting with $x^{(0)}$, if we iterate $x^{(i)} = A x^{(i-1)}$ infinitely... 
-    \begin{align*}
-    \lim_{k\rightarrow \infty} x^{(k)} &= \lim_{k\rightarrow \infty} \lambda_1^k \left( v_1 + \left(\frac{\lambda_2}{\lambda_1}\right)^k v_2 + \dots + \left(\frac{\lambda_n}{\lambda_1}\right)^k v_n \right)\\
-    &= \lim_{k\rightarrow \infty} \lambda_1^k \left( v_1 + 0 + \dots + 0 \right) \\
-    &= \lim_{k\rightarrow \infty} \lambda_1^k  v_1
-    \end{align*}
+    \[ \lim_{k\to\infty} x^{(k)}/\lambda_1^k = v_1 \qquad (c_1=\cdots=c_n=1). \]
     \item If $|\lambda_1| < 1$, then the entire vector converges to zero 
     \item If $|\lambda_1| >1$, then the vector diverges
 \end{itemize}
@@ -552,10 +546,12 @@ $$
 New algorithm with normalization
 \begin{lstlisting}[mathescape]
 initialize old
+% Use a nonzero component; here we use component 1.
 for k=1:kmax
     new = A*old   
     lam = new(1)/old(1)   
     old = new/norm(new,1)    % scale down with 1-norm
+end
 \end{lstlisting}
 \vspace{6mm}
 \begin{itemize}
@@ -577,7 +573,7 @@ Let \( A \) have eigenvalues ordered as
 \[
 |\lambda_1| > |\lambda_2| \ge \cdots \ge |\lambda_n|.
 \]
-Then the power method converges linearly, and the error satisfies
+For diagonalizable $A$ and $c_1\ne0$, the error in direction satisfies
 \[
 E_k = \mathcal{O}\!\left(\left|\frac{\lambda_2}{\lambda_1}\right|^k\right).
 \]
@@ -636,11 +632,13 @@ E_k = \mathcal{O}\!\left(\left|\frac{\lambda_2}{\lambda_1}\right|^k\right).
     \[
     x^{(k)} = \lambda_1^k\left( c_1 v_1 + \left(\frac{\lambda_2}{\lambda_1}\right)^k c_2 v_2 + \dots + \left(\frac{\lambda_n}{\lambda_1}\right)^k c_n v_n \right).
     \]
-    \item Since the error is $E = |x^{(k)}-v_1|$ and $v_1 \approx v_1 \lambda_1^k$, asymptotically we have 
-        $$E \le M  \left(\frac{\lambda_2}{\lambda_1}\right) $$
-    since $\lambda_2/\lambda_1$ is the most dominant fraction 
+    \item If $c_1\ne0$, the scaled error satisfies
+    \[
+      \left\|x^{(k)}/\lambda_1^k-c_1v_1\right\|
+      \le M\left|\frac{\lambda_2}{\lambda_1}\right|^k .
+    \] 
     \keyidea{
-        Convergence is always linear. The convergence rate depends on the ratio between the largest and second largest eigenvectors.
+        The smaller $|\lambda_2/\lambda_1|$ is, the faster the direction converges.
     }
 \end{itemize}
 \end{frame}
@@ -652,10 +650,10 @@ E_k = \mathcal{O}\!\left(\left|\frac{\lambda_2}{\lambda_1}\right|^k\right).
 
 {
 \question{
-    How can we wind the smallest eigenvalue of $A$.
+    How can we find the eigenvalue of $A$ with smallest magnitude?
 }}
     \begin{theorem}
-        If $\lambda$ is an eigenvalue of $A$, then $\frac{1}{\lambda}$ is an eigenvalue of $A^{-1}$. 
+        If $A$ is invertible and $\lambda$ is an eigenvalue of $A$, then $\frac{1}{\lambda}$ is an eigenvalue of $A^{-1}$. 
     \end{theorem}
     Proof: 
     \begin{itemize}
@@ -725,10 +723,11 @@ Note:
 \begin{lstlisting}[mathescape]
 factorize A
 initialize old
+% Use a nonzero component; here we use component 1.
 for k=1 to kmax
     new = solve(A, old)       % Solve system A * new = old
-    lam = new(1) / old(1)     % Estimate smallest eigenvalue
-    old = new / max(new)      % Normalize vector
+    lam = new(1)/old(1)     % Estimate eigenvalue of inverse
+    old = new / norm(new,inf)      % Normalize vector
 end 
 
 return 1/lam
@@ -745,15 +744,15 @@ return 1/lam
 \begin{frame}{Remarks on the Inverse Power Method}
 Why would you want to know $\lambda_n$?
 \begin{block}{Condition Number}
-    Suppose $\lambda_1, \lambda_2, \ldots, \lambda_n$ are the eigenvalues of $A$ from greatest to least in magnitude. Then the  condition number is 
-        $$\kappa(A) = \frac{|\lambda_1|}{|\lambda_n|}.$$
+    For an invertible real symmetric matrix with eigenvalues ordered by magnitude, the 2-norm condition number is 
+        $$\kappa_2(A) = \frac{|\lambda_1|}{|\lambda_n|}.$$
 \end{block}
 \vspace{3mm}
 And the convergence rate?
 \begin{block}{Convergence Rate Formula}
     For error \( E_k \) at iteration \( k \), we have:
     \[
-    E_k = \mathcal{O} \left( \left| \frac{\lambda_{n-1}}{\lambda_n} \right|^k \right).
+    E_k = \mathcal{O} \left( \left| \frac{\lambda_n}{\lambda_{n-1}} \right|^k \right).
     \]
 \end{block}
 \end{frame}
