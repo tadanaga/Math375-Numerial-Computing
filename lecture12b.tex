@@ -725,8 +725,13 @@ Let $f$ be any polynomial of degree at most $2m-1$. Divide by $q$:
     \item Quotient $s$: degree at most $(2m-1)-m=m-1$.
     \item Remainder $r$: degree less than $m$, hence at most $m-1$.
 \end{itemize}
-\keyidea{The quotient is low enough degree for orthogonality;
-the remainder is low enough degree for exact interpolation.}
+
+    \vfill
+
+\begin{alertblock}{}
+The quotient is low enough degree for orthogonality;
+the remainder is low enough degree for exact interpolation.
+\end{alertblock}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -764,7 +769,10 @@ Thus,
 \end{block}
 \end{column}
 \end{columns}
-\keyidea{The integral and the quadrature depend only on $r$.}
+
+\begin{alertblock}{}
+The integral and the quadrature depend only on $r$.
+\end{alertblock}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -794,140 +802,142 @@ Therefore,
     =\sum_{i=0}^{m-1}w_i r(x_i)
     =\sum_{i=0}^{m-1}w_i f(x_i).}
 \]
-\keyidea{Both ignore $sq$ and integrate the remainder $r$ exactly.}
+\begin{alertblock}{}
+This proves the result.
+\end{alertblock}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % REFERENCE: Optional details; skip these during the main lecture.
 % The notation below is identical to the main proof.
-\begin{frame}[shrink]{Reference: Variables and Assumptions}
+% \begin{frame}[shrink]{Reference: Variables and Assumptions}
 
-\begin{table}[h]
-    \centering
-    \begin{tabular}{|c|p{8.5cm}|}
-        \hline
-        \textbf{Variable} &  \textbf{Definition / Assumptions} \\ \hline
-        $q(x)$ &{\small  $m$ degree polynomial that is orthogonal to all monomials $$ \int_{-1}^1 x^k q(x) \,dx = 0$$ for $k = 0,1,\ldots, m-1$ }\\[1ex] \hline
+% \begin{table}[h]
+%     \centering
+%     \begin{tabular}{|c|p{8.5cm}|}
+%         \hline
+%         \textbf{Variable} &  \textbf{Definition / Assumptions} \\ \hline
+%         $q(x)$ &{\small  $m$ degree polynomial that is orthogonal to all monomials $$ \int_{-1}^1 x^k q(x) \,dx = 0$$ for $k = 0,1,\ldots, m-1$ }\\[1ex] \hline
         
-        $\{x_0, x_1,\ldots,x_{m-1}\}$ & Roots (zeros) of $q(x)$ within the interval $[-1,1]$ \\\hline
-        $\ell_i(x)$ & {\small The $i$-th Lagrange basis polynomial, defined as 
-                                        \[\displaystyle \ell_i(x) = \prod_{\substack{j=0 \\ j \ne i}}^{m-1} \frac{x - x_j}{x_i - x_j}\]}\\ \hline
-        % $w_i$ & {\small Quadrature weights, calculated by $\displaystyle w_i = \int_{-1}^1 \ell_i(x) \,dx$}\\ \hline
-        $f(x)$ & Polynomial being integrated; for the proof, $\deg f\le 2m-1$\\ \hline
-    \end{tabular}
-\end{table}
-\end{frame}
+%         $\{x_0, x_1,\ldots,x_{m-1}\}$ & Roots (zeros) of $q(x)$ within the interval $[-1,1]$ \\\hline
+%         $\ell_i(x)$ & {\small The $i$-th Lagrange basis polynomial, defined as 
+%                                         \[\displaystyle \ell_i(x) = \prod_{\substack{j=0 \\ j \ne i}}^{m-1} \frac{x - x_j}{x_i - x_j}\]}\\ \hline
+%         % $w_i$ & {\small Quadrature weights, calculated by $\displaystyle w_i = \int_{-1}^1 \ell_i(x) \,dx$}\\ \hline
+%         $f(x)$ & Polynomial being integrated; for the proof, $\deg f\le 2m-1$\\ \hline
+%     \end{tabular}
+% \end{table}
+% \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[shrink]{Reference: Result of Theorem}
-\vspace{5mm}
-\begin{table}
-    \centering
-    \begin{tabular}{|c|p{8.5cm}|}
-        \hline
-        \textbf{Variable} &  \textbf{Result} \\ \hline
-        $w_i$ & {\small Quadrature weights, calculated by $\displaystyle w_i = \int_{-1}^1 \ell_i(x) \,dx$}\\[1ex] \hline
-        $\sum_{i=0}^{m-1} w_i f(x_i)$ & Approximation to $\int_{-1}^1 f(x)\,dx $\\ \hline
-        $f(x)$ & If $f(x)$ is a polynomial of degree at most $2m-1$ then there is no error in the quadrature\\ \hline
-    \end{tabular}
-\end{table}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}[shrink]{Reference: Result of Theorem}
+% \vspace{5mm}
+% \begin{table}
+%     \centering
+%     \begin{tabular}{|c|p{8.5cm}|}
+%         \hline
+%         \textbf{Variable} &  \textbf{Result} \\ \hline
+%         $w_i$ & {\small Quadrature weights, calculated by $\displaystyle w_i = \int_{-1}^1 \ell_i(x) \,dx$}\\[1ex] \hline
+%         $\sum_{i=0}^{m-1} w_i f(x_i)$ & Approximation to $\int_{-1}^1 f(x)\,dx $\\ \hline
+%         $f(x)$ & If $f(x)$ is a polynomial of degree at most $2m-1$ then there is no error in the quadrature\\ \hline
+%     \end{tabular}
+% \end{table}
 
-\vspace{3mm}
-Significance:
-\begin{itemize}
-    \item This theorem tells us that a quadrature
-        $$ \int_{-1}^{1} f(x)dx \approx \sum_{i=0}^{m-1} w_i f(x_i)$$
-    exact through degree $2m-1$ exists. 
-    \item A formula for $w_i$ is given
-\end{itemize}
-\end{frame}
+% \vspace{3mm}
+% Significance:
+% \begin{itemize}
+%     \item This theorem tells us that a quadrature
+%         $$ \int_{-1}^{1} f(x)dx \approx \sum_{i=0}^{m-1} w_i f(x_i)$$
+%     exact through degree $2m-1$ exists. 
+%     \item A formula for $w_i$ is given
+% \end{itemize}
+% \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Reference: Begin the Proof}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{Reference: Begin the Proof}
 
-\begin{block}{Goal}
-Show that if $f(x)$ is a polynomial of degree at most $2m-1$ then the approximation 
-$$ \int_{-1}^{1} f(x)dx \approx \sum_{i=0}^{m-1} w_i f(x_i)$$
-has \textbf{no error}!
-\end{block}
+% \begin{block}{Goal}
+% Show that if $f(x)$ is a polynomial of degree at most $2m-1$ then the approximation 
+% $$ \int_{-1}^{1} f(x)dx \approx \sum_{i=0}^{m-1} w_i f(x_i)$$
+% has \textbf{no error}!
+% \end{block}
 
-\begin{itemize}
-    \item We assume $f(x)$ has degree at most $2m-1$
-    \item We assume $q(x)$ is degree $m$
-    \item We can do polynomial division
-    $$
-        f(x)=s(x)q(x)+r(x), \qquad \deg r\le m-1
-    $$
-\end{itemize}
+% \begin{itemize}
+%     \item We assume $f(x)$ has degree at most $2m-1$
+%     \item We assume $q(x)$ is degree $m$
+%     \item We can do polynomial division
+%     $$
+%         f(x)=s(x)q(x)+r(x), \qquad \deg r\le m-1
+%     $$
+% \end{itemize}
     
-\end{frame}
+% \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Reference: Detailed Proof}{Part 1}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{Reference: Detailed Proof}{Part 1}
 
 
-\begin{enumerate}
-    \item \textbf{Polynomial Division:}
-    \begin{itemize}
-        \item Let \( f(x) \) be
-        \[
-        f(x) = s(x) q(x) + r(x),
-        \]
-        where:
-     \item \( s(x) \) is a polynomial of degree at most \( m-1 \), and
-    \item \( r(x)\) must be degree \( \leq m-1 \).
+% \begin{enumerate}
+%     \item \textbf{Polynomial Division:}
+%     \begin{itemize}
+%         \item Let \( f(x) \) be
+%         \[
+%         f(x) = s(x) q(x) + r(x),
+%         \]
+%         where:
+%      \item \( s(x) \) is a polynomial of degree at most \( m-1 \), and
+%     \item \( r(x)\) must be degree \( \leq m-1 \).
      
-    \end{itemize}
-    \vspace{1em}
+%     \end{itemize}
+%     \vspace{1em}
     
-    \item \textbf{Orthogonality Property:}
-    \begin{itemize}
-        \item Since \( q(x) \) is orthogonal to monomials:
-        \[
-        \int_{-1}^{1} x^k q(x) \, dx = 0, \quad \text{for } 0 \leq k \leq m-1,
-        \]
-        and \( \deg s(x) \leq m-1 \), it follows $q$ is orthogonal to $s$:
-        \[
-        \int_{-1}^{1} s(x) q(x) \, dx = 0.
-        \]
-    \end{itemize}
-\end{enumerate}
-\end{frame}
+%     \item \textbf{Orthogonality Property:}
+%     \begin{itemize}
+%         \item Since \( q(x) \) is orthogonal to monomials:
+%         \[
+%         \int_{-1}^{1} x^k q(x) \, dx = 0, \quad \text{for } 0 \leq k \leq m-1,
+%         \]
+%         and \( \deg s(x) \leq m-1 \), it follows $q$ is orthogonal to $s$:
+%         \[
+%         \int_{-1}^{1} s(x) q(x) \, dx = 0.
+%         \]
+%     \end{itemize}
+% \end{enumerate}
+% \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Reference: Detailed Proof}{Part 2}
-By orthogonality,
-\begin{align*}
-    \int_{-1}^1 f(x)\,dx
-    &=\int_{-1}^1 s(x)q(x)\,dx+\int_{-1}^1 r(x)\,dx\\
-    &=\int_{-1}^1 r(x)\,dx.
-\end{align*}
-Since $\deg r\le m-1$, its Lagrange interpolant is exactly $r$:
-\[
-    r(x)=\sum_{i=0}^{m-1}r(x_i)\ell_i(x).
-\]
-Integrating this identity gives
-\[
-    \int_{-1}^1 r(x)\,dx
-    =\sum_{i=0}^{m-1}r(x_i)\underbrace{\int_{-1}^1\ell_i(x)\,dx}_{w_i}.
-\]
-\end{frame}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{Reference: Detailed Proof}{Part 2}
+% By orthogonality,
+% \begin{align*}
+%     \int_{-1}^1 f(x)\,dx
+%     &=\int_{-1}^1 s(x)q(x)\,dx+\int_{-1}^1 r(x)\,dx\\
+%     &=\int_{-1}^1 r(x)\,dx.
+% \end{align*}
+% Since $\deg r\le m-1$, its Lagrange interpolant is exactly $r$:
+% \[
+%     r(x)=\sum_{i=0}^{m-1}r(x_i)\ell_i(x).
+% \]
+% Integrating this identity gives
+% \[
+%     \int_{-1}^1 r(x)\,dx
+%     =\sum_{i=0}^{m-1}r(x_i)\underbrace{\int_{-1}^1\ell_i(x)\,dx}_{w_i}.
+% \]
+% \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Reference: Detailed Proof}{Part 3}
-At each node, $q(x_i)=0$, so
-\[
-    f(x_i)=s(x_i)q(x_i)+r(x_i)=r(x_i).
-\]
-Combining the preceding identities,
-\begin{align*}
-    \int_{-1}^1 f(x)\,dx
-    &=\int_{-1}^1 r(x)\,dx\\
-    &=\sum_{i=0}^{m-1}w_i r(x_i)\\
-    &=\sum_{i=0}^{m-1}w_i f(x_i).
-\end{align*}
-\keyidea{We have proved exactness through degree $2m-1$ using $m$ nodes.}
-\end{frame}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{Reference: Detailed Proof}{Part 3}
+% At each node, $q(x_i)=0$, so
+% \[
+%     f(x_i)=s(x_i)q(x_i)+r(x_i)=r(x_i).
+% \]
+% Combining the preceding identities,
+% \begin{align*}
+%     \int_{-1}^1 f(x)\,dx
+%     &=\int_{-1}^1 r(x)\,dx\\
+%     &=\sum_{i=0}^{m-1}w_i r(x_i)\\
+%     &=\sum_{i=0}^{m-1}w_i f(x_i).
+% \end{align*}
+% \keyidea{We have proved exactness through degree $2m-1$ using $m$ nodes.}
+% \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Accuracy and Computation}
@@ -1044,7 +1054,7 @@ integration of every polynomial of degree at most $12$?
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\sectionframe{Higher Dimensions}
+% \sectionframe{Higher Dimensions}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{frame}{Something interesting...}
 
