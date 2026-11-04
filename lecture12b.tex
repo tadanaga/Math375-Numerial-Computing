@@ -306,46 +306,23 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\sectionframe{Gauss Quadrature Theorem}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Goal}
+\sectionframe{Constructing Gauss Rules}
 
-\begin{itemize}
-    \item We have derived \textit{two-point} Gauss 
-    \begin{eqnarray*}
-  \int_{-1}^1 f(x) \; \mathit{dx} \approx f\left(-\frac{\sqrt{3}}{3}
-  \right) + f\left(\frac{\sqrt{3}}{3} \right)
-\end{eqnarray*}
-
-    \item Next, we learn the general $m$-point Gauss rule.
-    In the theorem, we write $m=n+1$:
-$$\int_a^b f(x)\,dx  \approx  \sum_{i=0}^n w_i f(x_i) $$
-
-\end{itemize}
-    \vfill 
-\begin{block}{Goal}
-    Learn the \textbf{Gaussian Quadrature Theorem}.
-\end{block}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Three-Point Gauss Quadrature}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Beyond Two-Point Gauss}
+We found the two-point rule by solving for its nodes and weights:
 \[
-\int_{-1}^{1} f(x)\,dx \approx
-\underbrace{
-\frac{5}{9}\,f\left(-\sqrt{\frac{3}{5}}\right)
-+\frac{8}{9}\,f(0)
-+\frac{5}{9}\,f\left(\sqrt{\frac{3}{5}}\right)}_\text{3 points}
+\int_{-1}^1 f(x)\,dx\approx
+f\left(-\frac{1}{\sqrt{3}}\right)+f\left(\frac{1}{\sqrt{3}}\right).
 \]
+\question{How can we systematically construct rules with more points?}
 \begin{itemize}
-    \item Three nodes give degree of precision $5$.
-    \item Simpson's rule also uses three nodes, but has degree of precision $3$.
+\item We need a way to choose the nodes.
+\item Orthogonal polynomials will provide that choice.
 \end{itemize}
-\begin{block}{General Result}
-An $m$-point Gauss rule is exact for every polynomial of degree at most $2m-1$.
-\end{block}
-\question{Where do these nodes and weights come from?}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Inner Product}
 
 \begin{itemize}
@@ -364,359 +341,76 @@ An $m$-point Gauss rule is exact for every polynomial of degree at most $2m-1$.
         
 \end{itemize}
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Orthogonal Functions}
-
-
-\define{Orthogonal functions}{
-Two functions $f(x)$ and $g(x)$ are \textbf{\emph{orthogonal}} on $[a,b]$ if
-\begin{equation*}
-\int_{a}^{b} f(x)g(x)\,dx = 0
-\end{equation*}
+\define{Orthogonal Functions}{
+Two functions $f$ and $g$ are orthogonal on $[a,b]$ if
+\[
+\int_a^b f(x)g(x)\,dx=0.
+\]
 }
-\begin{itemize}
-    \item Example: $f(x) = x$, $g(x) = x^2-1$ on the interval $[-1,1]$
-
-    \item Inner product
-    \begin{align*}        
-        \int_{-1}^1 f(x)g(x)\,dx &= \int_{-1}^1 x(x^2-1)\,dx \\
-         &= \int_{-1}^1 (x^3-x)\,dx \\
-         &=  \left.\frac{1}{4}x^4-\frac{1}{2}x^2\right|_{-1}^1=0 \\
-    \end{align*}
-
-\end{itemize}
-    
-\end{frame}
-
-% Main lecture proof: three key steps. Detailed reference slides follow.
-\begin{frame}{Proof: Split the Polynomial}
-\framesubtitle{Step 1: Reduce to a low-degree remainder}
-\begin{itemize}
-    \item Let $f$ have degree at most $2m-1$.
-    \item Choose a degree-$m$ polynomial $q$ orthogonal to every
-    polynomial of degree at most $m-1$.
-    \item Use the $m$ roots of $q$ as the quadrature nodes.
-\end{itemize}
-\begin{block}{Polynomial Division}
+Consider $q(x)=x^2-\frac13$ on $[-1,1]$:
 \[
-    f(x)=p(x)q(x)+r(x),
-    \qquad \deg p\le m-1,\quad \deg r\le m-1.
+\int_{-1}^1 q(x)\,dx=\frac23-\frac23=0,
+\qquad
+\int_{-1}^1 xq(x)\,dx=0 \quad\text{(odd integrand)}.
 \]
-Here $p$ is the quotient and $r$ is the remainder.
-\end{block}
-\keyidea{The remainder $r$ is low enough degree to interpolate exactly
-using $m$ nodes.}
+Thus $q$ is orthogonal to both $1$ and $x$, and hence to every linear polynomial.
 \end{frame}
 
-\begin{frame}{Proof: Both Ignore the Same Part}
-\framesubtitle{Step 2: The product $pq$ contributes zero}
-Recall $f=pq+r$.
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\begin{block}{The Integral}
-Orthogonality gives
-\[
-    \int_a^b p(x)q(x)\,dx=0.
-\]
-Therefore,
-\[
-    \int_a^b f(x)\,dx=\int_a^b r(x)\,dx.
-\]
-\end{block}
-\end{column}
-\begin{column}{0.48\textwidth}
-\begin{block}{The Quadrature}
-The nodes are roots of $q$:
-\[
-    q(x_i)=0.
-\]
-Therefore,
-\[
-    f(x_i)=r(x_i).
-\]
-\end{block}
-\end{column}
-\end{columns}
-\vspace{3mm}
-\keyidea{Both the integral and the quadrature depend only on $r$.}
-\end{frame}
-
-\begin{frame}{Proof: Integrate the Remainder Exactly}
-\framesubtitle{Step 3: The remainder has degree at most $m-1$}
-The interpolant through the $m$ nodes equals $r$:
-\[
-    r(x)=\sum_{i=1}^{m} r(x_i)\ell_i(x).
-\]
-Choose the weights by integrating the Lagrange basis:
-\[
-    w_i=\int_a^b\ell_i(x)\,dx
-    \quad\Longrightarrow\quad
-    \int_a^b r(x)\,dx=\sum_{i=1}^{m}w_i r(x_i).
-\]
-Thus,
-\[
-    \boxed{\int_a^b f(x)\,dx
-    =\int_a^b r(x)\,dx
-    =\sum_{i=1}^{m}w_i r(x_i)
-    =\sum_{i=1}^{m}w_i f(x_i).}
-\]
-\keyidea{Both ignore $pq$ and integrate the remainder $r$ exactly.}
-\end{frame}
-
-% Reference material: may be skipped during the lecture.
-\begin{frame}{Reference: Gauss Quadrature Theorem}
-\framesubtitle{Notation in these reference slides: $m=n+1$, $w_i=A_i$}
-Gauss proved the following result:
-
-\begin{block}{Theorem}
-Let $q(x)$ be a nontrivial polynomial of degree $n+1$ such that
-\begin{equation*}
-    \int_{a}^{b} x^k q(x) dx = 0 \qquad (0\le k \le n)
-\end{equation*}
-and let $x_0, x_1, \ldots, x_n$ be the zeros of $q(x)$.  Then the quadrature
-\begin{equation*}
-  \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i), \text{ where } A_i=\int_{a}^{b} \ell_i(x) dx
-\end{equation*}
-is exact for all polynomials of degree at most $2n+1$. 
-\end{block}
-
-\vspace{1em}
-
-Recall $\ell_i(x)$ is the $i$th \textbf{Lagrange basis function}.  Here, $\ell_i(x)$ is
-   defined \\with respect to the $x_0, x_1, \ldots, x_n$ zeros of $q(x)$. 
-
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[shrink]{Reference: Variables and Assumptions}
-
-\begin{table}[h]
-    \centering
-    \begin{tabular}{|c|p{9cm}|}
-        \hline
-        \textbf{Variable} &  \textbf{Definition / Assumptions} \\ \hline
-        $q(x)$ &{\small  $n+1$ degree polynomial that is orthogonal to all monomials $$ \int_a^b x^k q(x) \,dx = 0$$ for $k = 0,1,\ldots, n$ }\\[1ex] \hline
-        
-        $\{x_0, x_1,\ldots,x_n\}$ & Roots (zeros) of $q(x)$ within the interval $[a, b]$ \\\hline
-        $\ell_i(x)$ & {\small The $i$-th Lagrange basis polynomial, defined as 
-                                        \[\displaystyle \ell_i(x) = \prod_{\substack{j=0 \\ j \ne i}}^{n} \frac{x - x_j}{x_i - x_j}\]}\\ \hline
-        % $A_i$ & {\small Quadrature weights, calculated by $\displaystyle A_i = \int_a^b \ell_i(x) \,dx$}\\ \hline
-        $f(x)$ & Continuous function being integrated over $[a, b]$\\ \hline
-    \end{tabular}
-\end{table}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[shrink]{Reference: Result of Theorem}
-\vspace{5mm}
-\begin{table}
-    \centering
-    \begin{tabular}{|c|p{9cm}|}
-        \hline
-        \textbf{Variable} &  \textbf{Result} \\ \hline
-        $A_i$ & {\small Quadrature weights, calculated by $\displaystyle A_i = \int_a^b \ell_i(x) \,dx$}\\[1ex] \hline
-        $\sum_{i=0}^n A_i f(x_i)$ & Approximation to $\int_a^b f(x)\,dx $\\ \hline
-        $f(x)$ & If $f(x)$ is a polynomial of degree at most $2n+1$ then there is no error in the quadrature\\ \hline
-    \end{tabular}
-\end{table}
-
-\vspace{3mm}
-Significance:
-\begin{itemize}
-    \item This theorem tells us that a quadrature
-        $$ \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i)$$
-    with D.O.P. $2n+1$ exists. 
-    \item A formula for $A_i$ is given
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Reference: Begin the Proof}
-
-\begin{block}{Goal}
-Show that if $f(x)$ is a polynomial of degree at most $2n+1$ then the approximation 
-$$ \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i)$$
-has \textbf{no error}!
-\end{block}
-
-\begin{itemize}
-    \item We assume $f(x)$ has degree at most $2n+1$
-    \item We assume $q(x)$ is degree $n+1$
-    \item We can do polynomial division
-    $$
-        f(x)=p(x)q(x)+r(x), \qquad \deg r\le n
-    $$
-\end{itemize}
-    
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Reference: Detailed Proof}{Part 1}
-
-
-\begin{enumerate}
-    \item \textbf{Polynomial Division:}
-    \begin{itemize}
-        \item Let \( f(x) \) be
-        \[
-        f(x) = p(x) q(x) + r(x),
-        \]
-        where:
-     \item \( p(x) \) is a polynomial of degree at most \( n \), and
-    \item \( r(x)\) must be degree \( \leq n \).
-     
-    \end{itemize}
-    \vspace{1em}
-    
-    \item \textbf{Orthogonality Property:}
-    \begin{itemize}
-        \item Since \( q(x) \) is orthogonal to monomials:
-        \[
-        \int_{a}^{b} x^k q(x) \, dx = 0, \quad \text{for } 0 \leq k \leq n,
-        \]
-        and \( \deg p(x) \leq n \), it follows $q$ is orthogonal to $p$:
-        \[
-        \int_{a}^{b} p(x) q(x) \, dx = 0.
-        \]
-    \end{itemize}
-\end{enumerate}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Reference: Detailed Proof}{Part 2}
-
-\begin{enumerate}
-    \setcounter{enumi}{2} % Continue numbering from previous slide
-    \item \textbf{Simplifying the Integral:}
-    \begin{itemize}
-        \item Therefore:
-        \[
-        \int_{a}^{b} f(x) \, dx
-        = \underbrace{\int_{a}^{b} p(x)q(x)\,dx}_{=0}
-        + \int_{a}^{b} r(x)\,dx
-        = \int_{a}^{b} r(x)\,dx.
-        \]
-    \end{itemize}
-    \vspace{1em}
-    
-    \item \textbf{Interpolating \( r(x) \):}
-    \begin{itemize}
-        \item Since \( \deg r(x) \leq n \), we can interpolate \( r(x) \) using the Lagrange basis polynomials \( \ell_i(x) \) with \textit{zero error}
-        \[
-        r(x) = \sum_{i=0}^{n} r(x_i) \ell_i(x).
-        \]
-        \item The nodes $x_i$ are chosen to be the roots of $q(x)$.
-    \end{itemize}
-\end{enumerate}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Reference: Detailed Proof}{Part 3}
-
-\begin{enumerate}
-    \setcounter{enumi}{4} % Continue numbering from previous slides
-    \item \textbf{Evaluating the Integral:}
-    \begin{itemize}
-        \item Substituting into the integral:
-        \[
-        \int_{a}^{b} f(x) \, dx = \int_{a}^{b} \sum_{i=0}^{n} r(x_i) \ell_i(x) \, dx = \sum_{i=0}^{n} r(x_i) \int_{a}^{b} \ell_i(x) \, dx.
-        \]
-    \end{itemize}
-    \vspace{1em}
-    
-    \item \textbf{Final Quadrature Formula:}
-    \begin{itemize}
-        \item Since $x_i$ are the roots of $q(x)$ we get
-        $$ f(x_i) = p(x_i)q(x_i) + r(x_i) =  r(x_i) $$
-        \item Therefore:
-        \[
-        \int_{a}^{b} f(x) \, dx = \sum_{i=0}^{n} f(x_i) A_i, \quad \text{where } A_i = \int_{a}^{b} \ell_i(x) \, dx.
-        \]
-    \end{itemize}
-\end{enumerate}
-\keyidea{
-We have shown that it is possible to derive a quadrature with a degree of precision of $2n+1$ using only $n+1$ points!
-}
-
-\end{frame}
-
-\begin{frame}{Degree of Precision}
-
-\begin{center}
-\begin{tabular}{c|c|c}
-\textbf{\# Points} & \textbf{Newton-Cotes D.O.P.} & \textbf{Gauss D.O.P.} \\
-\hline
-1 & 1 & 1 \\
-2 & 1 & 3 \\
-3 & 3 & 5 \\
-4 & 3 & 7 \\
-5 & 5 & 9 \\
-\end{tabular}
-\end{center}
-
-\vspace{5pt}
-
-\keyidea{Gaussian Quadrature uses degrees of freedom more efficiently to achieve higher accuracy}
-
-\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\sectionframe{Legendre Polynomials}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{From Theorem to Formula}
+\begin{frame}{A Familiar Pair of Roots}
+The polynomial $q(x)=x^2-\frac13$ is orthogonal to every polynomial
+of degree at most $1$.
+\[
+q(x)=0 \quad\Longrightarrow\quad x=\pm\frac{1}{\sqrt{3}}.
+\]
+\keyidea{These are exactly the nodes of two-point Gauss quadrature.}
+\question{Is this a coincidence, or does it work for more points?}
+\end{frame}
 
-\begin{block}{Result of the Gauss Quadrature Theorem}
-    The quadrature with $n+1$ nodes 
-        $$\int_a^b f(x)\,dx \approx \sum_{i=0} ^{n} A_i f(x_i) $$
-    has a theoretical limit on the degree of precision  $r = 2n+1$ . 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Gauss Quadrature Theorem}
+\begin{block}{Construction on $[-1,1]$}
+\begin{enumerate}
+\item Choose a degree-$m$ polynomial $q$ orthogonal to every
+polynomial of degree at most $m-1$.
+\item Use its $m$ roots as nodes $x_1,\ldots,x_m$.
+\item Choose weights $w_i=\displaystyle\int_{-1}^1\ell_i(x)\,dx$,
+where $\ell_i$ are the Lagrange basis polynomials at these nodes.
+\end{enumerate}
 \end{block}
-\vfill 
-{
-\question{So how do we get the formula for $x_i$ and $A_i$?}
-}
+\begin{block}{Result}
+\[
+\int_{-1}^1 f(x)\,dx=\sum_{i=1}^{m}w_i f(x_i)
+\qquad\text{whenever }\deg f\le 2m-1.
+\]
+\end{block}
+\question{Where do we find these orthogonal polynomials?}
 \end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Legendre Polynomials and Gauss Nodes}
 
-\begin{frame}{Orthogonal Polynomials}
-
-\begin{itemize}
-    \item Imagine a family of polynomials:
-    \[
-    \mathcal{F} = \{\phi_0(x), \phi_1(x), \phi_2(x), \dots \}
-    \]
-    where each member \(\phi_i(x)\) is a polynomial of degree \(i\). \\[3mm]
-    
-    \item These polynomials are orthogonal to one another on the interval \([-1, 1]\), meaning that for \(i \neq j\):
-    \[
-    \int_{-1}^1 \phi_i(x) \phi_j(x) \, dx = 0.
-    \]
-    \vspace{3mm}
-    
-    \item This family of orthogonal polynomials is called the \textbf{Legendre polynomials}. They are important for Gaussian quadrature and approximation theory. \\[3mm]
-\end{itemize}
-
-\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Legendre Polynomials}
-
 \define{Legendre Polynomials}{
-The \textbf{Legendre Polynomials} are a family of polynomials 
-    \[
-    \mathcal{F} = \{\phi_0(x), \phi_1(x), \phi_2(x), \dots \}
-    \]
-such that $\phi_n(x)$ is a polynomial of degree $n$ and they are all orthogonal to each other, i.e. for \(i \neq j\):
-    \[
-    \int_{-1}^1 \phi_i(x) \phi_j(x) \, dx = 0.
-    \]
+The Legendre polynomial $\phi_m$ has degree $m$ and satisfies
+\[
+\int_{-1}^1 \phi_m(x)p(x)\,dx=0
+\qquad\text{for every polynomial }p\text{ with }\deg p<m.
+\]
+The standard normalization is $\phi_m(1)=1$.
 }
-
 \begin{itemize}
-    \item By convention, we let the first polynomial be $\phi_0(x) = 1.$
-    \item With the standard normalization, the second polynomial is $\phi_1(x)=x$
+\item These are exactly the polynomials required by the theorem.
+\item Our earlier example is a scaled Legendre polynomial:
+\[
+\phi_2(x)=\frac32\left(x^2-\frac13\right).
+\]
+Multiplying by a nonzero constant does not change its roots.
 \end{itemize}
-        $$\vdots$$
-
-    
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -733,6 +427,7 @@ In general, you have the recurrence relation
      \phi_n(x) = \frac{(2n-1)x}{n} \phi_{n-1}(x) - \frac{n-1}{n}\phi_{n-2}(x)
   \end{equation*}
 \end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Legendre Polynomials}{First few examples}
 \begin{center}
@@ -774,60 +469,8 @@ In general, you have the recurrence relation
 \end{center}
 \keyidea{We can construct Legendre polynomials of \textit{any} order.}
 \end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Revisit Gauss' Theorem}
-Let $a=-1$ and $b=1$.
-\begin{block}{Theorem}
-Let $q(x)$ be a nontrivial polynomial of degree $n+1$ such that
-\begin{equation*}
-    \int_{-1}^{1} x^k q(x) dx = 0 \qquad (0\le k \le n) \tag{*}
-\end{equation*}
-and let $x_0, x_1, \ldots, x_n$ be the zeros of $q(x)$.  Then the quadrature
-\begin{equation*}
-  \int_{-1}^{1} f(x)dx \approx \sum_{i=0}^n A_i f(x_i), \text{ where } A_i=\int_{-1}^{1} \ell_i(x) dx
-\end{equation*}
-is exact for all polynomials of degree at most $2n+1$. 
-\end{block}
-
-    \begin{itemize}
-        \item Let $q$ be the Legendre polynomial $q(x)= \phi_{n+1} (x) \in \mathcal{F}$ 
-
-        \item Then equation $(*)$ will always be satisfied
-    \end{itemize}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Connection between the Theorem and Legendre}
-\begin{itemize}
-    \item Gauss' Theorem gave us a powerful quadrature 
-        $$ \int_{-1}^{1} f(x)\,dx \approx \sum_{i=0}^n A_i f(x_i) $$
-        with weights 
-        $$A_i = \int_{-1}^{1} \ell_i(x) \,dx$$
-
-    \item \emph{But}, the nodes were never specified because we did not know $q(x)$
-\end{itemize}
-    
-\keyidea{
-    We let $q(x)$ be the Legendre polynomial to get the Gaussian quadrature formula of any order.
-}
-
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Properties of Legendre Polynomials}
-\vspace{-0.5cm}
-\begin{center}
-  \includegraphics[height=3.5cm]{./figs/legendre.pdf}
-\end{center}
-  Properties:
-  \begin{itemize}
-    \item $\phi_n$ is a degree $n$ polynomial
-    \item $\phi_i$ is orthogonal to $\phi_j$ if $i\neq j$
-    \item Don't suffer from poor conditioning (unlike monomials)
-    \item Recursion equation can be used to find $\phi_n(x)$, for $n>1$
-    \item The roots of $\phi_n(x)$ are the nodes for Gaussian quadrature
-    \item The roots of $\phi_n(x)$ are distributed symmetrically
-  \end{itemize}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Roots}
 \begin{center}
     
@@ -868,7 +511,8 @@ is exact for all polynomials of degree at most $2n+1$.
     $$
 \end{itemize}
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Weights}
 \question{How do you find the Gauss weights?}
 \begin{itemize}
@@ -880,6 +524,7 @@ is exact for all polynomials of degree at most $2n+1$.
         $$x_0 = -\sqrt{\frac{3}{5}},\quad x_1 = 0,\quad x_2 = \sqrt{\frac{3}{5}}$$
 \end{itemize}
 \end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Weights}
 
@@ -906,47 +551,310 @@ is exact for all polynomials of degree at most $2n+1$.
     \item Both the node locations and weights are symmetric
 \end{itemize}
 \end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[containsverbatim,shrink]
-\frametitle{Quadrature Nodes}
+\begin{frame}{Three-Point Gauss Quadrature}
+\[
+\int_{-1}^{1} f(x)\,dx \approx
+\underbrace{
+\frac{5}{9}\,f\left(-\sqrt{\frac{3}{5}}\right)
++\frac{8}{9}\,f(0)
++\frac{5}{9}\,f\left(\sqrt{\frac{3}{5}}\right)}_\text{3 points}
+\]
 \begin{itemize}
-  \item In practice, programmers use a look-up table for the $x_i$ and $w_i$
-  \begin{lstlisting}
-  if(n==0)
-    x = 0;   w = 2;
-  if(n==1)
-    x(1) = -1/sqrt(3);     x(2) = -x(1);
-    w(1) =  1;             w(2) =  w(1);
-  if(n==2)
-    x(1) = -sqrt(3/5);    x(2) =  0;      x(3) = -x(1);
-    w(1) =  5/9;          w(2) =  8/9;    w(3) =  w(1);
-  if(n==3)
-    x(1) = -0.861136311594053;     x(4) = -x(1);
-    x(2) = -0.339981043584856;     x(3) = -x(2);
-    w(1) =  0.347854845137454;     w(4) =  w(1);
-    w(2) =  0.652145154862546;     w(3) =  w(2);
-  if(n==4)
-    x(1) = -0.906179845938664;     x(5) = -x(1);
-    x(2) = -0.538469310105683;     x(4) = -x(2);
-    x(3) =  0;
-    w(1) =  0.236926885056189;     w(5) =  w(1);
-    w(2) =  0.478628670499366;     w(4) =  w(2);
-    w(3) =  0.568888888888889;
-  if(n==5)
-    x(1) = -0.932469514203152;     x(6) = -x(1);
-    x(2) = -0.661209386466265;     x(5) = -x(2);
-    x(3) = -0.238619186083197;     x(4) = -x(3);
-    w(1) =  0.171324492379170;     w(6) =  w(1);
-    w(2) =  0.360761573048139;     w(5) =  w(2);
-    w(3) =  0.467913934572691;     w(4) =  w(3);
-  \end{lstlisting}
+    \item Three nodes give degree of precision $5$.
+    \item Simpson's rule also uses three nodes, but has degree of precision $3$.
+\end{itemize}
+\begin{block}{General Result}
+An $m$-point Gauss rule is exact for every polynomial of degree at most $2m-1$.
+\end{block}
+\question{Why does this construction give such a high degree of precision?}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Why Gauss Quadrature Works}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Proof: Split the Polynomial}
+\framesubtitle{Step 1: Reduce to a low-degree remainder}
+\begin{itemize}
+    \item Let $f$ have degree at most $2m-1$.
+    \item Choose a degree-$m$ polynomial $q$ orthogonal to every
+    polynomial of degree at most $m-1$.
+    \item Use the $m$ roots of $q$ as the quadrature nodes.
+\end{itemize}
+\begin{block}{Polynomial Division}
+\[
+    f(x)=p(x)q(x)+r(x),
+    \qquad \deg p\le m-1,\quad \deg r\le m-1.
+\]
+Here $p$ is the quotient and $r$ is the remainder.
+\end{block}
+\keyidea{The remainder $r$ is low enough degree to interpolate exactly
+using $m$ nodes.}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Proof: Both Ignore the Same Part}
+\framesubtitle{Step 2: The product $pq$ contributes zero}
+Recall $f=pq+r$.
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{The Integral}
+Orthogonality gives
+\[
+    \int_a^b p(x)q(x)\,dx=0.
+\]
+Therefore,
+\[
+    \int_a^b f(x)\,dx=\int_a^b r(x)\,dx.
+\]
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{The Quadrature}
+The nodes are roots of $q$:
+\[
+    q(x_i)=0.
+\]
+Therefore,
+\[
+    f(x_i)=r(x_i).
+\]
+\end{block}
+\end{column}
+\end{columns}
+\vspace{3mm}
+\keyidea{Both the integral and the quadrature depend only on $r$.}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Proof: Integrate the Remainder Exactly}
+\framesubtitle{Step 3: The remainder has degree at most $m-1$}
+The interpolant through the $m$ nodes equals $r$:
+\[
+    r(x)=\sum_{i=1}^{m} r(x_i)\ell_i(x).
+\]
+Choose the weights by integrating the Lagrange basis:
+\[
+    w_i=\int_a^b\ell_i(x)\,dx
+    \quad\Longrightarrow\quad
+    \int_a^b r(x)\,dx=\sum_{i=1}^{m}w_i r(x_i).
+\]
+Thus,
+\[
+    \boxed{\int_a^b f(x)\,dx
+    =\int_a^b r(x)\,dx
+    =\sum_{i=1}^{m}w_i r(x_i)
+    =\sum_{i=1}^{m}w_i f(x_i).}
+\]
+\keyidea{Both ignore $pq$ and integrate the remainder $r$ exactly.}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Detailed reference slides may be skipped during the lecture.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Reference: Gauss Quadrature Theorem}
+\framesubtitle{Notation in these reference slides: $m=n+1$, $w_i=A_i$}
+Gauss proved the following result:
+
+\begin{block}{Theorem}
+Let $q(x)$ be a nontrivial polynomial of degree $n+1$ such that
+\begin{equation*}
+    \int_{a}^{b} x^k q(x) dx = 0 \qquad (0\le k \le n)
+\end{equation*}
+and let $x_0, x_1, \ldots, x_n$ be the zeros of $q(x)$.  Then the quadrature
+\begin{equation*}
+  \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i), \text{ where } A_i=\int_{a}^{b} \ell_i(x) dx
+\end{equation*}
+is exact for all polynomials of degree at most $2n+1$. 
+\end{block}
+
+\vspace{1em}
+
+Recall $\ell_i(x)$ is the $i$th \textbf{Lagrange basis function}.  Here, $\ell_i(x)$ is
+   defined \\with respect to the $x_0, x_1, \ldots, x_n$ zeros of $q(x)$. 
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[shrink]{Reference: Variables and Assumptions}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|p{9cm}|}
+        \hline
+        \textbf{Variable} &  \textbf{Definition / Assumptions} \\ \hline
+        $q(x)$ &{\small  $n+1$ degree polynomial that is orthogonal to all monomials $$ \int_a^b x^k q(x) \,dx = 0$$ for $k = 0,1,\ldots, n$ }\\[1ex] \hline
+        
+        $\{x_0, x_1,\ldots,x_n\}$ & Roots (zeros) of $q(x)$ within the interval $[a, b]$ \\\hline
+        $\ell_i(x)$ & {\small The $i$-th Lagrange basis polynomial, defined as 
+                                        \[\displaystyle \ell_i(x) = \prod_{\substack{j=0 \\ j \ne i}}^{n} \frac{x - x_j}{x_i - x_j}\]}\\ \hline
+        % $A_i$ & {\small Quadrature weights, calculated by $\displaystyle A_i = \int_a^b \ell_i(x) \,dx$}\\ \hline
+        $f(x)$ & Continuous function being integrated over $[a, b]$\\ \hline
+    \end{tabular}
+\end{table}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[shrink]{Reference: Result of Theorem}
+\vspace{5mm}
+\begin{table}
+    \centering
+    \begin{tabular}{|c|p{9cm}|}
+        \hline
+        \textbf{Variable} &  \textbf{Result} \\ \hline
+        $A_i$ & {\small Quadrature weights, calculated by $\displaystyle A_i = \int_a^b \ell_i(x) \,dx$}\\[1ex] \hline
+        $\sum_{i=0}^n A_i f(x_i)$ & Approximation to $\int_a^b f(x)\,dx $\\ \hline
+        $f(x)$ & If $f(x)$ is a polynomial of degree at most $2n+1$ then there is no error in the quadrature\\ \hline
+    \end{tabular}
+\end{table}
+
+\vspace{3mm}
+Significance:
+\begin{itemize}
+    \item This theorem tells us that a quadrature
+        $$ \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i)$$
+    with D.O.P. $2n+1$ exists. 
+    \item A formula for $A_i$ is given
 \end{itemize}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Reference: Begin the Proof}
 
+\begin{block}{Goal}
+Show that if $f(x)$ is a polynomial of degree at most $2n+1$ then the approximation 
+$$ \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i)$$
+has \textbf{no error}!
+\end{block}
+
+\begin{itemize}
+    \item We assume $f(x)$ has degree at most $2n+1$
+    \item We assume $q(x)$ is degree $n+1$
+    \item We can do polynomial division
+    $$
+        f(x)=p(x)q(x)+r(x), \qquad \deg r\le n
+    $$
+\end{itemize}
+    
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Reference: Detailed Proof}{Part 1}
 
+
+\begin{enumerate}
+    \item \textbf{Polynomial Division:}
+    \begin{itemize}
+        \item Let \( f(x) \) be
+        \[
+        f(x) = p(x) q(x) + r(x),
+        \]
+        where:
+     \item \( p(x) \) is a polynomial of degree at most \( n \), and
+    \item \( r(x)\) must be degree \( \leq n \).
+     
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Orthogonality Property:}
+    \begin{itemize}
+        \item Since \( q(x) \) is orthogonal to monomials:
+        \[
+        \int_{a}^{b} x^k q(x) \, dx = 0, \quad \text{for } 0 \leq k \leq n,
+        \]
+        and \( \deg p(x) \leq n \), it follows $q$ is orthogonal to $p$:
+        \[
+        \int_{a}^{b} p(x) q(x) \, dx = 0.
+        \]
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Reference: Detailed Proof}{Part 2}
+
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering from previous slide
+    \item \textbf{Simplifying the Integral:}
+    \begin{itemize}
+        \item Therefore:
+        \[
+        \int_{a}^{b} f(x) \, dx
+        = \underbrace{\int_{a}^{b} p(x)q(x)\,dx}_{=0}
+        + \int_{a}^{b} r(x)\,dx
+        = \int_{a}^{b} r(x)\,dx.
+        \]
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Interpolating \( r(x) \):}
+    \begin{itemize}
+        \item Since \( \deg r(x) \leq n \), we can interpolate \( r(x) \) using the Lagrange basis polynomials \( \ell_i(x) \) with \textit{zero error}
+        \[
+        r(x) = \sum_{i=0}^{n} r(x_i) \ell_i(x).
+        \]
+        \item The nodes $x_i$ are chosen to be the roots of $q(x)$.
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Reference: Detailed Proof}{Part 3}
+
+\begin{enumerate}
+    \setcounter{enumi}{4} % Continue numbering from previous slides
+    \item \textbf{Evaluating the Integral:}
+    \begin{itemize}
+        \item Substituting into the integral:
+        \[
+        \int_{a}^{b} f(x) \, dx = \int_{a}^{b} \sum_{i=0}^{n} r(x_i) \ell_i(x) \, dx = \sum_{i=0}^{n} r(x_i) \int_{a}^{b} \ell_i(x) \, dx.
+        \]
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Final Quadrature Formula:}
+    \begin{itemize}
+        \item Since $x_i$ are the roots of $q(x)$ we get
+        $$ f(x_i) = p(x_i)q(x_i) + r(x_i) =  r(x_i) $$
+        \item Therefore:
+        \[
+        \int_{a}^{b} f(x) \, dx = \sum_{i=0}^{n} f(x_i) A_i, \quad \text{where } A_i = \int_{a}^{b} \ell_i(x) \, dx.
+        \]
+    \end{itemize}
+\end{enumerate}
+\keyidea{
+We have shown that it is possible to derive a quadrature with a degree of precision of $2n+1$ using only $n+1$ points!
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Accuracy and Computation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Degree of Precision}
+
+\begin{center}
+\begin{tabular}{c|c|c}
+\textbf{\# Points} & \textbf{Newton-Cotes D.O.P.} & \textbf{Gauss D.O.P.} \\
+\hline
+1 & 1 & 1 \\
+2 & 1 & 3 \\
+3 & 3 & 5 \\
+4 & 3 & 7 \\
+5 & 5 & 9 \\
+\end{tabular}
+\end{center}
+
+\vspace{5pt}
+
+\keyidea{Gaussian Quadrature uses degrees of freedom more efficiently to achieve higher accuracy}
+
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Example}
@@ -961,6 +869,44 @@ integration of every polynomial of degree at most $12$?
         2m-1\ge 12 \quad\Longrightarrow\quad m\ge \frac{13}{2}.
     \]
     \item The smallest integer is $m=7$: use \textbf{7-point Gauss}.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[containsverbatim,shrink]
+\frametitle{Quadrature Nodes}
+\begin{itemize}
+  \item Nodes and weights can be computed in advance. Here $m$ is the number of nodes.
+  \begin{lstlisting}
+  if(m==1)
+    x = 0;   w = 2;
+  elseif(m==2)
+    x(1) = -1/sqrt(3);     x(2) = -x(1);
+    w(1) =  1;             w(2) =  w(1);
+  elseif(m==3)
+    x(1) = -sqrt(3/5);    x(2) =  0;      x(3) = -x(1);
+    w(1) =  5/9;          w(2) =  8/9;    w(3) =  w(1);
+  elseif(m==4)
+    x(1) = -0.861136311594053;     x(4) = -x(1);
+    x(2) = -0.339981043584856;     x(3) = -x(2);
+    w(1) =  0.347854845137454;     w(4) =  w(1);
+    w(2) =  0.652145154862546;     w(3) =  w(2);
+  elseif(m==5)
+    x(1) = -0.906179845938664;     x(5) = -x(1);
+    x(2) = -0.538469310105683;     x(4) = -x(2);
+    x(3) =  0;
+    w(1) =  0.236926885056189;     w(5) =  w(1);
+    w(2) =  0.478628670499366;     w(4) =  w(2);
+    w(3) =  0.568888888888889;
+  elseif(m==6)
+    x(1) = -0.932469514203152;     x(6) = -x(1);
+    x(2) = -0.661209386466265;     x(5) = -x(2);
+    x(3) = -0.238619186083197;     x(4) = -x(3);
+    w(1) =  0.171324492379170;     w(6) =  w(1);
+    w(2) =  0.360761573048139;     w(5) =  w(2);
+    w(3) =  0.467913934572691;     w(4) =  w(3);
+  end
+  \end{lstlisting}
 \end{itemize}
 \end{frame}
 
@@ -1000,8 +946,8 @@ integration of every polynomial of degree at most $12$?
 \end{figure}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \sectionframe{Higher Dimensions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Higher Dimensions}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{frame}{Something interesting...}
 
