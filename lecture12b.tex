@@ -309,65 +309,103 @@ end
 \sectionframe{Constructing Gauss Rules}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Beyond Two-Point Gauss}
-We found the two-point rule by solving for its nodes and weights:
+\begin{frame}{Consider a Polynomial}
+Consider the polynomial
 \[
-\int_{-1}^1 f(x)\,dx\approx
-f\left(-\frac{1}{\sqrt{3}}\right)+f\left(\frac{1}{\sqrt{3}}\right).
+    q(x)=x^2-\frac13,\qquad -1\le x\le1.
 \]
-\question{How can we systematically construct rules with more points?}
-\begin{itemize}
-\item We need a way to choose the nodes.
-\item Orthogonal polynomials will provide that choice.
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Inner Product}
-
-\begin{itemize}
-    \item We know the \textbf{inner product} of vectors  $u$ and $v$ 
-        $$ u^Tv  = \sum_{i=1}^n u_iv_i$$
-    \item Functions $f(x)$ and $g(x)$ are like  ``infinite dimensional vectors"
-
-    \define{Inner Product}{
-        Let $f(x)$, $g(x) \in C([a,b])$. The \textbf{inner product} of the functions is 
-        $$
-        \int_a^b f(x)\,g(x)\,dx
-        $$
-    
-    }
-    
-        
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Orthogonal Functions}
-\define{Orthogonal Functions}{
-Two functions $f$ and $g$ are orthogonal on $[a,b]$ if
+\question{What are its roots?}
 \[
-\int_a^b f(x)g(x)\,dx=0.
+    q(x)=0
+    \quad\Longrightarrow\quad x^2=\frac13.
+\]
+Label the two roots:
+\[
+    x_0=-\frac1{\sqrt3},
+    \qquad x_1=\frac1{\sqrt3}.
+\]
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Two Integrals Worth Noticing}
+For $q(x)=x^2-\frac13$, calculate
+\begin{align*}
+    \int_{-1}^1 q(x)\,dx
+    &=\left[\frac{x^3}{3}-\frac{x}{3}\right]_{-1}^{1}=0,\\[3mm]
+    \int_{-1}^1 xq(x)\,dx
+    &=\int_{-1}^1\left(x^3-\frac{x}{3}\right)\,dx=0.
+\end{align*}
+The second integrand is odd on the symmetric interval $[-1,1]$.
+\keyidea{Multiplying $q$ by either $1$ or $x$ gives an integral of zero.}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{This Property Is Called Orthogonality}
+\define{Orthogonal Functions}{
+Two functions $u$ and $v$ are orthogonal on $[-1,1]$ if
+\[
+    \int_{-1}^1 u(x)v(x)\,dx=0.
 \]
 }
-Consider $q(x)=x^2-\frac13$ on $[-1,1]$:
+Our polynomial $q$ is orthogonal to $1$ and $x$. For any constants
+$\alpha,\beta$,
 \[
-\int_{-1}^1 q(x)\,dx=\frac23-\frac23=0,
-\qquad
-\int_{-1}^1 xq(x)\,dx=0 \quad\text{(odd integrand)}.
+    \int_{-1}^1(\alpha x+\beta)q(x)\,dx
+    =\alpha\underbrace{\int_{-1}^1 xq(x)\,dx}_{0}
+    +\beta\underbrace{\int_{-1}^1 q(x)\,dx}_{0}=0.
 \]
-Thus $q$ is orthogonal to both $1$ and $x$, and hence to every linear polynomial.
+\keyidea{$q$ is orthogonal to every polynomial of degree at most $1$.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{A Familiar Pair of Roots}
-The polynomial $q(x)=x^2-\frac13$ is orthogonal to every polynomial
-of degree at most $1$.
+\begin{frame}{Build the Lagrange Basis at the Roots}
+Use the roots $x_0=-1/\sqrt3$ and $x_1=1/\sqrt3$ as interpolation nodes.
+\begin{align*}
+    \ell_0(x)&=\frac{x-x_1}{x_0-x_1}
+    =\frac{x-1/\sqrt3}{-2/\sqrt3}
+    =\frac{1-\sqrt3\,x}{2},\\[3mm]
+    \ell_1(x)&=\frac{x-x_0}{x_1-x_0}
+    =\frac{x+1/\sqrt3}{2/\sqrt3}
+    =\frac{1+\sqrt3\,x}{2}.
+\end{align*}
+The linear interpolant of $f$ is
 \[
-q(x)=0 \quad\Longrightarrow\quad x=\pm\frac{1}{\sqrt{3}}.
+    p_1(x)=f(x_0)\ell_0(x)+f(x_1)\ell_1(x).
 \]
-\keyidea{These are exactly the nodes of two-point Gauss quadrature.}
-\question{Is this a coincidence, or does it work for more points?}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Integrate the Basis Functions}
+\begin{align*}
+    w_0=\int_{-1}^1\ell_0(x)\,dx
+    &=\left[\frac{x}{2}-\frac{\sqrt3\,x^2}{4}\right]_{-1}^1=1,\\[3mm]
+    w_1=\int_{-1}^1\ell_1(x)\,dx
+    &=\left[\frac{x}{2}+\frac{\sqrt3\,x^2}{4}\right]_{-1}^1=1.
+\end{align*}
+Therefore,
+\[
+    \int_{-1}^1p_1(x)\,dx
+    =f(x_0)w_0+f(x_1)w_1
+    =f(x_0)+f(x_1).
+\]
+\keyidea{Integrating the Lagrange basis gives the quadrature weights.}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{We Have Recovered Two-Point Gauss}
+Approximate $f$ by its linear interpolant and integrate:
+\[
+    \int_{-1}^1 f(x)\,dx
+    \approx\int_{-1}^1p_1(x)\,dx
+    =f\left(-\frac1{\sqrt3}\right)+f\left(\frac1{\sqrt3}\right).
+\]
+\keyidea{This is exactly the two-point Gauss rule!}
+\begin{itemize}
+    \item The roots of $q$ gave us the nodes.
+    \item Integrating the Lagrange basis gave us the weights.
+\end{itemize}
+\question{We integrated a linear interpolant. Why is the rule exact
+even for cubic polynomials?}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -655,6 +693,25 @@ Thus,
 % Detailed reference slides may be skipped during the lecture.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Reference: Inner Product}
+
+\begin{itemize}
+    \item We know the \textbf{inner product} of vectors  $u$ and $v$ 
+        $ u^Tv  = \sum_{i=1}^n u_iv_i$
+    \item Functions $f(x)$ and $g(x)$ are like  ``infinite dimensional vectors"
+
+    \define{Inner Product}{
+        Let $f(x)$, $g(x) \in C([a,b])$. The \textbf{inner product} of the functions is 
+        $
+        \int_a^b f(x)\,g(x)\,dx
+        $
+    
+    }
+    
+        
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Reference: Gauss Quadrature Theorem}
 \framesubtitle{Notation in these reference slides: $m=n+1$, $w_i=A_i$}
 Gauss proved the following result:
