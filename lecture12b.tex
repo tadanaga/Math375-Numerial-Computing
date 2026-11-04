@@ -485,7 +485,7 @@ Approximate $f$ by its linear interpolant and integrate:
 \begin{enumerate}
 \item Let $q$ be a degree-$m$ polynomial orthogonal to every
 polynomial of degree at most $m-1$.
-\item Let  $x_1,\ldots,x_m$  be the roots of $q(x)$
+\item Let $x_0,\ldots,x_{m-1}$ be the roots of $q(x)$
 \item Let $w_i=\displaystyle\int_{-1}^1\ell_i(x)\,dx$,
 where $\ell_i$ are the Lagrange basis polynomials at these nodes.
 \end{enumerate}
@@ -494,7 +494,7 @@ where $\ell_i$ are the Lagrange basis polynomials at these nodes.
 \begin{block}{Result}
 Then this integral approximation
 \[
-\int_{-1}^1 f(x)\,dx\approx \sum_{i=1}^{m}w_i f(x_i)
+\int_{-1}^1 f(x)\,dx\approx \sum_{i=0}^{m-1}w_i f(x_i)
 \]
 has \textit{no error} for any polynomial of degree $2m-1$ or less.
 \end{block}
@@ -689,125 +689,131 @@ An $m$-point Gauss rule is exact for every polynomial of degree at most $2m-1$.
 \sectionframe{Why Gauss Quadrature Works}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% TALKING POINTS: State the claim before starting the algebra.
+% Use the same notation as the examples: m nodes x_0,...,x_{m-1},
+% weights w_i, and the standard interval [-1,1].
+% We prove exactness for polynomial f, not for every continuous function.
 \begin{frame}{Goal: Prove the Theorem}
-
-\begin{block}{Theorem}
-Let $q(x)$ be a nontrivial polynomial of degree $n+1$ such that
-\begin{equation*}
-    \int_{a}^{b} x^k q(x) dx = 0 \qquad (0\le k \le n)
-\end{equation*}
-and let $x_0, x_1, \ldots, x_n$ be the zeros of $q(x)$.  Then the quadrature
-\begin{equation*}
-  \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i), \text{ where } A_i=\int_{a}^{b} \ell_i(x) dx
-\end{equation*}
-is \emph{exact} for all polynomials of degree at most $2n+1$. 
-\end{block}
-
-\vspace{1em}
-
-Here, $\ell_i(x)$ is the $i$th Lagrange basis function with respect to the $x_0, x_1, \ldots, x_n$ zeros of $q(x)$. 
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Proof: Split the Polynomial}
-\framesubtitle{Step 1: Reduce to a low-degree remainder}
+Let $q=\phi_m$ be the degree-$m$ Legendre polynomial.
 \begin{itemize}
-    \item Let $f$ have degree at most $2m-1$.
-    \item Choose a degree-$m$ polynomial $q$ orthogonal to every
-    polynomial of degree at most $m-1$.
-    \item Use the $m$ roots of $q$ as the quadrature nodes.
+    \item $q$ is orthogonal to every polynomial of degree at most $m-1$.
+    \item Its roots are the $m$ nodes $x_0,\ldots,x_{m-1}$.
+    \item The weights are $w_i=\displaystyle\int_{-1}^1\ell_i(x)\,dx$.
 \end{itemize}
-\begin{block}{Polynomial Division}
+\begin{block}{What We Want to Show}
+For every polynomial $f$ with $\deg f\le 2m-1$,
 \[
-    f(x)=p(x)q(x)+r(x),
-    \qquad \deg p\le m-1,\quad \deg r\le m-1.
+    \int_{-1}^1 f(x)\,dx=\sum_{i=0}^{m-1}w_i f(x_i).
 \]
-Here $p$ is the quotient and $r$ is the remainder.
 \end{block}
-\keyidea{The remainder $r$ is low enough degree to interpolate exactly
-using $m$ nodes.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TALKING POINTS: Polynomial division is the key move.
+% q has degree m. Dividing a polynomial of degree at most 2m-1 by q
+% leaves a quotient of degree at most m-1 and a remainder of degree < m.
+% s is the quotient, NOT the interpolant p_1 from the two-point example.
+% For two-point Gauss: a cubic divided by a quadratic leaves a linear
+% quotient and a linear (or lower-degree) remainder.
+\begin{frame}{Proof: Split the Polynomial}
+\framesubtitle{Step 1: Polynomial division}
+Let $f$ be any polynomial of degree at most $2m-1$. Divide by $q$:
+\[
+    \boxed{f(x)=s(x)q(x)+r(x).}
+\]
+\begin{itemize}
+    \item Quotient $s$: degree at most $(2m-1)-m=m-1$.
+    \item Remainder $r$: degree less than $m$, hence at most $m-1$.
+\end{itemize}
+\keyidea{The quotient is low enough degree for orthogonality;
+the remainder is low enough degree for exact interpolation.}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TALKING POINTS: There are TWO different reasons the product sq disappears.
+% Under integration: q is orthogonal to s because deg(s) <= m-1.
+% At the nodes: q(x_i)=0 because we deliberately chose the roots of q.
+% Do not say sq is identically zero; its integral and its sampled values vanish.
+% Pause: both the exact integral and the quadrature now see only r.
 \begin{frame}{Proof: Both Ignore the Same Part}
-\framesubtitle{Step 2: The product $pq$ contributes zero}
-Recall $f=pq+r$.
+\framesubtitle{Step 2: The product $sq$ contributes zero}
+From $f=sq+r$:
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
-\begin{block}{The Integral}
-Orthogonality gives
+\begin{block}{In the Integral}
+By orthogonality,
 \[
-    \int_a^b p(x)q(x)\,dx=0.
+    \int_{-1}^1 s(x)q(x)\,dx=0.
 \]
-Therefore,
+Thus,
 \[
-    \int_a^b f(x)\,dx=\int_a^b r(x)\,dx.
+    \int_{-1}^1 f(x)\,dx=\int_{-1}^1 r(x)\,dx.
 \]
 \end{block}
 \end{column}
 \begin{column}{0.48\textwidth}
-\begin{block}{The Quadrature}
-The nodes are roots of $q$:
+\begin{block}{At Each Node}
+Since $q(x_i)=0$,
 \[
-    q(x_i)=0.
+    f(x_i)=s(x_i)\,0+r(x_i).
 \]
-Therefore,
+Thus,
 \[
     f(x_i)=r(x_i).
 \]
 \end{block}
 \end{column}
 \end{columns}
-\vspace{3mm}
-\keyidea{Both the integral and the quadrature depend only on $r$.}
+\keyidea{The integral and the quadrature depend only on $r$.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TALKING POINTS: The degree-(m-1) interpolant of r equals r exactly.
+% This step uses only interpolation and the definition of the weights.
+% Read the final chain left to right: discard sq in the integral,
+% integrate r exactly, then replace r(x_i) by f(x_i).
+% Takeaway: orthogonality removes the extra high-degree part.
+% This proves exactness THROUGH degree 2m-1. Maximality is a separate claim:
+% q^2 has degree 2m, positive integral, and zero values at every node.
 \begin{frame}{Proof: Integrate the Remainder Exactly}
-\framesubtitle{Step 3: The remainder has degree at most $m-1$}
-The interpolant through the $m$ nodes equals $r$:
+\framesubtitle{Step 3: Use the Lagrange basis and the weights}
+\setlength{\abovedisplayskip}{4pt}
+\setlength{\belowdisplayskip}{4pt}
+Since $\deg r\le m-1$, interpolation at the $m$ nodes is exact:
 \[
-    r(x)=\sum_{i=1}^{m} r(x_i)\ell_i(x).
+    r(x)=\sum_{i=0}^{m-1}r(x_i)\ell_i(x).
 \]
-Choose the weights by integrating the Lagrange basis:
+Integrate and use $w_i=\displaystyle\int_{-1}^1\ell_i(x)\,dx$:
 \[
-    w_i=\int_a^b\ell_i(x)\,dx
-    \quad\Longrightarrow\quad
-    \int_a^b r(x)\,dx=\sum_{i=1}^{m}w_i r(x_i).
+    \int_{-1}^1 r(x)\,dx=\sum_{i=0}^{m-1}w_i r(x_i).
 \]
-Thus,
+Therefore,
 \[
-    \boxed{\int_a^b f(x)\,dx
-    =\int_a^b r(x)\,dx
-    =\sum_{i=1}^{m}w_i r(x_i)
-    =\sum_{i=1}^{m}w_i f(x_i).}
+    \boxed{\int_{-1}^1 f(x)\,dx
+    =\int_{-1}^1 r(x)\,dx
+    =\sum_{i=0}^{m-1}w_i r(x_i)
+    =\sum_{i=0}^{m-1}w_i f(x_i).}
 \]
-\keyidea{Both ignore $pq$ and integrate the remainder $r$ exactly.}
+\keyidea{Both ignore $sq$ and integrate the remainder $r$ exactly.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Detailed reference slides may be skipped during the lecture.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REFERENCE: Optional details; skip these during the main lecture.
+% The notation below is identical to the main proof.
 \begin{frame}[shrink]{Reference: Variables and Assumptions}
 
 \begin{table}[h]
     \centering
-    \begin{tabular}{|c|p{9cm}|}
+    \begin{tabular}{|c|p{8.5cm}|}
         \hline
         \textbf{Variable} &  \textbf{Definition / Assumptions} \\ \hline
-        $q(x)$ &{\small  $n+1$ degree polynomial that is orthogonal to all monomials $$ \int_a^b x^k q(x) \,dx = 0$$ for $k = 0,1,\ldots, n$ }\\[1ex] \hline
+        $q(x)$ &{\small  $m$ degree polynomial that is orthogonal to all monomials $$ \int_{-1}^1 x^k q(x) \,dx = 0$$ for $k = 0,1,\ldots, m-1$ }\\[1ex] \hline
         
-        $\{x_0, x_1,\ldots,x_n\}$ & Roots (zeros) of $q(x)$ within the interval $[a, b]$ \\\hline
+        $\{x_0, x_1,\ldots,x_{m-1}\}$ & Roots (zeros) of $q(x)$ within the interval $[-1,1]$ \\\hline
         $\ell_i(x)$ & {\small The $i$-th Lagrange basis polynomial, defined as 
-                                        \[\displaystyle \ell_i(x) = \prod_{\substack{j=0 \\ j \ne i}}^{n} \frac{x - x_j}{x_i - x_j}\]}\\ \hline
-        % $A_i$ & {\small Quadrature weights, calculated by $\displaystyle A_i = \int_a^b \ell_i(x) \,dx$}\\ \hline
-        $f(x)$ & Continuous function being integrated over $[a, b]$\\ \hline
+                                        \[\displaystyle \ell_i(x) = \prod_{\substack{j=0 \\ j \ne i}}^{m-1} \frac{x - x_j}{x_i - x_j}\]}\\ \hline
+        % $w_i$ & {\small Quadrature weights, calculated by $\displaystyle w_i = \int_{-1}^1 \ell_i(x) \,dx$}\\ \hline
+        $f(x)$ & Polynomial being integrated; for the proof, $\deg f\le 2m-1$\\ \hline
     \end{tabular}
 \end{table}
 \end{frame}
@@ -817,12 +823,12 @@ Thus,
 \vspace{5mm}
 \begin{table}
     \centering
-    \begin{tabular}{|c|p{9cm}|}
+    \begin{tabular}{|c|p{8.5cm}|}
         \hline
         \textbf{Variable} &  \textbf{Result} \\ \hline
-        $A_i$ & {\small Quadrature weights, calculated by $\displaystyle A_i = \int_a^b \ell_i(x) \,dx$}\\[1ex] \hline
-        $\sum_{i=0}^n A_i f(x_i)$ & Approximation to $\int_a^b f(x)\,dx $\\ \hline
-        $f(x)$ & If $f(x)$ is a polynomial of degree at most $2n+1$ then there is no error in the quadrature\\ \hline
+        $w_i$ & {\small Quadrature weights, calculated by $\displaystyle w_i = \int_{-1}^1 \ell_i(x) \,dx$}\\[1ex] \hline
+        $\sum_{i=0}^{m-1} w_i f(x_i)$ & Approximation to $\int_{-1}^1 f(x)\,dx $\\ \hline
+        $f(x)$ & If $f(x)$ is a polynomial of degree at most $2m-1$ then there is no error in the quadrature\\ \hline
     \end{tabular}
 \end{table}
 
@@ -830,9 +836,9 @@ Thus,
 Significance:
 \begin{itemize}
     \item This theorem tells us that a quadrature
-        $$ \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i)$$
-    with D.O.P. $2n+1$ exists. 
-    \item A formula for $A_i$ is given
+        $$ \int_{-1}^{1} f(x)dx \approx \sum_{i=0}^{m-1} w_i f(x_i)$$
+    exact through degree $2m-1$ exists. 
+    \item A formula for $w_i$ is given
 \end{itemize}
 \end{frame}
 
@@ -840,17 +846,17 @@ Significance:
 \begin{frame}{Reference: Begin the Proof}
 
 \begin{block}{Goal}
-Show that if $f(x)$ is a polynomial of degree at most $2n+1$ then the approximation 
-$$ \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i)$$
+Show that if $f(x)$ is a polynomial of degree at most $2m-1$ then the approximation 
+$$ \int_{-1}^{1} f(x)dx \approx \sum_{i=0}^{m-1} w_i f(x_i)$$
 has \textbf{no error}!
 \end{block}
 
 \begin{itemize}
-    \item We assume $f(x)$ has degree at most $2n+1$
-    \item We assume $q(x)$ is degree $n+1$
+    \item We assume $f(x)$ has degree at most $2m-1$
+    \item We assume $q(x)$ is degree $m$
     \item We can do polynomial division
     $$
-        f(x)=p(x)q(x)+r(x), \qquad \deg r\le n
+        f(x)=s(x)q(x)+r(x), \qquad \deg r\le m-1
     $$
 \end{itemize}
     
@@ -865,11 +871,11 @@ has \textbf{no error}!
     \begin{itemize}
         \item Let \( f(x) \) be
         \[
-        f(x) = p(x) q(x) + r(x),
+        f(x) = s(x) q(x) + r(x),
         \]
         where:
-     \item \( p(x) \) is a polynomial of degree at most \( n \), and
-    \item \( r(x)\) must be degree \( \leq n \).
+     \item \( s(x) \) is a polynomial of degree at most \( m-1 \), and
+    \item \( r(x)\) must be degree \( \leq m-1 \).
      
     \end{itemize}
     \vspace{1em}
@@ -878,11 +884,11 @@ has \textbf{no error}!
     \begin{itemize}
         \item Since \( q(x) \) is orthogonal to monomials:
         \[
-        \int_{a}^{b} x^k q(x) \, dx = 0, \quad \text{for } 0 \leq k \leq n,
+        \int_{-1}^{1} x^k q(x) \, dx = 0, \quad \text{for } 0 \leq k \leq m-1,
         \]
-        and \( \deg p(x) \leq n \), it follows $q$ is orthogonal to $p$:
+        and \( \deg s(x) \leq m-1 \), it follows $q$ is orthogonal to $s$:
         \[
-        \int_{a}^{b} p(x) q(x) \, dx = 0.
+        \int_{-1}^{1} s(x) q(x) \, dx = 0.
         \]
     \end{itemize}
 \end{enumerate}
@@ -890,61 +896,37 @@ has \textbf{no error}!
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Reference: Detailed Proof}{Part 2}
-
-\begin{enumerate}
-    \setcounter{enumi}{2} % Continue numbering from previous slide
-    \item \textbf{Simplifying the Integral:}
-    \begin{itemize}
-        \item Therefore:
-        \[
-        \int_{a}^{b} f(x) \, dx
-        = \underbrace{\int_{a}^{b} p(x)q(x)\,dx}_{=0}
-        + \int_{a}^{b} r(x)\,dx
-        = \int_{a}^{b} r(x)\,dx.
-        \]
-    \end{itemize}
-    \vspace{1em}
-    
-    \item \textbf{Interpolating \( r(x) \):}
-    \begin{itemize}
-        \item Since \( \deg r(x) \leq n \), we can interpolate \( r(x) \) using the Lagrange basis polynomials \( \ell_i(x) \) with \textit{zero error}
-        \[
-        r(x) = \sum_{i=0}^{n} r(x_i) \ell_i(x).
-        \]
-        \item The nodes $x_i$ are chosen to be the roots of $q(x)$.
-    \end{itemize}
-\end{enumerate}
-
+By orthogonality,
+\begin{align*}
+    \int_{-1}^1 f(x)\,dx
+    &=\int_{-1}^1 s(x)q(x)\,dx+\int_{-1}^1 r(x)\,dx\\
+    &=\int_{-1}^1 r(x)\,dx.
+\end{align*}
+Since $\deg r\le m-1$, its Lagrange interpolant is exactly $r$:
+\[
+    r(x)=\sum_{i=0}^{m-1}r(x_i)\ell_i(x).
+\]
+Integrating this identity gives
+\[
+    \int_{-1}^1 r(x)\,dx
+    =\sum_{i=0}^{m-1}r(x_i)\underbrace{\int_{-1}^1\ell_i(x)\,dx}_{w_i}.
+\]
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Reference: Detailed Proof}{Part 3}
-
-\begin{enumerate}
-    \setcounter{enumi}{4} % Continue numbering from previous slides
-    \item \textbf{Evaluating the Integral:}
-    \begin{itemize}
-        \item Substituting into the integral:
-        \[
-        \int_{a}^{b} f(x) \, dx = \int_{a}^{b} \sum_{i=0}^{n} r(x_i) \ell_i(x) \, dx = \sum_{i=0}^{n} r(x_i) \int_{a}^{b} \ell_i(x) \, dx.
-        \]
-    \end{itemize}
-    \vspace{1em}
-    
-    \item \textbf{Final Quadrature Formula:}
-    \begin{itemize}
-        \item Since $x_i$ are the roots of $q(x)$ we get
-        $$ f(x_i) = p(x_i)q(x_i) + r(x_i) =  r(x_i) $$
-        \item Therefore:
-        \[
-        \int_{a}^{b} f(x) \, dx = \sum_{i=0}^{n} f(x_i) A_i, \quad \text{where } A_i = \int_{a}^{b} \ell_i(x) \, dx.
-        \]
-    \end{itemize}
-\end{enumerate}
-\keyidea{
-We have shown that it is possible to derive a quadrature with a degree of precision of $2n+1$ using only $n+1$ points!
-}
-
+At each node, $q(x_i)=0$, so
+\[
+    f(x_i)=s(x_i)q(x_i)+r(x_i)=r(x_i).
+\]
+Combining the preceding identities,
+\begin{align*}
+    \int_{-1}^1 f(x)\,dx
+    &=\int_{-1}^1 r(x)\,dx\\
+    &=\sum_{i=0}^{m-1}w_i r(x_i)\\
+    &=\sum_{i=0}^{m-1}w_i f(x_i).
+\end{align*}
+\keyidea{We have proved exactness through degree $2m-1$ using $m$ nodes.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
