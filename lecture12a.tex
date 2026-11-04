@@ -307,7 +307,9 @@ $$    \int_0^1 f(x)\,dx \approx \frac{1}{6} f(x_0) + \frac{2}{3}
    \item Boole's         $$\frac{(b-a)}{90}\left[7f(a) + 32f(a+h) + 12f(\frac{a+b}{2}) + 32f(b-h)+7f(b)\right]$$
 \end{itemize}
 
-    \keyidea{Newton-Cotes are a subclass of quadratures with \textbf{equispaced} nodes.}
+    \begin{alertblock}{}
+    Newton-Cotes are a subclass of quadratures with \textbf{equispaced} nodes.
+    \end{alertblock}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Degrees of Freedom}{General Quadrature}
@@ -707,8 +709,9 @@ The number of free parameters in a numerical method is called the \textbf{degree
 
       \end{column}
     \end{columns}
-
-\keyidea{Yes! We can achieve zero error with a trapezoid! }
+\begin{alertblock}{}
+    Yes! We can achieve zero error with a trapezoid! 
+\end{alertblock}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Gaussian Quadrature}
@@ -724,6 +727,8 @@ The number of free parameters in a numerical method is called the \textbf{degree
         \end{align*}
         where $k$ is the highest possible degree
 \end{itemize}
+
+\keyidea{The idea of Gaussian quadrature is to use general node positions to make degree of precision as high as possible.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -782,14 +787,35 @@ The number of free parameters in a numerical method is called the \textbf{degree
                                   &= w_0 (a x_0 + b) + w_1 (a x_1 + b) \\
                                   & = (w_0  x_0 + w_1  x_1)a + (w_0+w_1) b \tag{**}
         \end{align*}
-    \item Since we need $(*) = (**)$, we have \textbf{2 conditions} and \textbf{4 unknowns}
-    \item Infinite solutions
+    \question{Is it possible to choose $x_0$, $x_1$, $\omega_0$, $\omega_1$ so that $(*)=(**)?$}
+    \item<2> Yes, very easily. $\omega_0=1,\omega_1=1,x_0=x_1=0$
 \end{itemize}
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Exactness for Linear Functions}
+
+\begin{block}{Formula: $\omega_0=1,\omega_1=1,x_0=x_1=0$ }
+$$
+    \int_{-1}^1 f(x)\,dx \approx f(0)+f(0) = 2f(0)
+$$   
+\textit{(Note: don't use this formula in practice.)}
+\end{block}
+\begin{itemize}
+    \item The formula above has \textit{no error} whenever $f(x)$ is linear
+    \item Demonstration: $f(x)=4x-3$
+    $$
+        \text{approx. }\int_{-1}^1 (4x-3)\,dx \approx 2f(0)=-6
+    $$
+    $$
+        \text{exact }\int_{-1}^1 (4x-3)\,dx = (2x^2-3x)|_{-1}^1=-6
+    $$
+    \item<2> Let's move on to \textit{quadratics}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Gaussian Quadrature with $n=1$}{Let's try $p_2(x)$}
 \begin{itemize}
-    \item In general, $p_2(x) = ax^2 + bx + c$
+    \item Let  $p_2(x) = ax^2 + bx + c$
     \item The exact integral is 
         \begin{equation*}
         \int_{-1}^1 p_2(x) \,dx = \frac{2}{3} a + 0 b + 2c \tag{*} 
@@ -800,7 +826,8 @@ The number of free parameters in a numerical method is called the \textbf{degree
                                   &= w_0 (a x_0^2 + bx_0 + c) + w_1 (a x_1^2 + bx_1 + c) \\
                                   & = (w_0  x_0^2 + w_1  x_1^2)a + (w_0x_0 +w_1x_1) b + (w_0 + w_1)c \tag{**} 
         \end{align*}
-    \item  we have \textbf{3 conditions} and \textbf{4 unknowns} $\implies$ infinite solutions
+    \question{Is it possible to choose $x_0$, $x_1$, $\omega_0$, $\omega_1$ so that $(*)=(**)?$}
+    \item<2> \textbf{YES!} \textbf{3 conditions} and \textbf{4 unknowns} $\implies$ infinite combinations
 \end{itemize}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -815,8 +842,13 @@ The number of free parameters in a numerical method is called the \textbf{degree
 \begin{itemize}
 \item \textcolor{blue}{\checkmark} Degree $\ge$ 1
 \item \textcolor{blue}{\checkmark} Degree $\ge$ 2
-\item \textbf{Can we hit 3?}
+\item Degree 3
 \end{itemize}
+
+\question{
+Is it possible to integrate a cubic with just $I\approx w_0 f(x_0) + w_1 f(x_1)$ with \textit{no error?} 
+}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -829,43 +861,42 @@ is exact for any cubic function $f(x) = c_0 + c_1 x + c_2 x^2 + c_3 x^3$.
 \end{block}
 
 \begin{itemize}
-    \item Exact integral
-    \begin{equation*}
-        \int_{-1}^1 f(x) \; \mathit{dx} = \int_{-1}^1 \left( c_0 + c_1 x + c_2 x^2 + c_3 x^3 \right) \; \mathit{dx} 
-    \end{equation*}
-    \item The quadrature
-    \begin{equation*}
-        w_0 f(x_0) + w_1 f(x_1)= w_0 \left(c_0 + c_1 x_0 + c_2 x_0^2 + c_3 x_0^3 \right) + w_1 \left(c_0 + c_1 x_1 + c_2 x_1^2 + c_3 x_1^3 \right) 
-    \end{equation*}
+    \item Exact integral is
+    \begin{align*}
+        I=\int_{-1}^1 f(x) \; \mathit{dx} &= \int_{-1}^1 \left( c_0 + c_1 x + c_2 x^2 + c_3 x^3 \right) \; \mathit{dx} \\
+        &= 2 c_0 + 0 c_1 + \frac{2}{3}c_2 + 0 c_3
+    \end{align*}
+    % \item The quadrature
+    % \begin{equation*}
+    %     w_0 f(x_0) + w_1 f(x_1)= w_0 \left(c_0 + c_1 x_0 + c_2 x_0^2 + c_3 x_0^3 \right) + w_1 \left(c_0 + c_1 x_1 + c_2 x_1^2 + c_3 x_1^3 \right) 
+    % \end{equation*}
 \end{itemize}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Derivation}{Part 2}
 \begin{itemize}
-    \item The exact integral is
+    \item Exact cubic integral
     \begin{align*}
-    \int_{-1}^1 f(x) \; \mathit{dx} &= \int_{-1}^1 \left( c_0 + c_1 x + c_2 x^2 + c_3 x^3 \right) \; \mathit{dx} \\
-                                    &=     2 c_0 + 0 c_1 + \frac{2}{3}c_2 + 0 c_3
+    I=     2 c_0 + 0 c_1 + \frac{2}{3}c_2 + 0 c_3  \tag{*} 
     \end{align*}
 
-\item The quadrature is 
+\item Approximation
     {\small
     \begin{align*}
         w_0 f(x_0) + w_1 f(x_1)&= w_0 \left(c_0 + c_1 x_0 + c_2 x_0^2 + c_3 x_0^3 \right) + w_1 \left(c_0 + c_1 x_1 + c_2 x_1^2 + c_3 x_1^3 \right) \\
         &= c_0(w_0+w_1) + c_1 (w_0x_0 +w_1x_1)  + \cdots \\
-         & \hspace{5mm} c_2(w_0x_0^2+w_1x_1^2) + c_3(w_0 x_0^3 + w_1 x_1^3) \\
+         & \hspace{5mm} c_2(w_0x_0^2+w_1x_1^2) + c_3(w_0 x_0^3 + w_1 x_1^3)  \tag{**} 
     \end{align*}
     }
-\item We set the quadrature equal to the exact integral 
+\item Next, force $(*)=(**)$
 
-\item We set the factors of $c_0$, $c_1$, $c_2$, and $c_3$ equal to get 4 equations
 
 \end{itemize}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Derivation}{Part 3}
 \begin{itemize}
-    \item Our equations are:
+    \item We obtain 4 equations and 4 unknowns
     \begin{eqnarray*}
       w_0 + w_1 = 2 &\qquad&
       w_0x_0 + w_1x_1 =  0 \\
@@ -877,7 +908,7 @@ is exact for any cubic function $f(x) = c_0 + c_1 x + c_2 x^2 + c_3 x^3$.
   w_0 = 1 \quad w_1 = 1 \quad x_0 = -\frac{\sqrt{3}}{3}
          \quad x_1 = \frac{\sqrt{3}}{3}
 \end{eqnarray*}
-\begin{block}{Gaussian Quadrature with $n=1$}
+\begin{block}{Two-Point Gaussian Quadrature Formula}
 \begin{eqnarray*}
   \int_{-1}^1 f(x) \; \mathit{dx} \approx f\left(-\frac{\sqrt{3}}{3}
   \right) + f\left(\frac{\sqrt{3}}{3} \right)
@@ -889,16 +920,27 @@ is exact for any cubic function $f(x) = c_0 + c_1 x + c_2 x^2 + c_3 x^3$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Example 1}
 \begin{example}
-Approximate $\displaystyle \int_{-1}^{1} x^2 e^{-x} ~dx$ using Gaussian quadrature with $n=1$. \\    
+Approximate $\displaystyle \int_{-1}^{1} \frac{x^2}{1+x^4}\,dx$
+using two-point Gaussian quadrature.
 \end{example}
-\begin{itemize}
-    \item Using the weights $w_0=w_1=1$ and points $x_0 = -\frac{\sqrt{3}}{3}$, $x_1 = \frac{\sqrt{3}}{3}$
-    \begin{align*}
-    \int_{-1}^1 f(x) \; \mathit{dx} &\approx f\left(-\frac{\sqrt{3}}{3}\right) + f\left(\frac{\sqrt{3}}{3} \right)\\
-                                & =\left(-\frac{\sqrt{3}}{3}\right)^2 e^{\frac{\sqrt{3}}{3}} + \left(\frac{\sqrt{3}}{3}\right)^2 e^{-\left(\frac{\sqrt{3}}{3}\right)} \\  
-                                & =\frac{1}{3}\left(  e^{\frac{\sqrt{3}}{3}} +e^{-\left(\frac{\sqrt{3}}{3}\right)}\right) \approx 0.7809
-    \end{align*}
-\end{itemize}
+
+The nodes are $x_0=-1/\sqrt{3}$ and $x_1=1/\sqrt{3}$.
+Both weights are $1$.
+
+Since $f$ is even, we only need to evaluate it once:
+\[
+    f\left(\frac{1}{\sqrt{3}}\right)
+    = \frac{1/3}{1+1/9}
+    = \frac{3}{10}.
+\]
+
+Thus,
+\[
+    \int_{-1}^{1} \frac{x^2}{1+x^4}\,dx
+    \approx f(x_0)+f(x_1)
+    = 2\left(\frac{3}{10}\right)
+    = \boxed{\frac{3}{5}}.
+\]
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -913,16 +955,161 @@ The quadrature
 is only valid when integrating from $-1$ to $1$. 
 \end{alertblock}
 \begin{itemize}
-    \item That means we cannot directly use Gaussian quadrature to approximate integrals over general intervals
-    \begin{eqnarray*}
-      \int_{a}^b f(x) \; \mathit{dx} 
-    \end{eqnarray*}
+  \item That means any we cannot use the formula for other interval
+  $$
+    \int_{-3}^5 f(x)\,dx \not\approx  f\left(-\frac{\sqrt{3}}{3}\right) + f\left(\frac{\sqrt{3}}{3} \right)
+  $$
+  \question{How can we utilize Gaussian quadrature when $[a,b]\ne[-1,1]$?}
+  %   \begin{eqnarray*}
+  %     \int_{a}^b f(x) \; \mathit{dx} 
+  %   \end{eqnarray*}
 
-  \item We can apply a \textbf{change of variables}. Let $ \displaystyle x  = \frac{b-a}{2}t+\frac{b+a}{2}$
-
+  % \item We can apply a \textbf{change of variables}. Let $ \displaystyle x  = \frac{b-a}{2}t+\frac{b+a}{2}$
 \end{itemize}
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Scale and Shift}
+
+\begin{itemize}
+    \item Suppose $X$ represents a number in the range $[0,1]$
+
+\question{
+Then what is the range of $Y$ in each of the following:
+\begin{itemize}
+    \item $Y = 3X$
+    \item $Y = 4Y+1$
+    \item $Y=2Y-1$
+\end{itemize}
+}
+    \item The scale and shift $Y=\alpha X+\beta$ changes the range to 
+    $$
+        [\beta,\alpha+\beta]
+    $$
+    
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Remapping the Interval}
+
+{
+\question{What linear change of variables $x(t)$ maps
+$-1 \le t \le 1$ to $1 \le x \le 5$ as shown?}
+}
+
+\begin{center}
+\begin{tikzpicture}[x=1.1cm,y=1cm]
+    % Source axis (top) and target axis (bottom)
+    \draw[->] (-2,1.6) -- (6,1.6) node[right] {$t$};
+    \draw[->] (-2,0)   -- (6,0)   node[right] {$x$};
+
+    % Highlight the two intervals
+    \draw[blue, very thick] (-1,1.6) -- (1,1.6);
+    \draw[blue, very thick] (1,0) -- (5,0);
+
+    % Show where the endpoints and midpoint go
+    \foreach \t/\x in {-1/1, 0/3, 1/5} {
+        \draw (\t,1.5) -- (\t,1.7) node[above] {$\t$};
+        \draw (\x,0.1) -- (\x,-0.1) node[below] {$\x$};
+        \draw[->, thick] (\t,1.49) -- (\x,0.12);
+    }
+\end{tikzpicture}
+\end{center}
+
+\onslide<2->{
+\begin{block}{Change of Variables}
+The midpoint $t=0$ maps to $x=3$, and each unit step in $t$
+moves two units in $x$. Therefore,
+\[
+    \boxed{x(t)=3+2t}.
+\]
+\end{block}
+}
+
+\end{frame}
+
+\begin{frame}{Remapping to a General Interval}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+    % Reference interval (top) and target interval (bottom)
+    \draw[->] (-3.4,1.5) -- (3.4,1.5) node[right] {$t$};
+    \draw[->] (-3.4,0)   -- (3.4,0)   node[right] {$x$};
+
+    \draw[blue, very thick] (-1.5,1.5) -- (1.5,1.5);
+    \draw[blue, very thick] (-2.7,0)   -- (2.7,0);
+
+    % Map endpoints to endpoints and midpoint to midpoint
+    \foreach \top/\bot/\tlab/\xlab in {
+        -1.5/-2.7/{-1}/{a},
+         0/0/{0}/{\frac{a+b}{2}},
+         1.5/2.7/{1}/{b}} {
+        \draw (\top,1.4) -- (\top,1.6) node[above] {$\tlab$};
+        \draw (\bot,0.1) -- (\bot,-0.1) node[below] {$\xlab$};
+        \draw[->, thick] (\top,1.38) -- (\bot,0.12);
+    }
+\end{tikzpicture}
+\end{center}
+
+\begin{block}{Change of Variables}
+\[
+    \boxed{
+    x(t)=\underbrace{\frac{a+b}{2}}_{\text{midpoint}}
+        +\underbrace{\frac{b-a}{2}}_{\text{half-width}}\,t
+    }
+\]
+\end{block}
+
+\end{frame}
+
+% \begin{frame}{Remapping the Interval}
+% \begin{figure}
+%     \centering
+%     \begin{tikzpicture}[scale=1.2]
+    
+%       % Number lines: x (top), t (bottom)
+%       \draw[->] (-2,1.5) -- (6.5,1.5) node[right] {$x$};
+%       \draw[->] (-2,0) -- (6.5,0) node[right] {$t$};
+    
+%       % t-axis ticks: -1, 0, 1
+%       \foreach \x/\lbl in {-1/{$-1$}, 0/0, 1/1} {
+%         \draw (\x,0.1) -- (\x,-0.1);
+%         \node[below] at (\x,0) {\lbl};
+%       }
+    
+%       % x-axis ticks: a=1, midpoint=3, b=5
+%       \foreach \x/\lbl in {1/1, 3/{$\frac{a+b}{2}$}, 5/5} {
+%         \draw (\x,1.6) -- (\x,1.4);
+%         \node[above] at (\x,1.5) {\lbl};
+%       }
+    
+%       % Diagonal mapping arrows: from x to t
+%       \draw[->, thick] (1,1.5) -- (-1,0.05);
+%       \draw[->, thick] (3,1.5) -- (0,0.05);
+%       \draw[->, thick] (5,1.5) -- (1,0.05);
+    
+%       % Highlight both intervals with hatching
+%       \foreach \x in {1.2,1.4,...,4.8} {
+%         \draw[gray!40] (\x,1.4) -- (\x,1.6); % x interval
+%       }
+%       \foreach \x in {-0.8,-0.6,...,0.8} {
+%         \draw[gray!40] (\x,-0.1) -- (\x,0.1); % t interval
+%       }
+    
+%       % Optional labels
+%       \node at (3,2.2) {\small Interval $[a,b]$};
+%       \node at (0,-1) {\small Interval $[-1,1]$};
+    
+%     \end{tikzpicture}
+%     \end{figure}
+%     \begin{block}{Change of Variables}
+
+%     The change of variables $$ \displaystyle t = g^{-1}(x) = \frac{2}{b-a}x - \frac{b+a}{b-a}$$
+%     remaps an interval $x\in[a,b]$ to the interval $t\in[-1,1]$.
+
+%     \end{block}
+% \end{frame}
+
 
 \begin{frame}{Change of Variables in Integration}{General Form}
 \begin{block}{General Change of Variables}
@@ -931,70 +1118,22 @@ is only valid when integrating from $-1$ to $1$.
 \end{block}
 
 \begin{itemize}
-    \item If we let $$ x = g(t)  = \frac{b-a}{2}t+\frac{b+a}{2}$$  
+    \item Let $$ x = g(t)  = \frac{b-a}{2}t+\frac{b+a}{2}$$  
+    \item The derivative is 
+    $$g'(t) = \frac{b-a}{2}$$
     \item The inverse is  $t = g^{-1}(x) = \frac{2x - (b+a)}{b-a}$ so 
     \begin{itemize}
         \item $g^{-1}(b) = 1$
         \item $g^{-1}(a) = -1$
     \end{itemize}
-    \item The derivative is 
-    $$g'(t) = \frac{b-a}{2}$$
     
 \end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Remapping the Interval}
-\begin{figure}
-    \centering
-    \begin{tikzpicture}[scale=1.2]
-    
-      % Number lines: x (top), t (bottom)
-      \draw[->] (-2,1.5) -- (6.5,1.5) node[right] {$x$};
-      \draw[->] (-2,0) -- (6.5,0) node[right] {$t$};
-    
-      % t-axis ticks: -1, 0, 1
-      \foreach \x/\lbl in {-1/{$-1$}, 0/0, 1/1} {
-        \draw (\x,0.1) -- (\x,-0.1);
-        \node[below] at (\x,0) {\lbl};
-      }
-    
-      % x-axis ticks: a=1, midpoint=3, b=5
-      \foreach \x/\lbl in {1/1, 3/{$\frac{a+b}{2}$}, 5/5} {
-        \draw (\x,1.6) -- (\x,1.4);
-        \node[above] at (\x,1.5) {\lbl};
-      }
-    
-      % Diagonal mapping arrows: from x to t
-      \draw[->, thick] (1,1.5) -- (-1,0.05);
-      \draw[->, thick] (3,1.5) -- (0,0.05);
-      \draw[->, thick] (5,1.5) -- (1,0.05);
-    
-      % Highlight both intervals with hatching
-      \foreach \x in {1.2,1.4,...,4.8} {
-        \draw[gray!40] (\x,1.4) -- (\x,1.6); % x interval
-      }
-      \foreach \x in {-0.8,-0.6,...,0.8} {
-        \draw[gray!40] (\x,-0.1) -- (\x,0.1); % t interval
-      }
-    
-      % Optional labels
-      \node at (3,2.2) {\small Interval $[a,b]$};
-      \node at (0,-1) {\small Interval $[-1,1]$};
-    
-    \end{tikzpicture}
-    \end{figure}
-    \begin{block}{Change of Variables}
-
-    The change of variables $$ \displaystyle t = g^{-1}(x) = \frac{2}{b-a}x - \frac{b+a}{b-a}$$
-    remaps an interval $x\in[a,b]$ to the interval $t\in[-1,1]$.
-
-    \end{block}
-\end{frame}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Change of Variables in Integration}{Applying to Gaussian Quadrature}
+\begin{frame}{Change of Variables to $[-1,1]$}
 
 \begin{block}{Change of Variables Formula}
 Any integral over $[a,b]$ can be changed to an integral over $[-1,1]$ 
@@ -1002,9 +1141,34 @@ Any integral over $[a,b]$ can be changed to an integral over $[-1,1]$
     \int_a^b f(x)\,dx = \int_{-1}^{1}
     \underbrace{f\left(\frac{(b-a)t}{2}+\frac{b+a}{2}\right)}_{u(t)}\frac{b-a}{2}\,dt
 \end{equation*}
-Let us define this function $u(t)$.
 \end{block}
-  \begin{block}{2-point Gaussian Quadrature for $\int_a^b f(x)\,dx$}
+
+\keyidea{Any integral can be remapped to $[-1,1]$ so you can always use the Two-point gauss formula}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{Combine the Formulas}
+
+\begin{enumerate}
+
+    \item Two-Point Gauss
+    $$
+      \int_{-1}^1 f(x) \; \mathit{dx} \approx f\left(-\frac{\sqrt{3}}{3}\right) + f\left(\frac{\sqrt{3}}{3} \right)
+    $$
+    \item Change of variables
+    \begin{equation*}
+    \int_a^b f(x)\,dx = \int_{-1}^{1}
+    \underbrace{f\left(\frac{(b-a)t}{2}+\frac{b+a}{2}\right)}_{u(t)}\frac{b-a}{2}\,dt
+\end{equation*}
+
+\end{enumerate}
+
+
+  \begin{block}{Two-point Gauss for Any Interval}
   \begin{equation*}
     \int_a^b f(x)\,dx \approx \frac{b-a}{2} \left[ u\left(-\frac{\sqrt{3}}{3}
   \right) + u\left(\frac{\sqrt{3}}{3}\right)\right], \text{where}
@@ -1014,8 +1178,8 @@ Let us define this function $u(t)$.
 \end{block}
 
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 { \logo{}
 \begin{frame}{Example with Change of Interval}
@@ -1052,17 +1216,25 @@ Gaussian quadrature with $n=1$. \\
 
 \begin{frame}{Summary}
 \begin{itemize}
-    \item Standard Trapezoid Rule
+
+    \item Two-Point Quadrature 
+
     $$
-        \int_{-1}^1 f(x) \,dx \approx \frac{h}{2}f(-1) + \frac{h}{2}f(1)
+        \int_{-1}^1 f(x)\,dx \approx w_0 f(x_0)+w_1f(x_1)
+    $$
+    
+    \item Trapezoid is a Two-point Method
+    $$
+        \int_{-1}^1 f(x) \,dx \approx f(-1) + f(1)
     $$
 
-    \item Gaussian Quadrature 
+    \item Two-Point Gaussian Quadrature 
     $$
           \int_{-1}^1 f(x) \; \mathit{dx} \approx f\left(-\frac{\sqrt{3}}{3}\right) + f\left(\frac{\sqrt{3}}{3} \right)
     $$
 
-    \item Trapezoid is exact for \textbf{linear functions}, but Gauss is exact for \textbf{cubics}!
+    \keyidea{Two-Point Newton-Cotes has degree of precision 1, while Two-Point Gauss has degree of precision 3.}
+
 \end{itemize}
     
 \end{frame}
@@ -1071,12 +1243,15 @@ Gaussian quadrature with $n=1$. \\
 \begin{frame}{Moving Forward}
 
 \begin{itemize}
+
     \item General Gaussian Quadrature for $n+1$ points
     \vfill 
     \item Composite Gaussian Quadrature
     \vfill 
     \item Derivation of Nodes and Weights
     \vfill
+    \item Order of accuracy $E=\mO(h^p)$
+    \vfill 
 \end{itemize}
     
 \end{frame}
