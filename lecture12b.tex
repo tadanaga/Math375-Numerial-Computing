@@ -306,7 +306,10 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\sectionframe{Constructing Gauss Rules}
+\sectionframe{
+$$
+q(x) = x^2 - \frac{1}{3}
+$$}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Consider a Polynomial}
@@ -314,6 +317,7 @@ Consider the polynomial
 \[
     q(x)=x^2-\frac13,\qquad -1\le x\le1.
 \]
+
 \question{What are its roots?}
 \[
     q(x)=0
@@ -327,12 +331,40 @@ Label the two roots:
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{What does it look like?}
+\begin{center}
+    
+    \begin{tikzpicture}
+\begin{axis}[
+    width=10cm, height=5cm,
+    domain=-1:1,
+    samples=200,
+    axis lines=middle,
+    xlabel={$x$},
+    ylabel={$y$},
+    ymin=-1.2, ymax=1.2,
+    legend style={
+    at={(0.5,-0.15)}, 
+    anchor=north, 
+    legend columns=-1
+    },
+    axis line style={->},
+    ticks=none,
+]
+% Legendre P2
+\addplot[green!60!black, thick] {x^2 - 1/3};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Two Integrals Worth Noticing}
 For $q(x)=x^2-\frac13$, calculate
 \begin{align*}
-    \int_{-1}^1 q(x)\,dx
+    \int_{-1}^1\,(1)\; q(x)\,dx
     &=\left[\frac{x^3}{3}-\frac{x}{3}\right]_{-1}^{1}=0,\\[3mm]
-    \int_{-1}^1 xq(x)\,dx
+    \int_{-1}^1 \,(x)\,q(x)\,dx
     &=\int_{-1}^1\left(x^3-\frac{x}{3}\right)\,dx=0.
 \end{align*}
 The second integrand is odd on the symmetric interval $[-1,1]$.
@@ -342,7 +374,7 @@ The second integrand is odd on the symmetric interval $[-1,1]$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{This Property Is Called Orthogonality}
 \define{Orthogonal Functions}{
-Two functions $u$ and $v$ are orthogonal on $[-1,1]$ if
+Two functions $u$ and $v$ are \textbf{orthogonal} on $[-1,1]$ if
 \[
     \int_{-1}^1 u(x)v(x)\,dx=0.
 \]
@@ -354,11 +386,16 @@ $\alpha,\beta$,
     =\alpha\underbrace{\int_{-1}^1 xq(x)\,dx}_{0}
     +\beta\underbrace{\int_{-1}^1 q(x)\,dx}_{0}=0.
 \]
-\keyidea{$q$ is orthogonal to every polynomial of degree at most $1$.}
+\keyidea{Function $q(x)$ is orthogonal to every linear function!}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Build the Lagrange Basis at the Roots}
+
+\begin{alertblock}{}
+    Now something even weirder...
+\end{alertblock}
+\vfill
 Use the roots $x_0=-1/\sqrt3$ and $x_1=1/\sqrt3$ as interpolation nodes.
 \begin{align*}
     \ell_0(x)&=\frac{x-x_1}{x_0-x_1}
@@ -383,15 +420,15 @@ The linear interpolant of $f$ is
     &=\left[\frac{x}{2}+\frac{\sqrt3\,x^2}{4}\right]_{-1}^1=1.
 \end{align*}
 Therefore,
-\[
-    \int_{-1}^1p_1(x)\,dx
-    =f(x_0)w_0+f(x_1)w_1
-    =f(x_0)+f(x_1).
-\]
-\keyidea{Integrating the Lagrange basis gives the quadrature weights.}
+\begin{align*}
+\int_{-1}^1p_1(x)\,dx &=f(x_0)w_0+f(x_1)w_1\\
+&=f(x_0)+f(x_1)\\
+&=f\left(-\frac1{\sqrt3}\right)+f\left(\frac1{\sqrt3}\right).
+\end{align*}
+\question{Does this look familiar?}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{We Have Recovered Two-Point Gauss}
 Approximate $f$ by its linear interpolant and integrate:
 \[
@@ -404,35 +441,73 @@ Approximate $f$ by its linear interpolant and integrate:
     \item The roots of $q$ gave us the nodes.
     \item Integrating the Lagrange basis gave us the weights.
 \end{itemize}
-\question{We integrated a linear interpolant. Why is the rule exact
-even for cubic polynomials?}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Gauss Quadrature Theorem}
-\begin{block}{Construction on $[-1,1]$}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Summary of Events}
+
 \begin{enumerate}
-\item Choose a degree-$m$ polynomial $q$ orthogonal to every
-polynomial of degree at most $m-1$.
-\item Use its $m$ roots as nodes $x_1,\ldots,x_m$.
-\item Choose weights $w_i=\displaystyle\int_{-1}^1\ell_i(x)\,dx$,
-where $\ell_i$ are the Lagrange basis polynomials at these nodes.
+    \item Introduced a polynomial $$q(x)=x^2-1/3$$
+
+    \item<2-> Found its roots $q(x)=0$
+    $$
+        x_{0} = -\frac{1}{\sqrt{3}},\quad  x_{1} = \frac{1}{\sqrt{3}}
+    $$
+    \item<3-> Constructed Lagrange basis functions $\ell_0$ and $\ell_1$ based on $x_0$ and $x_1$
+    $$
+        \ell_0(x)=\frac{1-\sqrt3\,x}{2},\quad 
+    \ell_1(x)
+    =\frac{1+\sqrt3\,x}{2}
+    $$
+    \item<4-> Then integrated them 
+    $$
+    w_0=\int_{-1}^1\ell_0(x)\,dx=1,\quad 
+    w_1=\int_{-1}^1\ell_1(x)\,dx=1
+    $$
+    \item<5-> That gave us the Two-Point Gauss formula 
+    \[
+        \int_{-1}^1 f(x)\,dx
+        \approx f\left(-\frac1{\sqrt3}\right)+f\left(\frac1{\sqrt3}\right)
+    \]
 \end{enumerate}
-\end{block}
-\begin{block}{Result}
-\[
-\int_{-1}^1 f(x)\,dx=\sum_{i=1}^{m}w_i f(x_i)
-\qquad\text{whenever }\deg f\le 2m-1.
-\]
-\end{block}
-\question{Where do we find these orthogonal polynomials?}
+    
 \end{frame}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Legendre Polynomials and Gauss Nodes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Gauss's Famous Quadrature Theorem}
+
+\begin{block}{Hypothesis}
+\begin{enumerate}
+\item Let $q$ be a degree-$m$ polynomial orthogonal to every
+polynomial of degree at most $m-1$.
+\item Let  $x_1,\ldots,x_m$  be the roots of $q(x)$
+\item Let $w_i=\displaystyle\int_{-1}^1\ell_i(x)\,dx$,
+where $\ell_i$ are the Lagrange basis polynomials at these nodes.
+\end{enumerate}
+
+\end{block}
+\begin{block}{Result}
+Then this integral approximation
+\[
+\int_{-1}^1 f(x)\,dx\approx \sum_{i=1}^{m}w_i f(x_i)
+\]
+has \textit{no error} for any polynomial of degree $2m-1$ or less.
+\end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Legendre Polynomials}
+
+{
+\question{So what is the $q(x)$ function?}
+}
+
+\onslide<2>{
 \define{Legendre Polynomials}{
 The Legendre polynomial $\phi_m$ has degree $m$ and satisfies
 \[
@@ -442,13 +517,13 @@ The Legendre polynomial $\phi_m$ has degree $m$ and satisfies
 The standard normalization is $\phi_m(1)=1$.
 }
 \begin{itemize}
-\item These are exactly the polynomials required by the theorem.
 \item Our earlier example is a scaled Legendre polynomial:
 \[
 \phi_2(x)=\frac32\left(x^2-\frac13\right).
 \]
-Multiplying by a nonzero constant does not change its roots.
+\item Legendre polynomials have very convenient properties
 \end{itemize}
+}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -505,7 +580,7 @@ In general, you have the recurrence relation
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\keyidea{We can construct Legendre polynomials of \textit{any} order.}
+\keyidea{We can construct $q(x)$ in Gauss's theorem for \textit{any} order.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -539,11 +614,12 @@ In general, you have the recurrence relation
 \end{tikzpicture}
 \end{center}
 \begin{itemize}
-    \item The roots of $\phi_2(x)$ are
+    \item The roots of $q(x)$ are the Gauss nodes
+    \item For two-point Gauss:  $\phi_2(x)=0$ gives
     $$
     x_0 = -\frac{1}{\sqrt{3}}, \quad x_1 = \frac{1}{\sqrt{3}}
     $$
-    \item The roots of $\phi_3(x)$ are
+    \item For three-point Gauss:  $\phi_3(x)=0$ gives
     $$
     x_0 = -\sqrt{\frac{3}{5}}, \quad x_1 = 0,\quad x_2 = \sqrt{\frac{3}{5}}
     $$
@@ -611,6 +687,27 @@ An $m$-point Gauss rule is exact for every polynomial of degree at most $2m-1$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Why Gauss Quadrature Works}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Goal: Prove the Theorem}
+
+\begin{block}{Theorem}
+Let $q(x)$ be a nontrivial polynomial of degree $n+1$ such that
+\begin{equation*}
+    \int_{a}^{b} x^k q(x) dx = 0 \qquad (0\le k \le n)
+\end{equation*}
+and let $x_0, x_1, \ldots, x_n$ be the zeros of $q(x)$.  Then the quadrature
+\begin{equation*}
+  \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i), \text{ where } A_i=\int_{a}^{b} \ell_i(x) dx
+\end{equation*}
+is \emph{exact} for all polynomials of degree at most $2n+1$. 
+\end{block}
+
+\vspace{1em}
+
+Here, $\ell_i(x)$ is the $i$th Lagrange basis function with respect to the $x_0, x_1, \ldots, x_n$ zeros of $q(x)$. 
+
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Proof: Split the Polynomial}
@@ -693,47 +790,8 @@ Thus,
 % Detailed reference slides may be skipped during the lecture.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Reference: Inner Product}
 
-\begin{itemize}
-    \item We know the \textbf{inner product} of vectors  $u$ and $v$ 
-        $ u^Tv  = \sum_{i=1}^n u_iv_i$
-    \item Functions $f(x)$ and $g(x)$ are like  ``infinite dimensional vectors"
 
-    \define{Inner Product}{
-        Let $f(x)$, $g(x) \in C([a,b])$. The \textbf{inner product} of the functions is 
-        $
-        \int_a^b f(x)\,g(x)\,dx
-        $
-    
-    }
-    
-        
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Reference: Gauss Quadrature Theorem}
-\framesubtitle{Notation in these reference slides: $m=n+1$, $w_i=A_i$}
-Gauss proved the following result:
-
-\begin{block}{Theorem}
-Let $q(x)$ be a nontrivial polynomial of degree $n+1$ such that
-\begin{equation*}
-    \int_{a}^{b} x^k q(x) dx = 0 \qquad (0\le k \le n)
-\end{equation*}
-and let $x_0, x_1, \ldots, x_n$ be the zeros of $q(x)$.  Then the quadrature
-\begin{equation*}
-  \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i), \text{ where } A_i=\int_{a}^{b} \ell_i(x) dx
-\end{equation*}
-is exact for all polynomials of degree at most $2n+1$. 
-\end{block}
-
-\vspace{1em}
-
-Recall $\ell_i(x)$ is the $i$th \textbf{Lagrange basis function}.  Here, $\ell_i(x)$ is
-   defined \\with respect to the $x_0, x_1, \ldots, x_n$ zeros of $q(x)$. 
-
-\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[shrink]{Reference: Variables and Assumptions}
