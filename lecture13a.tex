@@ -384,29 +384,42 @@ end
 \sectionframe{Normalization}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Continue Iterating}
+\begin{frame}{Predict the Next Estimate}
+Our first-component estimates were $3$ and $23/3\approx7.67$.
+\question{Will the next estimate be above or below $5$?}
+\pause
+\[
+x^{(3)}=\begin{bmatrix}3&2\\7&-2\end{bmatrix}
+\begin{bmatrix}23\\7\end{bmatrix}=\begin{bmatrix}83\\147\end{bmatrix},
+\qquad \frac{83}{23}\approx3.61.
+\]
+\keyidea{The estimate crossed $5$ again. What is happening to the direction?}
+\end{frame}
 
-{
-\question{What happens if we kept going?}
-}
-    \begin{itemize}
-    \item $x^{(0)} = \begin{bmatrix} 1\\0\end{bmatrix}$
-    \item $x^{(1)} = \begin{bmatrix} \phantom{-}3 & \phantom{-}2 \\ \phantom{-}7&-2 \end{bmatrix}\begin{bmatrix} 1\\0 \end{bmatrix} = \begin{bmatrix} 3\\7 \end{bmatrix}$
-    \item $x^{(2)} = \begin{bmatrix} \phantom{-}3 & \phantom{-}2 \\ \phantom{-}7&-2 \end{bmatrix}\begin{bmatrix} 3\\7 \end{bmatrix} = \begin{bmatrix} 23\\7 \end{bmatrix}$
-    \item $x^{(3)} = \begin{bmatrix}
-        83\\147
-    \end{bmatrix}$ $\dots$
-    \item      $x^{(10)} = \begin{bmatrix}
-           318383\\
-      252847
-    \end{bmatrix},\quad \lambda\approx 4.5883$ 
-\end{itemize}
+\begin{frame}{Watch the Direction}
+\begin{columns}[c]
+\begin{column}{.50\textwidth}
+\centering
+\begin{tikzpicture}[scale=3.25,>=stealth]
+\draw[->] (0,0)--(1.13,0) node[right] {$x$};
+\draw[->] (0,0)--(0,1.1) node[above] {$y$};
+\draw[dashed] (0,0)--(.86,.86) node[above] {$y=x$};
+\foreach \u/\v/\k in {1/0/0,.394/.919/1,.957/.291/2,.492/.871/3}
+  \draw[blue!70!black,thick,->] (0,0)--(\u,\v) node[right,font=\scriptsize] {$\k$};
+\end{tikzpicture}
+\end{column}
+\begin{column}{.45\textwidth}
+Arrows show unit directions; labels give the iteration $k$.
 
-{
-\begin{block}{What is happening?}
-    The $\lambda$ gets more accurate but the vector keeps growing
-\end{block}
-}
+\medskip
+The dominant eigenvector lies on $y=x$. Relative to its component, the other eigenvector component is multiplied by
+\[
+\lambda_2/\lambda_1=-4/5
+\]
+at each step.
+\end{column}
+\end{columns}
+\keyidea{The sign explains the alternating sides; the magnitude explains why the directions draw closer.}
 \end{frame}
 
 
@@ -644,6 +657,63 @@ E_k = \mathcal{O}\!\left(\left|\frac{\lambda_2}{\lambda_1}\right|^k\right).
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Predict: Which Run Is Faster?}
+Start at $x^{(0)}=(1,1)^T$ in both runs.
+\[
+A=\operatorname{diag}(5,1),\qquad B=\operatorname{diag}(5,4.9).
+\]
+\question{After ten steps, which vector points closer to the first coordinate axis?}
+\pause
+For a diagonal matrix, the ratio of the second component to the first is
+$(\lambda_2/\lambda_1)^k$, even after normalization.
+\[
+A:\ (1/5)^{10}\approx10^{-7}
+\qquad B:\ (4.9/5)^{10}\approx0.82.
+\]
+\keyidea{Both runs converge. The ratio of eigenvalue magnitudes decides how fast.}
+\end{frame}
+
+\sectionframe{When Does the Power Method Fail?}
+\begin{frame}{What If Two Eigenvalues Tie in Magnitude?}
+\[
+A=\operatorname{diag}(5,-5),\qquad x^{(0)}=(1,1)^T.
+\]
+\question{Which directions do the next two iterates point in?}
+\pause
+\[
+(1,1)^T \ \longmapsto\ (5,-5)^T \ \longmapsto\ (25,25)^T .
+\]
+The iterates alternate between $y=-x$ and $y=x$. Normalizing changes their lengths but preserves this cycle.
+\keyidea{With a ratio of $-4/5$ the oscillation shrank. With $-5/5=-1$, it persists.}
+\end{frame}
+
+\begin{frame}{What If We Start on the Wrong Eigenvector?}
+\[
+A=\operatorname{diag}(5,1),\qquad x^{(0)}=(0,1)^T.
+\]
+\question{The vector stops changing immediately. Did we find the dominant eigenpair?}
+\pause
+\[
+A(0,1)^T=(0,1)^T.
+\]
+We found an exact eigenvector for $\lambda=1$. Its component along the dominant eigenvector $(1,0)^T$ is zero at every step.
+\keyidea{For the diagonalizable matrices considered here, check both assumptions: $|\lambda_1|>|\lambda_2|$ and $c_1\ne0$.}
+\end{frame}
+
+\begin{frame}{When Should We Stop Iterating?}
+For a normalized iterate $x$ and its eigenvalue estimate $\mu$, check the eigenvalue equation:
+\[
+r=Ax-\mu x.
+\]
+\begin{itemize}
+\item Reuse $y=Ax$ from the iteration. Compute $\mu$ from $y$ and $x$, then test $r=y-\mu x$ before replacing $x$.
+\item A small residual means this pair nearly satisfies $Ax=\mu x$. Keep an iteration limit as well.
+\end{itemize}
+\question{In the preceding example, what is the residual for $\mu=1$?}
+\pause
+It is zero. A residual checks the eigenpair equation; it cannot certify dominance.
+\end{frame}
+
 \sectionframe{Other Eigenvalues}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Smallest Eigenvalue}
@@ -777,13 +847,18 @@ And the convergence rate?
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Moving Forward}
-    \begin{itemize}
-        \item Why do we care about the dominant eigenvector?
-            \vfill 
-        \item What is a Markov chain?
-            \vfill 
-        \item How are Markov chains and the power method used together?
-    \end{itemize}
+\begin{frame}{Next Week: When Normalization Is Automatic}
+Today we rescaled $Ax$ to keep the iterates from growing or shrinking.
+
+\medskip
+Next week, $x$ will be a probability vector. Our transition matrix $P$ will preserve nonnegativity and the sum of its entries:
+\[
+x^{(k+1)}=Px^{(k)},\qquad \sum_i x_i^{(k)}=1.
+\]
+\question{If this sequence settles to a vector $x$, what equation must $x$ satisfy?}
+\pause
+\[
+Px=x.
+\]
 \end{frame}
 \end{document}
