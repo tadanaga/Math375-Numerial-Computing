@@ -386,7 +386,84 @@ Two functions $f(x)$ and $g(x)$ are \textbf{\emph{orthogonal}} on $[a,b]$ if
     
 \end{frame}
 
-\begin{frame}{Gauss Quadrature Theorem}
+% Main lecture proof: three key steps. Detailed reference slides follow.
+\begin{frame}{Proof: Split the Polynomial}
+\framesubtitle{Step 1: Reduce to a low-degree remainder}
+\begin{itemize}
+    \item Let $f$ have degree at most $2m-1$.
+    \item Choose a degree-$m$ polynomial $q$ orthogonal to every
+    polynomial of degree at most $m-1$.
+    \item Use the $m$ roots of $q$ as the quadrature nodes.
+\end{itemize}
+\begin{block}{Polynomial Division}
+\[
+    f(x)=p(x)q(x)+r(x),
+    \qquad \deg p\le m-1,\quad \deg r\le m-1.
+\]
+Here $p$ is the quotient and $r$ is the remainder.
+\end{block}
+\keyidea{The remainder $r$ is low enough degree to interpolate exactly
+using $m$ nodes.}
+\end{frame}
+
+\begin{frame}{Proof: Both Ignore the Same Part}
+\framesubtitle{Step 2: The product $pq$ contributes zero}
+Recall $f=pq+r$.
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{The Integral}
+Orthogonality gives
+\[
+    \int_a^b p(x)q(x)\,dx=0.
+\]
+Therefore,
+\[
+    \int_a^b f(x)\,dx=\int_a^b r(x)\,dx.
+\]
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{The Quadrature}
+The nodes are roots of $q$:
+\[
+    q(x_i)=0.
+\]
+Therefore,
+\[
+    f(x_i)=r(x_i).
+\]
+\end{block}
+\end{column}
+\end{columns}
+\vspace{3mm}
+\keyidea{Both the integral and the quadrature depend only on $r$.}
+\end{frame}
+
+\begin{frame}{Proof: Integrate the Remainder Exactly}
+\framesubtitle{Step 3: The remainder has degree at most $m-1$}
+The interpolant through the $m$ nodes equals $r$:
+\[
+    r(x)=\sum_{i=1}^{m} r(x_i)\ell_i(x).
+\]
+Choose the weights by integrating the Lagrange basis:
+\[
+    w_i=\int_a^b\ell_i(x)\,dx
+    \quad\Longrightarrow\quad
+    \int_a^b r(x)\,dx=\sum_{i=1}^{m}w_i r(x_i).
+\]
+Thus,
+\[
+    \boxed{\int_a^b f(x)\,dx
+    =\int_a^b r(x)\,dx
+    =\sum_{i=1}^{m}w_i r(x_i)
+    =\sum_{i=1}^{m}w_i f(x_i).}
+\]
+\keyidea{Both ignore $pq$ and integrate the remainder $r$ exactly.}
+\end{frame}
+
+% Reference material: may be skipped during the lecture.
+\begin{frame}{Reference: Gauss Quadrature Theorem}
+\framesubtitle{Notation in these reference slides: $m=n+1$, $w_i=A_i$}
 Gauss proved the following result:
 
 \begin{block}{Theorem}
@@ -408,7 +485,7 @@ Recall $\ell_i(x)$ is the $i$th \textbf{Lagrange basis function}.  Here, $\ell_i
 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[shrink]{Variables and Assumptions in Gauss Quadrature}
+\begin{frame}[shrink]{Reference: Variables and Assumptions}
 
 \begin{table}[h]
     \centering
@@ -427,7 +504,7 @@ Recall $\ell_i(x)$ is the $i$th \textbf{Lagrange basis function}.  Here, $\ell_i
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[shrink]{Result of Theorem}
+\begin{frame}[shrink]{Reference: Result of Theorem}
 \vspace{5mm}
 \begin{table}
     \centering
@@ -452,16 +529,16 @@ Significance:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Begin the Proof}
+\begin{frame}{Reference: Begin the Proof}
 
 \begin{block}{Goal}
-Show that if $f(x)$ is a polynomial of degree $2n+1$ then the approximation 
+Show that if $f(x)$ is a polynomial of degree at most $2n+1$ then the approximation 
 $$ \int_{a}^{b} f(x)dx \approx \sum_{i=0}^n A_i f(x_i)$$
 has \textbf{no error}!
 \end{block}
 
 \begin{itemize}
-    \item We assume $f(x)$ is degree $2n+1$
+    \item We assume $f(x)$ has degree at most $2n+1$
     \item We assume $q(x)$ is degree $n+1$
     \item We can do polynomial division
     $$
@@ -472,7 +549,7 @@ has \textbf{no error}!
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Sketch of Proof }{Part 1}
+\begin{frame}{Reference: Detailed Proof}{Part 1}
 
 
 \begin{enumerate}
@@ -503,7 +580,7 @@ has \textbf{no error}!
 \end{enumerate}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Sketch of Proof}{Part 2}
+\begin{frame}{Reference: Detailed Proof}{Part 2}
 
 \begin{enumerate}
     \setcounter{enumi}{2} % Continue numbering from previous slide
@@ -532,7 +609,7 @@ has \textbf{no error}!
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Sketch of Proof}{Part 3}
+\begin{frame}{Reference: Detailed Proof}{Part 3}
 
 \begin{enumerate}
     \setcounter{enumi}{4} % Continue numbering from previous slides
