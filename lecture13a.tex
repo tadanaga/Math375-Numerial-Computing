@@ -39,11 +39,7 @@ We will answer these questions:\\[3mm]
 
 \item Typically order them $\lambda_1, \lambda_2, \ldots, \lambda_n$ from greatest to least in magnitude\\
 
-\begin{alertblock}{Singularity}
-One of the equivalent ways to say $n\times n$ matrix is singular is to say it has an eigenvalue $\lambda=0$. 
-\end{alertblock}
-
-  \end{itemize}
+\end{itemize}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -236,11 +232,12 @@ Proof:
 \end{block}
 
 \end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Power Method}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{The Largest Eigenvalue}
+\begin{frame}{The Largest Eigenvector}
 \begin{itemize}
     \item Suppose that \( A \) is \( n \times n \) and has real eigenvalues
     \[
@@ -253,7 +250,10 @@ Proof:
         \vfill
     
 \question{
-How can we find the dominant eigenvector $v_1$?
+\begin{itemize}
+\item You have $A$. You know it is diagonalizable. 
+\item Can you find a way to approximate the dominant eigenvalue $\lambda_1$?
+\end{itemize}
 }
 \end{itemize}
 \end{frame}
@@ -262,7 +262,7 @@ How can we find the dominant eigenvector $v_1$?
 
 \begin{frame}{Finding the Largest Eigenvalue}{Part 1}
 \begin{itemize}
-    \item Start with a guess \( x^{(0)} \). Since \( \{v_1, v_2, \ldots, v_n\} \) is a basis, we write
+    \item Start with a guess \( x^{(0)} \). Since \( \{v_1, v_2, \ldots, v_n\} \) spans the entire space, we can write
     \[
     x^{(0)} = c_1 v_1 + \dots + c_n v_n
     \]
