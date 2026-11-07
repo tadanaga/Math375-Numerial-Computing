@@ -88,7 +88,7 @@ Doc 4 & 1 & 1 & 0 & 0 \\
 
 \begin{itemize}
 \item Load every document and create a list of unique words
-\item Then create a matrix of 1s and 0s
+\item After preprocessing (e.g. stemming installation to install), record word presence with 1s and 0s
 \item Each row = a document
 \item Each column = a word
 \end{itemize}
@@ -127,7 +127,7 @@ A = U \Sigma V^T
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Result}
 \begin{itemize}
-    \item Each eigenvector contains an ordered pattern of words
+    \item Each right singular vector contains weights for the vocabulary words
 
     \item Top 7 words in $v_1$:
     $$
@@ -172,7 +172,7 @@ Topic 5: great good fun story graphics even
 \end{itemize}
 
 \begin{block}{Inference}
-Gamers appreciate a well-written story. Link and Mario games are popular. Good graphics are appreciated.
+These word patterns suggest themes involving stories, characters, and graphics. The word lists alone do not establish sentiment or popularity.
 \end{block}
 
 \end{frame}
@@ -182,13 +182,13 @@ Gamers appreciate a well-written story. Link and Mario games are popular. Good g
 \begin{frame}{Big Idea}
 \begin{itemize}
 \item We never told the computer what a "topic" is
-\item It discovered them from patterns in the data
+\item It identified word co-occurrence patterns that we can interpret
 \end{itemize}
 
 \vspace{4mm}
 
 \keyidea{
-SVD turns raw text into meaningful ordered structure.
+SVD orders patterns by strength; interpreting them as topics requires judgment.
 }
 \end{frame}
 
@@ -210,7 +210,7 @@ SVD turns raw text into meaningful ordered structure.
         % legend pos=outer south
     ]
     % Regression curve (for example, a quadratic fit)
-    \addplot[color=green, thick] {0.5*x^2 - 0.1*x - 0.3};
+    \addplot[color=green, thick] {0.4258503401*x^2 + 0.0076923077*x - 0.2136054422};
 
     % Data points (scatter around the regression curve)
     \addplot[color=red, only marks, mark=*] 
@@ -304,7 +304,7 @@ SVD turns raw text into meaningful ordered structure.
 
 \begin{block}{Interpolation Problem}
 \begin{itemize}
-\item Given: $n$ data points $\{(x_1,y_i),...,(x_n,y_n)\}$
+\item Given: $n$ data points $\{(x_1,y_1),...,(x_n,y_n)\}$
 \item Goal: Find a line $ y = m x + b$ that fits through all $n$ points    
 \end{itemize}
 \end{block}
@@ -314,8 +314,8 @@ In matrix form
 $$ \underbrace{\begin{bmatrix}x_1 & 1 \\ \vdots & \vdots \\x_n & 1 \end{bmatrix}}_A 
 \underbrace{\begin{bmatrix}m \\ b \end{bmatrix}}_{x} 
 = 
-\underbrace{\begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix}}_{b}$$
-Systems is {\bf{overdetermined}}, solution almost never exists. 
+\underbrace{\begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix}}_{\mathbf{y}}$$
+The system is overdetermined; an exact solution exists only when the data are collinear. 
 
 \keyidea{
 Trying to fit a degree \textbf{one} polynomial through \textbf{twenty} points is a pipe dream.
@@ -325,7 +325,7 @@ Trying to fit a degree \textbf{one} polynomial through \textbf{twenty} points is
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Overdetermined Problem}
 
-The issue: $A^{-1}$ does not exist because $A$ is not square.
+The issue: generally $b\notin\operatorname{Range}(A)$, so no line fits all the data exactly.
 
 
     \keyidea{
@@ -382,7 +382,7 @@ Let's rework the problem
 
 \begin{itemize}
 
-    \item The length of the vertical lines is called the \textbf{residual}
+    \item The signed vertical difference is the \textbf{residual}
     $$
         r_i = y_i - (mx_i+b)
     $$
@@ -396,10 +396,10 @@ Let's rework the problem
 \begin{bmatrix}m \\ b \end{bmatrix}
 = 
 \begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix}$$
-we can write the residual in \textbf{vector form}
+with $\mathbf{y}=(y_1,\ldots,y_n)^T$, the residual in \textbf{vector form} is
 $$
 \boxed{
-    r = y - Ax
+    r = \mathbf{y} - Ax
 }
 $$
 \end{itemize}
@@ -409,6 +409,7 @@ $$
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Least Squares}
 \begin{itemize}
+\item In the general notation $Ax=b$, $b$ denotes the data vector.
 \item Let $x$ represent a particular "fit" 
 $$
 x = \begin{bmatrix}
@@ -417,12 +418,12 @@ x = \begin{bmatrix}
 $$
 for the line $y=mx+b$
 
-\define{Backward error}{
+\define{Residual and Squared Error}{
 The {\bf{residual}} vector is  $$r = b-Ax.$$ 
-The norm $\|r\|^2$ represents the \textbf{square error}.
+The quantity $\|r\|_2^2$ is the \textbf{sum of squared residuals}.
 }
 
-\method{Least Squares}{Overdetermined system $Ax=b$}{Best approximate solution $x$}{The solution is chosen so that the backward error is minimized.}
+\method{Least Squares}{Overdetermined system $Ax=b$}{Best approximate solution $x$}{Choose $x$ to minimize $\|b-Ax\|_2^2$.}
 
 \end{itemize}
 \end{frame}
@@ -440,7 +441,7 @@ The norm $\|r\|^2$ represents the \textbf{square error}.
     $$
         E =  \sum_i| \text{$i^{th}$ vertical bar|}^2 = \sum_i (r_i)^2 = r^Tr = \|r\|^2
     $$
-    \item \textbf{Goal}: find the values $m$ and $b$ that minizes the error
+    \item \textbf{Goal}: find the values $m$ and $b$ that minimize the error
 
 \end{itemize}
 \end{frame}
@@ -481,7 +482,7 @@ $
 \vfill 
 
 \onslide<2>{
-\question{How do accomplish this algorithmically?}
+\question{How do we accomplish this algorithmically?}
 
 }
 \vfill 
@@ -502,9 +503,9 @@ $
     \item Set $f'(x)=0$ and then solve for $x$
         \vfill
 
-    \item That value of $x$ is the local minimum
+    \item A stationary point is a candidate; check that it is a minimum
         \vfill
-    \item<2> We apply this same strategy to $\|r\|^2$
+    \item<2> For least squares, the objective is convex: every stationary point is a global minimum.
 \end{itemize}
     
 \end{frame}
@@ -517,7 +518,7 @@ $
     \item We can express $\| r\|_2^2$ in terms of $x$:
     $$||r||^2_2 = r^Tr = (b-Ax)^T(b-Ax) = \underbrace{b^Tb - 2x^TA^Tb + x^TA^TAx}_{\phi(x)}$$
 
-\item Take the derivative and set it zero: $\nabla\phi(x)=0$.  
+\item Take the gradient and set it to zero: $\nabla\phi(x)=0$.  
  $$\nabla\phi(x) = -2A^Tb+  2A^TAx = 0$$
 
 \item Rearrange 
@@ -527,7 +528,7 @@ $
 \end{align*}
 
 \define{Normal Equations}{
-For a system $Ax=b$, the {\bf{normal equations}} is defined to be $$A^TAx = A^Tb.$$ 
+For a system $Ax=b$, the {\bf{normal equations}} are defined to be $$A^TAx = A^Tb.$$ 
 }
 
 \end{itemize}
@@ -541,12 +542,12 @@ For a system $Ax=b$, the {\bf{normal equations}} is defined to be $$A^TAx = A^Tb
 
 \begin{enumerate}
 
-    \item Solving an overdetermined system cannot be done 
+    \item An overdetermined system need not have an exact solution 
         $$Ax=b$$
     
     \item We can find the line of best fit \bigskip 
 
-        Make the \underline{square} of the backward error $\|r\|^2$ the \underline{least} \bigskip
+        Minimize the sum of squared residuals $\|r\|_2^2$ \bigskip
 
     \item This amounts to solving the normal equations 
         $$A^TAx = A^Tb $$ 
@@ -554,8 +555,8 @@ For a system $Ax=b$, the {\bf{normal equations}} is defined to be $$A^TAx = A^Tb
 Advantages: 
 \begin{itemize}
     \item Well-defined problem 
-    \item Inverse always exists
-    \item We can use CG to solve for $x$
+    \item $A^TA$ is invertible if and only if $A$ has full column rank
+    \item With full column rank, $A^TA$ is symmetric positive definite, so CG applies
 \end{itemize}
     
 \end{frame}
@@ -684,7 +685,8 @@ Disadvantage:
     \item  The normal equations tend to worsen the condition of the matrix. 
 
 \begin{theorem}
-$$cond(A^TA) = (cond(A))^2$$
+For full-column-rank $A$, in the 2-norm:
+$$\kappa_2(A^TA)=\kappa_2(A)^2.$$
 \end{theorem}
 \item Recall that $cond(A)\ge1$ 
 
@@ -699,7 +701,7 @@ $$cond(A^TA) = (cond(A))^2$$
 \end{itemize}
 
 \keyidea{
-Regression involves solving $A^TAx=A^Tb$ which unfortunately has a high condition number. The coefficients of the line may be highly inaccurate.
+Forming the normal equations squares the condition number. QR or SVD avoids this extra loss of numerical accuracy.
 }
 
 \end{frame}
@@ -877,34 +879,34 @@ A =
         $$||b-USV^Tx||^2_2 = ||U^Tb-U^TUSV^Tx||^2_2 = ||U^Tb-SV^Tx||^2_2$$ 
 
     \begin{block}{The New Problem}
-        By using the SVD, we have changed the least squares problem into 
-        $$ SV^T x = U^Tb $$
+        By using the SVD, the equivalent minimization problem is
+        $$ \min_x\|SV^Tx-U^Tb\|_2^2. $$
     \end{block}
 \end{itemize}
 
 \end{frame}
 
 \begin{frame}{The Method}
+Let $c=U^Tb$ and $y=V^Tx$. We minimize $\|Sy-c\|_2^2$.
+If $\operatorname{rank}(A)=k$,
+\[
+\|Sy-c\|_2^2=\sum_{i=1}^k(\sigma_i y_i-c_i)^2+
+\sum_{i=k+1}^m c_i^2.
+\]
 \begin{itemize}
-    \item Let $c = U^Tb$ and $y = V^Tx$ so the problem is to solve 
-    \begin{equation*}
-        Sy = c
-    \end{equation*}
-
-    \item $S$ is a diagonal matrix. It only has $k$ non-zero entries by assumption.\bigskip
-    
-    
-    \item Solving this system can be done extremely quickly $$y_i = \frac{c_i}{\sigma_i},\quad 1\leq i \leq k$$
-
-\method{SVD Least Squares}{Overdetermined system $Ax=b$}{Best approximate solution $\tilde{x}$}{Using the SVD let's us avoid the ill-conditioned normal equations.}
+\item Set $y_i=c_i/\sigma_i$ for $i=1,\ldots,k$.
+\item The remaining residual components cannot be removed.
+\item Choose $y_{k+1}=\cdots=y_n=0$ for the minimum-norm solution.
+\item Recover $x=Vy$.
 \end{itemize}
+\keyidea{SVD avoids forming $A^TA$; small singular values can still make the original problem sensitive.}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{One-Shot Formula}
 \begin{theorem}
 Let $A$ be an $m \times n$ matrix of rank $k$ and let $A = USV^T$, 
 the singular value decomposition.  
-The least squares solution of the system $Ax=b$ is 
+The minimum-2-norm least-squares solution of $Ax=b$ is 
 $$x = \sum_{i=1}^k(\sigma^{-1}_ic_i)v_i$$ where $c_i = u_i^Tb.$ 
 \end{theorem}
 \end{frame}
@@ -933,7 +935,7 @@ $$x = \sum_{i=1}^k(\sigma^{-1}_ic_i)v_i$$ where $c_i = u_i^Tb.$
 \item Our interpolation system would be 
 \begin{align*}
 y_1&= a+bx_1+cx_1^2\\
-y_2&= a+bx_1+cx_2^2\\
+y_2&= a+bx_2+cx_2^2\\
 &\vdots\\
 y_n&= a+bx_n+cx_n^2
 \end{align*}
@@ -945,12 +947,12 @@ y_n&= a+bx_n+cx_n^2
 \begin{frame}{Fitting a Quadratic}
 \begin{itemize}
 \item This is non-square \textit{Vandermonde matrix}
-$$ \underbrace{\begin{bmatrix}  1& x_1&x_2 \\ \vdots & \vdots & \vdots \\
+$$ \underbrace{\begin{bmatrix}  1& x_1&x_1^2 \\ \vdots & \vdots & \vdots \\
 1 & x_n & x_n^2 \end{bmatrix}}_A 
 \underbrace{\begin{bmatrix}a \\ b \\ c \end{bmatrix}}_{x} 
 = 
 \underbrace{\begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix}}_{b}$$
-\item Since this is an \textit{over-determined system} we solve the normal equation
+\item For more than three data points this is overdetermined. Least-squares solutions satisfy the normal equations
 $$
 A^TAx = A^Tb
 $$
@@ -958,8 +960,8 @@ $$
 \keyidea{
 
 \begin{itemize}
-    \item The actual model does not matter
-    \item It always boils down to solving $A^TAx = A^Tb$
+    \item The model must be linear in its unknown coefficients
+    \item Then linear least squares applies; solve with QR or SVD
 \end{itemize}
 }
 
@@ -1036,7 +1038,7 @@ y_n&= a e^{bx_n}
 
     \item \textbf{Problem}: this is \textit{not} a linear system
         \vfill 
-    \item \textbf{Fix}: Use a log transformation
+    \item For positive data and $a>0$, a log transformation is possible
         $$
         \ln(y) = \ln(ae^{bx}) = \ln a + bx
         $$
@@ -1054,6 +1056,7 @@ y_n&= a e^{bx_n}
 
 \begin{itemize}
     \item Fit the data on $$\ln(y) = \ln a + bx$$
+    \item This minimizes squared errors in $\ln y$, not in $y$.
     \item Undo the transformation
     $$
     y = ae^{bx}
@@ -1065,7 +1068,7 @@ y_n&= a e^{bx_n}
 
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Fitting a function to noisy data leads to an overdetermined system
+        \item Fitting a model linear in its coefficients often gives an overdetermined system
         $$
         Ax=b,
         $$
@@ -1077,8 +1080,8 @@ y_n&= a e^{bx_n}
         $$
         to find the "best-fit" equation
         \vfill 
-        \item In practice, it's better to compute $A=USV^T$ and solve 
-                $$ SV^T x = U^Tb $$
+        \item In practice, use QR or SVD; with $A=USV^T$, minimize
+                $$ \|SV^Tx-U^Tb\|_2^2. $$
 
     \end{itemize}
 \end{frame}
