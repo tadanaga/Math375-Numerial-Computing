@@ -19,57 +19,10 @@ We will answer these questions:\\[3mm]
 \begin{itemize}
     \item What are singular values and why are they more versatile than eigenvalues?
     \item How do you find the singular value decomposition?
-    \item What is an overdetermined system and when does it arise in applications?
-    \item What is the standard way to solve an overdetermined system?
-    \item How can you use the SVD to solve overdetermined systems and why would you want to?
+    \item How do singular values describe rank?
+    \item How does truncating the SVD compress an image?
 \end{itemize}
 \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\sectionframe{Eigenfaces}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Limitations of Eigenvalues}
-\begin{itemize}
-
-    \item Image files are actually matrices 
-    
-    \includegraphics[scale=0.25]{figs/eigenfaces.png}
-
-    \item Eigenvalues of images used to be prominent in face recognition\\[3mm]
-
-    \item Similar eigenvalues, eigenvectors $\implies$ similar faces
-
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Limitations of Eigenvalues}
-\begin{itemize}
-   {\question{
-       What if the image was not $n\times n$? Does that mean facial recognition is impossible?
-   }}
-   \vspace{3mm}
-
-    \item Finding eigenvalues is only possible for $n\times n$ matrices\\[3mm] 
-
-    \item If we can't find eigenvalues, facial recognition is not possible\\[3mm]
-
-    \onslide<2>{
-    
-    \item However...  $AA^T$ and $A^TA$ are both always square matrices.\\[3mm]
-    
-    \keyidea{
-        Even if an image is rectangular, we can still find the eigenvalues of $AA^T$ which is always a square.
-    }
-    }
-\end{itemize}
-    
-\end{frame}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Linear Algebra Review}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,6 +113,62 @@ $$p(\lambda) := \det(\lambda I - A)$$
 \end{itemize}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{Eigenvalues}
+% Assume that 
+% $$ A v = \lambda v$$
+% for $v\neq 0$. 
+
+% \vspace{4mm}
+
+% \begin{block}{Some Properties}
+%     \begin{itemize}
+%         \item $A^k v = \lambda^k v$
+%         \item $1/\lambda$ is an eigenvlaue of $A^{-1}$
+%         \item If $A=A^T$ (and real) then all of its eigenvalue are real
+%         \item If $P$ is invertible, then $A$ and $P A P^{-1}$ have the same eigenvalues
+%     \end{itemize}
+% \end{block}
+
+% % {
+% % \define{Similarity}{Matrices $A$ and $B$ are \textbf{similar} if there is an invertible matrix $P$ such
+% % that
+% % \[
+% % P^{-1} B P = A
+% % \]
+% % }
+% % }
+    
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Similarity}
+% \begin{theorem}
+%     If $A$ and $B$ are similar matrices then they have the same eigenvalues.
+% \end{theorem}
+% Proof: 
+
+% \begin{itemize}
+%     \item  Let $v,\lambda$ be an eigenvector, eigenvalue pair for matrix $B$.  
+%     \item We use the assumption $P^{-1} B P = A$
+% \begin{align*}
+%   B v & = \lambda v, \quad v\neq 0\\
+%   P A P^{-1} v &= \lambda v\\
+%   A P^{-1} v &= \lambda P^{-1} v\\
+%   A w   &= \lambda w, \quad w\neq 0.
+% \end{align*}
+% \item Thus, $w=P^{-1} v$ is an eigenvector of $A$ with the same eigenvalue $\lambda$.
+% \end{itemize}
+
+% \vspace{3mm}
+% \begin{center}
+%     \emph{This will be useful later.}
+% \end{center}
+
+% \end{frame}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Orthogonal Matrix}
@@ -177,7 +186,7 @@ $$p(\lambda) := \det(\lambda I - A)$$
     \item The columns of $U$ are an orthonormal set of vectors 
     \item The rows of $U$ are an orthonormal set of vectors 
     \item $U^{-1}= U^T$
-    \item They are norm preserving: $\| U v \| = \|v\|$
+    \item They are norm preserving: $\| U v \|_2 = \|v\|_2$
 \end{itemize}
 \end{block}
 
@@ -216,7 +225,7 @@ $$p(\lambda) := \det(\lambda I - A)$$
             3\\4
         \end{bmatrix}\right\|= \left\| \begin{bmatrix}
             -4\\3
-        \end{bmatrix}\right\| = \|u\|  
+        \end{bmatrix}\right\| = \|x\|_2  
     $$
     \item The matrix $A$ is orthogonal
     
@@ -226,7 +235,59 @@ $$p(\lambda) := \det(\lambda I - A)$$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% \begin{frame}{Gram-Schmidt orthogonalization}
 
+% \method{Gram-Schmidt}{Set of vectors $\{a_1, a_2, ..., a_n\}$}{Ortho-normalized vectors $\{q_1, q_2, ..., q_n\}$ }{Adjust the vectors so they are all orthogonal to each other, and have unit length}
+% \begin{itemize}
+
+% \item Let $A = [a_1| a_2 | \cdots |a_n]$. First normalize $a_1$ and obtain $$q_1 = \frac{a_1}{||a_1||} = \frac{a_1}{r_{11}}.$$  Now subtract from $a_2$ the components from  $q_1$.  This is given by $$a_2' = a_2 - (q_1^Ta_2)q_1 = a_2 - r_{12} q_1.$$  
+
+% \item Normalizing $a_2'$ we have $$q_2 = \frac{a_2'}{||a_2'||} = \frac{a_2'}{r_{22}}$$
+
+% \item Repeat recursively $a_i' = a_i - (q_{i-1}^Ta_i)q_{i-1}$, then $q_i = a_i'/|| a_i'||$.
+% \end{itemize}
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Limitations of Eigenvalues}
+\begin{itemize}
+
+    \item Image files are actually matrices 
+    
+    \includegraphics[scale=0.25]{figs/eigenfaces.png}
+
+    \item Eigenfaces use principal components of a collection of centered face images\\[3mm]
+
+    \item Faces can be compared using their coordinates in this shared basis
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Limitations of Eigenvalues}
+\begin{itemize}
+   {\question{
+       What if the image was not $n\times n$? Does that mean facial recognition is impossible?
+   }}
+   \vspace{3mm}
+
+    \item Finding eigenvalues is only possible for $n\times n$ matrices\\[3mm] 
+
+    \item Rectangular image data does not prevent facial recognition\\[3mm]
+
+    \onslide<2>{
+    
+    \item However...  $AA^T$ and $A^TA$ are both always square matrices.\\[3mm]
+    
+    \keyidea{
+        Even if an image is rectangular, we can still find the eigenvalues of $AA^T$ which is always a square.
+    }
+    }
+\end{itemize}
+    
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Singular Value Decomposition}
@@ -260,67 +321,37 @@ $$p(\lambda) := \det(\lambda I - A)$$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Singular Values}
-
-{\define{Singular Values}{
-The \textbf{singular values} of an $m\times n$ matrix $A$ are
-$$\sigma_1, \sigma_2,\dots,\sigma_r,$$
-where $r=\min(m,n)$ and the $\sigma$'s are square roots of the eigenvalues of $A^T A$ or $AA^T$. 
-}}
-
-\begin{block}{How to Find Singular Values of $A$}
-\begin{enumerate}
-    \item Calculate $AA^T$ or $A^TA$ (whichever is smaller).
-    \item Find the eigenvalues of that matrix.
-    \item Take the square root of those eigenvalues.
-\end{enumerate}
-    
-\end{block}
-
+\define{Singular Values}{
+An $m\times n$ real matrix has $p=\min(m,n)$ singular values
+$\sigma_1\ge\cdots\ge\sigma_p\ge0$.
+They are the square roots of the eigenvalues of the smaller of
+$A^TA$ and $AA^T$. The larger matrix has additional zero eigenvalues.
+}
+\begin{itemize}
+\item Both matrices are symmetric positive semidefinite.
+\item Exactly $r=\operatorname{rank}(A)$ singular values are positive.
+\item For hand calculations, form the smaller matrix, find its eigenvalues, and take their square roots.
+\end{itemize}
 \end{frame}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Singular Value Example}
 \begin{example}
-    Find the singular values of 
-    $$
-    A = \begin{bmatrix}
-        1 & 0 \\
-        1 & 2\\
-        0 & 1
-    \end{bmatrix}
-    $$
+Find the singular values of
+$A=\begin{bmatrix}1&0\\1&2\\0&1\end{bmatrix}$.
 \end{example}
-
-\begin{enumerate}
-    \item Calculate $B=A^TA$ since its $2\times 2$
-    $$
-    B = A^TA = \begin{bmatrix}
-        1 & 1 & 0\\
-        0 & 2 & 1
-    \end{bmatrix}\begin{bmatrix}
-        1 & 0\\
-        1 & 2\\
-        0 & 1
-    \end{bmatrix} = \begin{bmatrix}
-        2 & 2\\
-        2& 2
-    \end{bmatrix}
-    $$
-    \item Find eigenvalues of $B$
-    $$
-    \det(\lambda B-I) = \begin{vmatrix}
-        \lambda-2 & -2\\
-        -2 & \lambda - 2
-    \end{vmatrix} = \lambda^2 -4\lambda+4-4=\lambda(\lambda-4)=0\implies \lambda=0,4
-    $$
-    \item Take the square root of the eigenvalues
-    $$
-    \sigma_1= \sqrt{4}=2,\quad \sigma_2=\sqrt{0}=0
-    $$
-\end{enumerate}
-
-    
+\[
+A^TA=\begin{bmatrix}2&2\\2&5\end{bmatrix}.
+\]
+\[
+\det(\lambda I-A^TA)=(\lambda-2)(\lambda-5)-4
+=\lambda^2-7\lambda+6=(\lambda-6)(\lambda-1).
+\]
+\[
+\boxed{\sigma_1=\sqrt6,\qquad \sigma_2=1.}
+\]
+Both singular values are positive, so $A$ has rank $2$.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -334,7 +365,8 @@ where $r=\min(m,n)$ and the $\sigma$'s are square roots of the eigenvalues of $A
 where $U$ ($m \times m$) and $V$ ($n \times n$) are orthogonal and $S$ ($m
 \times n$) is a diagonal matrix containing the \textbf{singular values} of $A$ 
 \[
-    \underbrace{\sigma_1 \geq \sigma_2 \geq \dots \geq \sigma_r}_{\text{unspecified}} > \underbrace{\sigma_{r+1} = \dots =\sigma_p=0}_{\text{zero}}
+    \sigma_1\ge\sigma_2\ge\cdots\ge\sigma_p\ge0,
+    \qquad \#\{i:\sigma_i>0\}=r
 \]
 where $r=rank(A)$ and $p=min(m,n)$.
 }}
@@ -472,121 +504,58 @@ $$
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{What is $U$?}{Part 1}
-\begin{enumerate}
-    \item Begin with the SVD of \( A \):  
-        $$ A = U S V^T $$
-
-    \item Next, calculate $AA^T$:
-    \begin{align*}
-         AA^T &= U S V^T (U S V^T)^T\\
-              &= U S V^T VS^TU^T\\
-              &= U S (V^T V)S^TU^T\\
-              &= U S S^T U^T 
-    \end{align*}
-        
-    \item Therefore, (letting $S^2 := SS^T$) we have  
-        $$
-        AA^TU = U S^2
-        $$
-\end{enumerate}
+\begin{frame}{What is $U$?}
+\[
+AA^T=USV^TVS^TU^T=U(SS^T)U^T.
+\]
+Therefore $AA^TU=U(SS^T)$. Let $d_i=(SS^T)_{ii}$.
+Taking column $i$ gives
+\[
+AA^Tu_i=d_i u_i.
+\]
+For $i\le p$, $d_i=\sigma_i^2$; any remaining $d_i$ are zero.
+\keyidea{The columns of $U$ form an orthonormal eigenbasis of $AA^T$.}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{What is $U$?}{Part 2}
 
-\begin{enumerate}
-\setcounter{enumi}{3}
-    \item Consider the RHS of $AA^TU = U S^2$ 
-        \begin{align*}
-        U S^2&=U
-\begin{bmatrix}
-    \sigma_1^2 &  &  \\
-         & \ddots  &  \\
-     &   & \sigma_m^2
-\end{bmatrix}\\
-&=U\begin{bmatrix}
-    e_1 \sigma_1 | e_2\sigma_2|\cdots|e_m\sigma_m
-\end{bmatrix}\\
-&=\begin{bmatrix}
-    u_1 \sigma_1 | u_2\sigma_2|\cdots|u_m\sigma_m
-\end{bmatrix}\\
-\end{align*}
-        
-\item The column view gives of $AA^TU = U S^2$ is
-        $$AA^T u_i = \sigma_i^2 u_i$$
-\end{enumerate}
-\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{What is $U$?}{Part 3}
 
-{\question{What is the significance of this equation? $$AA^T u_i = \sigma_i^2 u_i$$
-}}
-
-\begin{align*}
-    &\underbrace{AA^T}_{\text{matrix}} &\underbrace{u_i}_{\text{vector}} &&=& &\underbrace{\sigma_i^2}_{\text{scalar}} &&\underbrace{u_i}_{\text{same vector}}&&\\
-    \onslide<2>{ &B &v &&=&  &\lambda &&v& &}
-\end{align*}
-
-\onslide<2>{
-\keyidea{The columns of $U$ are the eigenvectors of $AA^T$!}
-}
-
-\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Calculating \( U \)}{Steps to find the left singular vectors}
-
-\begin{block}{Steps}
-    \begin{enumerate}
-        \item Compute \( B = AA^T \), ensuring \( B \in \mathbb{R}^{m \times m} \).
-        \item Solve the eigenvalue equation for \( B \):  
-            $$ \det (\lambda I - B) = 0 $$  
-            to find the eigenvalues \( \lambda_1, \lambda_2, \dots, \lambda_m \).
-        \item Compute the eigenvectors of \( B \), denoted as \( \mathbf{u}_1, \mathbf{u}_2, \dots, \mathbf{u}_m \).
-        \item Normalize each eigenvector:  
-            $$ \mathbf{u}_i = \frac{\mathbf{u}_i}{\|\mathbf{u}_i\|} $$
-        \item Form \( U \) as the matrix with these normalized eigenvectors as columns:
-            $$ U = \begin{bmatrix} \mathbf{u}_1 & \mathbf{u}_2 & \cdots & \mathbf{u}_m \end{bmatrix} $$
-    \end{enumerate}
-\end{block}
-
-
-
+\begin{frame}{Calculating \( U \)}{Pair the left and right singular vectors}
+For each positive singular value and its unit right singular vector, use
+\[
+u_i=\frac{Av_i}{\sigma_i},\qquad i=1,\ldots,r.
+\]
+\begin{itemize}
+\item This ensures $Av_i=\sigma_i u_i$ with matching signs and ordering.
+\item These vectors are orthonormal when the $v_i$ are orthonormal eigenvectors of $A^TA$.
+\item Complete $U$ with an orthonormal basis of $\ker(A^T)$ if necessary.
+\end{itemize}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{What is $V$?}
-\begin{enumerate}
-    \item The SVD of \( A \):  
-        $$ A = U S V^T $$
-        implies:  
-        $$ A^TA = (U S V^T)^TU S V^T  = V  S^T S V^T $$
-        
-    \item Therefore, (letting $S^2 := S^TS$) we have  
-        $$ A^TAV = V S^2$$
-        
-    \item The column view gives us 
-        $$A^TA v_i = \sigma_i^2 v_i$$
-    \item \emph{By definition}, $v_i$ is an eigenvector for $A^TA$
-\end{enumerate}
+\[
+A^TA=VS^TU^TUSV^T=V(S^TS)V^T.
+\]
+Thus $A^TAV=V(S^TS)$. If $d_i=(S^TS)_{ii}$, then
+\[
+A^TAv_i=d_i v_i.
+\]
+For $i\le p$, $d_i=\sigma_i^2$; any remaining $d_i$ are zero.
+\keyidea{The columns of $V$ form an orthonormal eigenbasis of $A^TA$.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Calculating \( V \)}{Steps to find the right singular vectors}
-
-\begin{block}{Steps}
-    \begin{enumerate}
-        \item Compute \( B = A^T A \), ensuring \( B \in \mathbb{R}^{n \times n} \).
-        \item Solve the eigenvalue equation for \( B \):  
-            $$ \det (\lambda I - B) = 0 $$  
-            to find the eigenvalues \( \lambda_1, \lambda_2, \dots, \lambda_n \).
-        \item Compute the eigenvectors of \( B \), denoted as \( \mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n \).
-        \item Normalize each eigenvector:  
-            $$ \mathbf{v}_i = \frac{\mathbf{v}_i}{\|\mathbf{v}_i\|} $$
-        \item Form \( V \) as the matrix with these normalized eigenvectors as columns:
-            $$ V = \begin{bmatrix} \mathbf{v}_1 & \mathbf{v}_2 & \cdots & \mathbf{v}_n \end{bmatrix} $$
-    \end{enumerate}
-\end{block}
-
+\begin{frame}{Calculating \( V \)}
+\begin{enumerate}
+\item For a hand calculation, form $A^TA$.
+\item Find an orthonormal eigenbasis, ordered by decreasing eigenvalue.
+\item Within repeated-eigenvalue eigenspaces, choose orthogonal vectors before normalizing.
+\item Put the vectors into the columns of $V$.
+\item Pair the positive modes using $u_i=Av_i/\sigma_i$.
+\end{enumerate}
+\keyidea{For numerical computation, use an SVD routine directly rather than forming $A^TA$.}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -607,7 +576,7 @@ A =
              &        & \sigma_r &        & \\
              &        &          & \ddots & \\
              &        &          &        & 0 
-\end{bmatrix}}_{\textrm{eigenvalues of both}}
+\end{bmatrix}}_{\textrm{singular values of }A}
 \underbrace{
 \begin{bmatrix}
     - & v_1^T & -\\
@@ -619,8 +588,8 @@ A =
 \item Compute $A^TA$ 
 \item Find the eigenvalues of $A^TA$ (these are $\sigma_i^2$) 
 \item Find the orthonormal eigenvectors of $A^TA$ (these are the rows of $V^T$) 
-\item Compute  $AA^T$ 
-\item Find the orthonormal eigenvectors of $AA^T$ (these are the columns of $U$)
+\item For $\sigma_i>0$, compute $u_i=Av_i/\sigma_i$.
+\item Complete $U$ with an orthonormal basis of $\ker(A^T)$.
 \end{enumerate}
 
 \end{frame}
@@ -663,7 +632,7 @@ S=
 \end{frame}
 
 \begin{frame}{Example}
-Now find $V^T$ and $U$.  The columns of $V^T$ are the eigenvectors of $A^T A$.
+Now find $V^T$ and $U$.  The columns of $V$ are the eigenvectors of $A^T A$.
 \begin{itemize}
     \item $\lambda_1=8$:  $(A^T A - \lambda_1 I) v_1 = 0$
 \[
@@ -685,7 +654,7 @@ v_1 = 0
 \Rightarrow 
 \quad
 v_1 = 
-\begin{bmatrix}
+\frac{1}{\sqrt{2}}\begin{bmatrix}
 1 \\
 -1
 \end{bmatrix}
@@ -715,7 +684,7 @@ v_2 = 0
 \Rightarrow 
 \quad
 v_2 = 
-\begin{bmatrix}
+\frac{1}{\sqrt{2}}\begin{bmatrix}
 1 \\
 1
 \end{bmatrix}
@@ -735,7 +704,7 @@ V=
 \]
 \end{itemize}
 \keyidea{
-You must make sure you normalize your eigenvectors. If an eigenvector has mixed signs, stick to a convention, e.g. first element shall be positive.
+Normalize the right singular vectors, then choose the paired left vectors using $u_i=Av_i/\sigma_i$.
 }
 \end{frame}
 
@@ -814,8 +783,8 @@ A =
         0 & \sqrt{2}
 \end{bmatrix}
 \begin{bmatrix}
-\sqrt{2}/2 & \sqrt{2}/2\\
- -\sqrt{2}/2 & \sqrt{2}/2
+\sqrt{2}/2 & -\sqrt{2}/2\\
+ \sqrt{2}/2 & \sqrt{2}/2
 \end{bmatrix}
 \]
 \end{itemize}
@@ -824,33 +793,12 @@ A =
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Remark on Normalization}
 \begin{itemize}
-    \item There is ambiguity in normalizing a vector $v = [-3 \quad 4]$, it can be 
-    \begin{itemize}
-        \item $ v = [-3/5\quad 4/5]$
-        \item $ v = [3/5\quad -4/5]$
-    \end{itemize}
-    \item In the previous example, 
-\[
-U=
-\begin{bmatrix}
--1 & 0\\
- 0 & 1
-\end{bmatrix} \quad 
-U=
-\begin{bmatrix}
-1 & 0\\
- 0 & 1
-\end{bmatrix}
-\]
-are both orthogonal matrix, but only one will yield the correct SVD
+\item An eigenvector can be chosen with either sign.
+\item In an SVD, the paired vectors must satisfy $Av_i=\sigma_i u_i$.
+\item Replacing both $u_i$ and $v_i$ by their negatives leaves $\sigma_i u_i v_i^T$ unchanged.
+\item Changing only one sign generally changes the reconstructed matrix.
 \end{itemize}
-\begin{block}{Tips}
-\begin{itemize}
-\item Don't forget to sort the eigenvalues of $AA^T$
-\item Stick to convention, e.g. ``first element of eigenvectors must be negative"
-\item Verify that $A = USV^T$  
-\end{itemize}
-\end{block}
+\keyidea{Normalize the vectors, match the pairs, and verify $A=USV^T$.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -862,7 +810,7 @@ are both orthogonal matrix, but only one will yield the correct SVD
 \onslide<2>{
 
 \begin{itemize}
-    \item SVD sorts the eigenvectors from most important to least important
+    \item SVD orders singular-vector pairs by their singular values
 \[
 A =
 \begin{bmatrix}
@@ -884,7 +832,7 @@ A =
 \end{bmatrix}
 \]
 
-\item Since $\sigma_1 > \sigma_2>\cdots > \sigma_r$, the most important eigenvectors are $(u_1,v_1), (u_2,v_2), \dots$
+\item Since $\sigma_1 \ge \sigma_2\ge\cdots \ge \sigma_r>0$, the leading singular-vector pairs are $(u_1,v_1), (u_2,v_2), \dots$
 
 \end{itemize}
 }    
@@ -896,13 +844,13 @@ A =
 \begin{frame}{Memory Cost of an Image}
 
     \begin{itemize}
-        \item A black and white photo is just a matrix \( A \in \mathbb{R}^{m \times n} \), \( n \) pixels wide and \( m \) pixels tall:
+        \item A grayscale photo is just a matrix \( A \in \mathbb{R}^{m \times n} \), \( n \) pixels wide and \( m \) pixels tall:
         \[
         A = \raisebox{-0.5\height}{\includegraphics[scale=0.12]{figs/lena.png}}
         \]
-        \item The storage cost for $A$ is $mn$ bytes
+        \item The matrix contains $mn$ numbers; bytes depend on the data type
 
-        \item If we decompose it as $A = USV^T$, then we the cost is $mm + nn + r $ bytes
+        \item If we decompose it as $A = USV^T$, the full factors require $m^2+n^2+r$ stored numbers
 
     \end{itemize}
 
@@ -927,7 +875,7 @@ How can we use SVD to save on memory cost?
 \[
     A = \sigma_1 u_1 v_1^T + \sigma_2 u_2 v_2^T + \dots + \sigma_r u_r v_r^T
 \]
-\item We can discard useless eigenvectors: 
+\item We can discard singular vectors associated with zero singular values: 
 \[
 A =
 \underbrace{
@@ -967,12 +915,12 @@ A =
 \begin{itemize}
     \item Original matrix \( A \in \mathbb{R}^{m \times n} \):  
     \[
-    \text{Cost: } mn \text{ bytes}
+    \text{Cost: } mn \text{ stored numbers}
     \]
     \item If $r=\rank A$ then   
 
     \[
-    \text{Cost: } r(m + n + 1) \text{ bytes}
+    \text{Cost: } r(m + n + 1) \text{ stored numbers}
     \]
 \end{itemize}
 \end{block}
@@ -993,7 +941,7 @@ A =
     \item Choose some integer $k < \rank A$
     \item We can discard least important singular values 
 \[
-A =
+A_k =
 \underbrace{
 \begin{bmatrix}
     | &        & |  &    &         \\
@@ -1017,22 +965,25 @@ A =
 \end{bmatrix}}_{\text{keep $k$ rows}}
 \]
 
-\item Cost is   $ k(m + n + 1)$ bytes
+\item $A_k\approx A$ is a rank-$k$ approximation.
+\item Cost is   $k(m+n+1)$ stored numbers
 \end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Compression Example}
+\begin{frame}[fragile]{Compression Example}
+\begin{lstlisting}
+A = double(imread('figs/lena.png'));
+% For an RGB image, convert to grayscale first.
+[U,S,V] = svd(A,'econ');
+k = 50;
+Ak = U(:,1:k)*S(1:k,1:k)*V(:,1:k)';
+\end{lstlisting}
 \begin{itemize}
-    \item In Matlab,  \texttt{[U, S, V] = svd('lena.bmp')} 
-    \item Uncompressed 512 by 512 image file: 262144
-    \item Out of the 512 singular values... keep only 50 
-    \item Compressed image: 50*(512 + 512 + 1) =  51250
-    \begin{center}
-        \includegraphics[width=4cm]{figs/lena.png} 
-        \includegraphics[width=4cm]{figs/lena_compressed.png}
-    \end{center}
-    \item Compressed image is roughly 20\% of the original 
+\item A $512\times512$ grayscale matrix contains $262144$ numbers.
+\item Rank-50 factors require $50(512+512+1)=51250$ numbers.
+\item This is about $20\%$ as many numbers at equal precision.
+\item Double-precision factors use 8 bytes per number, so this is not a $20\%$ file-size claim relative to an 8-bit image.
 \end{itemize}
 \end{frame}
 
