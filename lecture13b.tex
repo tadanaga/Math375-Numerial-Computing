@@ -145,9 +145,9 @@ $$
 
 \[
 \begin{tabular}{c l|ccc}
- &  & \multicolumn{3}{c}{\textbf{current}} \\[2pt]
+ &  & \multicolumn{3}{c}{\textbf{Weather Today}} \\[2pt]
  &  & Sunny & Cloudy & Rainy \\[3mm] \hline
-\multirow{3}{*}{\rotatebox{90}{\textbf{future$\quad$}}}
+\multirow{3}{*}{\rotatebox{90}{\textbf{Tomorrow }}}
  & Sunny  & 0.8  & 0.3  & 0.2  \\[3mm]
  & Cloudy & 0.15 & 0.4  & 0.3  \\[3mm]
  & Rainy  & 0.05 & 0.3  & 0.5
@@ -157,7 +157,7 @@ $$
     \item Column represents current state
     \item Row represents future state
     \item $P_{ij}$ represents odds of transitioning to state $i$ from state $j$
-    \item $P_{12} = 0.3$ is the chance of being sunny tomorrow if today is cloudy
+    \item $P_{12} = 0.3$ is the chance of  being cloudy tomorrow if today is sunny
 \end{itemize}
 
 \end{frame}
@@ -177,7 +177,7 @@ On any given day Gary is either cheerful (C), so-so (S), or glum (G).
 
 \begin{itemize}
     \item System: Gary's mood each day
-    \item States: $\{$C,S,G$\}$
+    \item States: $\{$C,S,G$\}$, number them as $\{1,2,3\}$
     \item Transition Matrix:
     $$
     P = \begin{bmatrix}
@@ -187,6 +187,34 @@ On any given day Gary is either cheerful (C), so-so (S), or glum (G).
     \end{bmatrix}
     $$
 \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Modeling Example}
+
+\begin{block}{Information }    
+On any given day Gary is either cheerful (C), so-so (S), or glum (G). 
+\begin{itemize}
+    \item If he is cheerful today, then he will be C, S, or G tomorrow with respective probabilities 0.5, 0.4, 0.1. 
+    \item If he is feeling so-so today, then he will be C, S, or G tomorrow with probabilities 0.3, 0.4, 0.3. 
+    \item If he is glum today, then he will be C, S, or G tomorrow with probabilities 0.2, 0.3, 0.5.
+\end{itemize}
+\end{block}
+
+\begin{block}{Transition Matirx}
+    $$
+    P = \begin{bmatrix}
+        0.5 & 0.3 & 0.2\\
+        0.4 & 0.4 & 0.3\\
+        0.1 & 0.3 & 0.5
+    \end{bmatrix}\quad
+    \begin{array}{c}
+         C\\ S\\G
+    \end{array}
+    $$
+\end{block}
+
+\keyidea{Compactly represent dense information.}
 
 \end{frame}
 
@@ -200,13 +228,13 @@ On any given day Gary is either cheerful (C), so-so (S), or glum (G).
     \item We may think of the Markov chain as an \textit{operator} that describes how a \textbf{state vector}  $x_0$ will evolve 
     \vfill
 
-    \item A state vector describes a distribution
+    \item A state vector describes a \textbf{distribution}
     $$x_0=\begin{bmatrix}
         x_{01}\\
         x_{02}\\
         x_{03}
     \end{bmatrix}$$
-    where the elements are nonnegative weights satisfying $x_{01}+ x_{02} + x_{03}=1$   
+    where the elements are positive weights satisfying $x_{01}+ x_{02} + x_{03}=1$   
     \vfill
 
     \item The product 
@@ -313,7 +341,7 @@ How do we compute the probability of moving between states over multiple days?
     \item In general $P^k$ describes probabilities after $k$ transitions
     \item Entry $(i,j)$ of $P^k$ is:
     \[
-    (P^k)_{ij}=\Pr(\text{state } i \text{ after } k \text{ steps} \mid \text{given } \text{state } j \text{ initially})
+    P_{ij}^k=\Pr(\text{state } i \text{ after } k \text{ steps} \mid \text{given } \text{state } j \text{ initially})
     \]
 \end{itemize}
 
@@ -349,7 +377,7 @@ $$
     \item Sunny today $\implies$ column 1
     \item Rainy 3 days from now $\implies $ row 3
     \item The probability of being rainy 3 days if today is sunny is 
-    $$P^3_{31} = 0.1483= 14.83\% \text{ chance}$$
+    $$P^3_{31} = 0.1483= 14.5\% \text{ chance}$$
 \end{itemize}
 \end{frame}
 
@@ -358,7 +386,7 @@ $$
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Absorbing States}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[shrink]{Broken Machine Example}{Setting up the matrix}
+\begin{frame}[shrink]{Broken Machine Example}{The Setting up the matrix}
 \begin{example}
 \cols{
 
@@ -388,7 +416,7 @@ Each day it is in one of these states. Find the transition matrix.
                 edge [->, loop right] node {\tiny 0.4} ()
                 edge [->, bend left] node [below] {\tiny 0} (Rainy)
         (Rainy) edge [->, bend left] node {\tiny 0} (Sunny)
-               edge [->] node {\tiny 0} (Cloudy)
+               edge [->] node {\tiny 00} (Cloudy)
                edge [->, loop below] node {\tiny 1} ();
     \end{tikzpicture}
 
@@ -447,7 +475,7 @@ If the machine is working on Day 1, what is the probability that it is still fun
          $$
     
     
-    \item $P^{365}_{3,1} = 0.7937 \implies $ there's a 79.37\% chance that the machine is permanently broken after 365 days starting from state 1.  
+    \item $P^{365}_{3,1} = 0.7937 \implies $ there's a 79.22\% chance that the machine is permanently broken after 365 days starting from state 1.  
 
     \begin{block}{Answer}
     If the machine is working on Day 1, it will not be permanently broken with probability of about 20.63\%. 
@@ -471,7 +499,7 @@ If the machine is working on Day 1, what is the probability that it is still fun
          \right)
          $$
           \item This is the matrix after two years 
-         $$P^{730} =
+         $$P^{365} =
          \left(%
          \begin{array}{lll}
              0.0367 & 0.0370 & 0 \\
@@ -480,7 +508,7 @@ If the machine is working on Day 1, what is the probability that it is still fun
          \end{array}%
          \right)
          $$
-         \item As the number of days $n\rightarrow \infty$, the odds of the printer being permanently broken approaches 1
+         \item As as the number of days $n\rightarrow \infty$, the odds of the printer being permanently broken approaches 1
 
          \define{Absorbing State}{
          A state $i$ in a Markov chain is an \textbf{absorbing state} if it has the transition probability $P_{ii}=1$
@@ -505,7 +533,7 @@ If the machine is working on Day 1, what is the probability that it is still fun
     $$x=\begin{bmatrix}
         0\\0\\1
     \end{bmatrix}$$
-    is an eigenvector of the matrix $P$ for $\lambda_1=1$, i.e. $Px = \lambda_1 x$
+    is the dominant eigenvalue of the matrix $P$, i.e. $Px = \lambda_1 x$
 \end{itemize}
 \end{frame}
 
@@ -534,8 +562,8 @@ If the machine is working on Day 1, what is the probability that it is still fun
 
     \define{Steady State}{
     \begin{itemize}
-        \item  A stationary distribution satisfies $Px=x$, $x_i\ge0$, and $\sum_i x_i=1$.
-        \item A stationary distribution has nonnegative entries summing to one; it describes the limit when the iterates converge.
+        \item  A steady state is an eigenvector of $P$ with eigenvalue $\lambda = 1$.
+        \item When normalized, the steady state tells the long-term distribution of states.
     \end{itemize}
     }
 \end{itemize}
@@ -543,13 +571,21 @@ If the machine is working on Day 1, what is the probability that it is still fun
 
 
 \begin{frame}{Connection to the Power Method}
+
 \begin{itemize}
-\item A transition matrix has nonnegative entries and columns summing to one.
-Thus $\mathbf{1}^TP=\mathbf{1}^T$: $1$ is an eigenvalue, and all eigenvalues have magnitude at most $1$.
-\item Iteration $x_{k+1}=Px_k$ preserves probability vectors, so no rescaling is needed.
-\item If some power of $P$ has all positive entries, the iterates converge to a unique stationary distribution from every initial distribution.
+    \item Iterating a Markov chain means repeatedly computing:
+    \[
+    x_{k+1} = Px_k
+    \]
+    \item \emph{This is exactly the power method}
+    \item The dominant eigenvector corresponds to steady state distribution of states in the Markov chain
+
+    \item If $x_0$ is already normalized (sum of its elements is one) then you do \emph{not} have to normalize with each iteration
 \end{itemize}
-\keyidea{Convergence is not automatic: periodic chains can oscillate, and multiple absorbing states can give different limits.}
+
+\keyidea{
+If $P$ is the transition matrix for a Markov chain, then power method will give the steady state distribution of states.
+}
 \end{frame}
 
 
@@ -604,12 +640,12 @@ $$
     \item Start with $x_0=[1 \quad 0 \quad0]^T$ and iterate $x_{n+1} = Px_n$
     $$
     x_1=\begin{bmatrix}
-        0.8\\0.15\\0.05
+        0.8\\0.15\\0
     \end{bmatrix},\quad
     x_2=\begin{bmatrix}
         0.695\\0.195\\0.11
     \end{bmatrix},\dots,\quad 
-    x_{16}\approx\begin{bmatrix}
+    x_{16}=\begin{bmatrix}
         0.56\\0.24\\0.20
     \end{bmatrix}
     $$
@@ -636,7 +672,7 @@ $$
         (A) edge [->, loop left] node {\tiny 0.7} ()
                edge [->, bend left] node {\tiny 0.2} (B)
                edge [->,right] node {\tiny 0.1} (C)
-        (B) edge [->, below] node {\tiny 0.3} (A)
+        (B) edge [->, below] node {\tiny 0.0.3} (A)
                 edge [->, loop right] node {\tiny 0.5} ()
                 edge [->, bend left] node [below] {\tiny 0.2} (C)
         (C) edge [->, bend left] node {\tiny 0.1} (A)
@@ -665,12 +701,12 @@ $$
     x_2=\begin{bmatrix}
         0.42\\0.40\\0.18
     \end{bmatrix},\dots,\quad 
-    x_{10}\approx\begin{bmatrix}
+    x_{10}=\begin{bmatrix}
         0.4423\\0.3846\\0.1731
     \end{bmatrix}
     $$
     \item If there were $\infty$ exams the final distribution will be
-    approximately $44.23\%$ A, $38.46\%$ B, and $17.31\%$ C 
+    $44\%$ A, $38\%$ B, and $17\%$ C 
 \end{itemize}
     
 \end{frame}
@@ -744,7 +780,7 @@ E =
     \begin{itemize}
         \item \textbf{Power Method} is a simple algorithm to find the \textit{dominant} eigenvector of a matrix
         \vfill 
-        \item When the iterates converge, applying the power method to $P$ yields a stationary distribution
+        \item Doing the power method on the \textit{transition matrix} $P$ yields the \textit{steady-state distribution} of the system
     \end{itemize}
     
 \end{frame}
@@ -754,10 +790,43 @@ E =
 \sectionframe{Fun with Markov}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Random Sampling in MATLAB}
+
+{
+\question{Suppose tomorrow's weather can be sunny (1), cloudy (2), or rainy (3). How can I randomly generate few scenarios for tomorrow?}
+}
+
+\begin{itemize}
+    \item \texttt{randsample(n,k)} randomly selects $k$ integers
+    from $1,\ldots,n$, without replacement.
+
+\begin{lstlisting}
+s = randsample(3,2);       % generate two weathers
+s = randsample(3,3,true);  % gehnratn two, repeats allowed
+\end{lstlisting}
+
+    \item Weighted sampling is possible 
+\[
+    \Pr(\text{sunny})=0.6,\qquad
+    \Pr(\text{cloudy})=0.3,\qquad
+    \Pr(\text{rainy})=0.1.
+\]
+\begin{lstlisting}
+p = [0.6, 0.3, 0.1];
+next = randsample(3,1,true,p);
+% 1 = sunny, 2 = cloudy, 3 = rainy
+\end{lstlisting}
+
+\end{itemize}
+\end{frame}
+
+% ----------------
+
 \begin{frame}{Application: Text Prediction}
 
 \begin{itemize}
-    \item A simple text model assumes the next word depends only on the current word
+    \item Many text models assume the next word depends only on the current word
     \item This is exactly a Markov chain assumption
 \end{itemize}
 
@@ -788,8 +857,7 @@ P_{ij} = \Pr(\text{next word is } i \mid \text{current word is } j)
 \textbf{Text Generation:}
 \begin{enumerate}
     \item Pick a starting word
-    \item Look up the corresponding probability column
-    \item Randomly choose the next word using those probabilities
+    \item Do a random sample to pick the next word
     \item Repeat
 \end{enumerate}
     
@@ -826,7 +894,7 @@ All that cold, cold, wet day...
 \begin{frame}{Application: Music Recommendation}
 
 \begin{itemize}
-    \item A simple recommendation model can choose the next song using transitions between music types
+    \item Spotify chooses what song to play next based on transition between music types
     \item The \textbf{states} are chosen to be categories:
     \begin{itemize}
         \item a genre (Rock, Pop, Jazz)
@@ -843,7 +911,7 @@ Assume that the song you want to listen to next depends on what you just finishe
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{How the Transition Matrix Is Built}
+\begin{frame}{Application: Music Recommendation}
 
 \begin{itemize}
     \item Music apps record user data:
@@ -868,7 +936,7 @@ Each column is normalized so probabilities sum to 1.
 
 %%%%%%%%%%%%%
 
-\begin{frame}{Example}
+\begin{frame}{Application: Music Recommendation}
 
 Let the states be music genres:
 \[
@@ -880,16 +948,6 @@ We define the transition probabilities
 \[
 P_{ij} = \Pr(\text{next song is genre } i \mid \text{current song is genre } j)
 \]
-
-\begin{itemize}
-    \item Columns represent the \textbf{current genre}
-    \item Rows represent the \textbf{next genre}
-    \item Each column sums to 1
-\end{itemize}
-
-\vspace{3mm}
-\textbf{Example (illustrative numbers):}
-
 \[
 P =
 \begin{bmatrix}
@@ -900,16 +958,85 @@ P =
 0.05 & 0.05 & 0.05 & 0.10 & 0.35
 \end{bmatrix}
 \]
+\textbf{Setup:}
+\begin{enumerate}
+    \item Start with a song
+    \item Random sample to choose next genre 
+    \item Random sample to choose song 
+    \item Repeat
+\end{enumerate}
 
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Application: Turn-based Videogames}
 
+Suppose the enemy boss has 3 moves 
+\begin{center}
+\begin{tabular}{lc}
+\textbf{Move} & \textbf{Damage}\\ \hline
+Reverberate & $21$\\
+Head Slam  & $26$\\
+Block     & $0$
+\end{tabular}
+\end{center}
+
+\textbf{Attack pattern}
+\begin{itemize}
+    \item After either damaging attack, each move is equally likely.
+    \item After Block, it always attacks:
+    Reverberate or Head Slam, each with a probability $1/2$.
+\end{itemize}
+
+With state order (Reverberate, Head Slam, Ripple),
+\[
+P =
+\begin{bmatrix}
+1/3 & 1/3 & 1/2\\
+1/3 & 1/3 & 1/2\\
+1/3 & 1/3 & 0
+\end{bmatrix}.
+\]
+
+% Columns: current move. Rows: next move.
+% Ignore all other game mechanics; use the listed damage values.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Application: Turn-based Videogames}
+
+Do power method to find the largest eigenvector
+\[
+v_1=
+\begin{bmatrix}3/8\\3/8\\1/4\end{bmatrix}.
+\]
+Therefore, the long-run average damage per turn is
+\[
+21\left(\frac38\right)+26\left(\frac38\right)
++0\left(\frac14\right)
+=\boxed{17.625}.
+\]
+\begin{block}{Takeaways}
+\begin{itemize}
+    \item Be ready to \textbf{block for 18} damage each turn
+    \item Expect \textbf{incoming 88 damage} over 5 turns
+\end{itemize}
+\end{block}
+
+
+% Talking point:
+% We cannot predict the exact next move, but we can predict
+% average damage. The stationary eigenvector gives the
+% long-run fraction of turns spent using each move.
+
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \sectionframe{Google Pagerank}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Web Pages}
+\begin{frame}{Application: PageRank}
 
 \begin{figure}
     \centering
@@ -920,204 +1047,48 @@ P =
 \end{frame}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Google PageRank}
-Let $G_{ij}=1$ when page $j$ links to page $i$, and $0$ otherwise.
-Let $d_j=\sum_iG_{ij}$ count outgoing links within our set of $n$ pages.
-\[
-H_{ij}=\begin{cases}G_{ij}/d_j,&d_j>0,\\1/n,&d_j=0.\end{cases}
-\]
-\begin{itemize}
-\item A page with no outgoing links distributes its probability uniformly.
-\item Add a chance of jumping to any page:
-\[
-P=\alpha H+(1-\alpha)\frac{\mathbf{1}\mathbf{1}^T}{n},\qquad 0<\alpha<1.
-\]
-\item $P$ is positive and column-stochastic, so power iteration converges to its unique stationary distribution.
-\end{itemize}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{PageRank: From Links to Importance Scores}
-\begin{enumerate}
-\item Represent a collection of webpages as a directed graph.
-\item Construct the transition matrix, including jumps and dangling-page handling.
-\item Iterate $x_{k+1}=Px_k$ from a probability vector.
-\item Interpret the limiting entry $x_i$ as page $i$'s importance score.
-\end{enumerate}
-\keyidea{PageRank measures link-based importance. Search relevance also depends on the query and other ranking signals.}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{frame}{The Random Walk}
-% Google made a simple model of a random web surfer:
-% \begin{enumerate}
-%     \item Start at any webpage 
-%     \item Randomly click a link on the page 
-%     \item Repeat
-% \end{enumerate}
-
-%     \vspace{6mm}
-
-% Outcomes of the Random Walk:
-% \begin{itemize}
-%     \item \textbf{Dead End}: Find pages with no external links
-%     \item \textbf{Cycle}: Find series of pages that form an infinite cycle
-%     \item \textbf{Limiting Probability}: Find pages that have a high frequency of visits 
-% \end{itemize}
-% \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{frame}{Google and Probability}
-%     \begin{itemize}
-%         \item Let $c_j$ and $r_i$ be the column and row sums of $G$, respectively:
-%         \[
-%         c_j = \sum_{i} G_{i,j}, \quad r_i = \sum_{j} G_{i,j}
-%         \]
-        
-%         \item Then:
-%         \begin{itemize}
-%             \item $r_k$ is the \textbf{indegree} of page $k$ (number of links into page $k$).
-%             \item $c_k$ is the \textbf{outdegree} of page $k$ (number of outgoing links from page $k$).
-%         \end{itemize}
-%         \bigskip
-        
-%         \item Let $p$ be the fraction of time that the random walk follows a specific hyperlink.
-%         \item Google typically sets $p = 0.85$.
-%         \item Consequently, $1-p$ represents the fraction of time that the random walker jumps to a random page.
-%     \end{itemize}
-% \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{frame}{Google meets Markov}
-% \begin{itemize}
-% \item Let $A$ be an $n \times n$ matrix whose elements are
-% \[A_{i,j}
-% = \begin{cases}p\, G_{i,j}/c_j + \delta, \quad &c_j \neq 0 \\
-% 1/n, \quad  &c_j = 0
-% \end{cases}
-% \]
-%  where $\delta = (1-p)/n$.
-% \item This matrix is the transition matrix of the Markov chain of
-% a random walk!
-% \item Notice that $A$ comes from scaling the connectivity matrix
-% by its column sums.
-% \item The $j$-th column is the probability of jumping from the
-% $j$-th page to the other pages on the Web.
-% \end{itemize}
-% \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\begin{frame}
-%    \frametitle{The problem}
-%Can write $A$, the transition matrix, as
-%\[
-%A = p G D + e z^T
-%\]
-%where $e$ is the vector of all ones and where $ez^T$ account for dead linked 
-%pages and 
-%\[
-%D_{jj} = 1/c_j \,\textnormal{(or 0)}\quad z_j = \delta\, \textnormal{(or $1/n$)}
-%\]
-%Then $x=Ax$ can be written
-%\[
-% (I-pGD)x = (z^Tx) e = \gamma e
-%\]
-%and we can scale $x$ such that $\gamma=1$
-%
-%see \texttt{pagerank.m}
-%\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{Eigenvectors and Google}
-
-% Find $x = Ax$ and the elements of $x$ are Google's PageRank.
-%    \begin{itemize}
-      
-%       \item That is, $x$ is the result of an infinite walk 
-%          $$x \leftarrow A*A*\dots*A v$$ 
-%          for any starting vector $v$.
-      
-%       \item And element $i$ of $x$ (i.e., $x_i$) is the probability that you
-%          ended up on page $i$
-      
-%       \item As implied by the earlier example of an office machine, this $x$ is
-%          the eigenvector of largest eigenvalue, and the eigenvalue is $1$ \newline
-%          $\Rightarrow$ Use the power method!
-
-%    \end{itemize}
-
-% \bigskip
-% \bigskip
-
-% For any particular search string, 
-% \begin{itemize}
-%    \item First, Google finds pages on the Web that match the search string
-%    \item Second, the pages are listed in the order of their PageRank.
-% \end{itemize}
-% \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}
-% \frametitle{Matlab}
-% \framesubtitle{Moler's scripts}
-
-% \begin{itemize}
-%    \item To search from a homepage, you will type a statement like:
-%    \bigskip
-
-%    \texttt{[U,G] = surfer('http://www.unm.edu',n)}
-%    \bigskip
-
-%    \item This starts at the given URL and tries to surf the Web until it
-%    has visited $n$ pages.  That is, an $n$ by $n$ matrix is formed.
-%    \bigskip
-
-%    \item Note, \texttt{surfer.m} is very primitive...
-%    %\bigskip
-
-%    %\item Try, \texttt{[U, G] = surfer('http://www.unm.edu', 5)}\\
-%    %   and inspect \texttt{U, G}
-
-% \end{itemize}
-% \end{frame}
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}
-% \frametitle{Matlab}
-% \framesubtitle{Moler's scripts}
-% \begin{itemize}
-%   \item Download \texttt{surfer.m}, \texttt{pagerank.m} and \texttt{pagerankpow.m}
-
-%   \item \texttt{[U,G] = surfer('http://www.unm.edu',20);}
-%   \begin{description}
-%     \item[$U$] = a cell array of $n$ strings, the URLs of the nodes.
-%     \item[$G$]= an $n$-by-$n$ sparse matrix with $G(i,j)=1$ if node $j$
-%     is linked to node $i$.
-%   \end{description}
-%   \item Next: \texttt{spy(G)}.  This shows the nonzero
-% structure of the connectivity matrix.
-%   \item Finally: \texttt{pagerank(U,G)} and the pagerank will
-%      be computed for all 20 pages (see generated bar chart)
-% \end{itemize}
-% \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{Summary}
-
-% How PageRanks works:
-% \vspace{4mm}
-% \begin{enumerate}
-%     \item Form transition matrix $A$ from Google matrix $G$.\\[4mm]  
+\begin{frame}{Application: PageRank}
+    \begin{block}{Web Structure}
+        \begin{itemize}
+            \item Let $W$ be the set of web pages that can be reached by following a chain of hyperlinks starting from a page on Google.
+            \item Let $n$ be the number of pages in $W$.
+        \end{itemize}
+    \end{block}
     
-%     \item Estimate the largest eigenvector of $A$ with \underline{power method}.\\[4mm]
+    \vspace{2mm}
+    
+    \begin{block}{Connectivity and Transition Matrices}
+        \begin{itemize}
+            \item Let $G$ be the $n \times n$ \textbf{connectivity matrix} of $W$, where
+            \[
+            G_{i,j} = 
+            \begin{cases}
+                1 & \text{if there is a hyperlink from page } j \text{ to page } i, \\
+                0 & \text{otherwise}.
+            \end{cases}
+            \]
+            \item Rescale the \textbf{transition matrix} $G$ by normalizing each column of $G$ by the number of outgoing links from page $j$:
+            \[
+            G_{i,j} = \frac{G_{i,j}}{\text{outdegree}(j)}
+            \]
+        \end{itemize}
+    \end{block}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Application: PageRank}
 
-%     \item Normalize then sort the elements of the eigenvector.\\[4mm]
-   
-%     \item Return list of website in order according to sort index. 
-% \end{enumerate}    
-% \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{enumerate}
+    \item Find a list of $n$ websites containing keywords
+    \item Generate a directed graph from the webpages 
+    \item Generate a transition matrix $P$
+    \item Do power method on $P$
+    \item Sort the dominant eigenvector from greatest to least 
+    \item Display websites corresponding to sorted eigenvector
+\end{enumerate}
+
+\textbf{Result}: A list of websites ordered in terms of relevancy
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \end{document}
