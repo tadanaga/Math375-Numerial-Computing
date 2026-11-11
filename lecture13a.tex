@@ -25,8 +25,76 @@ We will answer these questions:\\[3mm]
     \item How can you modify the power method to find other eigenvalues?
 \end{itemize}
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Motivation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{A Trillion-Dollar Algorithm}
+
+\begin{center}
+
+    \begin{center}
+        \includegraphics[width=\linewidth]{Google-Logo-PNG-Pic.png}
+    \end{center}
+
+    {\Large The trillion dollar company started as a search engine.}
+
+    \vspace{2mm}
+
+    {\large \textbf{Algorithm}: efficiently return a list of websites sorted by relevance.}
+\end{center}
+
+\vfill
+
+\question{How do you rank the internet?}
+
+% TALKING POINTS:
+% Finding pages that contain your search words is one problem.
+% Deciding which pages deserve your attention is another.
+% An idea that helped build Google was PageRank.
+
+\end{frame}
+
+\begin{frame}{Web Pages $\to$ Matrix}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/Web_directed_graph.png}
+    
+    {\large \textbf{Step 1:} Turn a graph of websites into a matrix}
+\end{figure}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Find the Dominant Eigenvector}
+
+
+\begin{center}
+    {\large \textbf{Step 1:} Turn a graph of websites into a matrix}
+        \vfill 
+    {\large \textbf{Step 2:} Find the largest eigenvector}
+
+    \vfill 
+
+    {\large \textbf{Step 3:} Return websites ordered by the eigenvector}
+    \vfill 
+\end{center}
+\vfill 
+
+\begin{block}{PageRank}
+Google created the PageRank algorithm that sorts websites according to an eigenvector.
+\end{block}
+
+\onslide<2->{
+\question{How do you calculate this trillion-dollar eigenvector? \onslide<3>{\textbf{Power Method}}}
+}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Review Eigenvalues}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}{Eigenvalues, Eigenvectors}
   \begin{itemize}
     \define{Eigenvalues and Eigenvectors}{
@@ -314,8 +382,9 @@ Proof:
     x^{(k)} = \lambda_1^k \left( v_1 + \underbrace{\left(\frac{\lambda_2}{\lambda_1}\right)^k}_{\to 0} v_2 + \dots + \left(\frac{\lambda_n}{\lambda_1}\right)^k v_n \right)
     \]
     \item Therefore, in the limit 
-    \[ \lim_{k\to\infty} x^{(k)}/\lambda_1^k = v_1 \qquad (c_1=\cdots=c_n=1). \]
-    \item The direction of $x^{(k)}$ approaches the line spanned by $v_1$.
+    \[ \lim_{k\to\infty} x^{(k)}/\lambda_1^k = v_1  \]
+    
+    \item The iteration $x^{(k)}$ becomes a scalar multiple of $v_1$ 
 
 \end{itemize}
 \end{frame}
@@ -423,6 +492,27 @@ at each step.
 \end{frame}
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Few More Iterations}
+
+\begin{enumerate}
+    \item $x^{(4)} = \begin{bmatrix} 543\\287\end{bmatrix}$
+    
+    \item $x^{(5)} = \begin{bmatrix} 2203\\3227\end{bmatrix}$
+    
+    \item $x^{(6)} = \begin{bmatrix} 13063\\8967\end{bmatrix}$
+    
+    \item $x^{(7)} = \begin{bmatrix} 57123\\73507\end{bmatrix}$
+        \vfill
+    \begin{center}
+        The eigenvalue approximation $\lambda_1\approx 57123/13063\approx 4.4$ is getting better but...
+    \end{center}
+    
+\end{enumerate}
+    
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -578,7 +668,10 @@ end
 % \end{block}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Iterations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Convergence Rate}
 
 \begin{theorem}
@@ -601,41 +694,41 @@ E_k = \mathcal{O}\!\left(\left|\frac{\lambda_2}{\lambda_1}\right|^k\right).
 \end{itemize}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{Convergence Proof Outline}{Part 1}
+\begin{frame}{Convergence Proof Outline}{Part 1}
 
-% \begin{itemize}
-%     \item \textbf{Step 1: Express \( x^{(k)} \) in Terms of Eigenvectors.}  
-%     Start with an initial vector \( x^{(0)} \) expressed as a combination of eigenvectors:
-%     \[
-%     x^{(k)} = \lambda_1^k\left( c_1 v_1 + \left(\frac{\lambda_2}{\lambda_1}\right)^k c_2 v_2 + \dots + \left(\frac{\lambda_n}{\lambda_1}\right)^k c_n v_n \right).
-%     \]
+\begin{itemize}
+    \item \textbf{Step 1: Express \( x^{(k)} \) in Terms of Eigenvectors.}  
+    Start with an initial vector \( x^{(0)} \) expressed as a combination of eigenvectors:
+    \[
+    x^{(k)} = \lambda_1^k\left( c_1 v_1 + \left(\frac{\lambda_2}{\lambda_1}\right)^k c_2 v_2 + \dots + \left(\frac{\lambda_n}{\lambda_1}\right)^k c_n v_n \right).
+    \]
     
-%     \vspace{4mm}
+    \vspace{4mm}
     
-%     \item \textbf{Step 2: Define the Error \( E_k \)}.  
-%     The error at iteration \( k \) is the difference between \( x^{(k)} \) and the dominant eigenvector \( v_1 \):
-%     \[
-%     E_k = \left\| v_1 - \frac{x^{(k)}}{\|x^{(k)}\|} \right\|.
-%     \]
+    \item \textbf{Step 2: Define the Error \( E_k \)}.  
+    The error at iteration \( k \) is the difference between \( x^{(k)} \) and the dominant eigenvector \( v_1 \):
+    \[
+    E_k = \left\| v_1 - \frac{x^{(k)}}{\|x^{(k)}\|} \right\|.
+    \]
 
-%     \vspace{4mm}
+    \vspace{4mm}
 
-% \end{itemize}
-% \end{frame}
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{Convergence Proof Outline}{Part 2}
-% \begin{itemize}
-%     \item \textbf{Step 3: Estimate \( E_k \)}.  
-%     Using \( x^{(k)} \) expression, we have:
-%     \begin{align}
-%     E_k &= \left\| v_1 - \lambda_1^k\left( c_1 v_1 + \sum_{i=2}^n \left(\frac{\lambda_i}{\lambda_1}\right)^k c_i v_i \right) \right\| \\     
-%         &= \left\| -\sum_{i=2}^n \left(\frac{\lambda_i}{\lambda_1}\right)^k c_i v_i \right\| \\   
-%         &\leq \sum_{i=2}^n \left| \frac{\lambda_i}{\lambda_1} \right|^k |c_i| \|v_i\| \\  
-%         &\leq M n \left| \frac{\lambda_2}{\lambda_1} \right|^k,
-%     \end{align}
-%     where \( M \) is a constant dependent on \( \|v_i\| \).
-% \end{itemize}
-% \end{frame}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Convergence Proof Outline}{Part 2}
+\begin{itemize}
+    \item \textbf{Step 3: Estimate \( E_k \)}.  
+    Using \( x^{(k)} \) expression, we have:
+    \begin{align}
+    E_k &= \left\| v_1 - \lambda_1^k\left( c_1 v_1 + \sum_{i=2}^n \left(\frac{\lambda_i}{\lambda_1}\right)^k c_i v_i \right) \right\| \\     
+        &= \left\| -\sum_{i=2}^n \left(\frac{\lambda_i}{\lambda_1}\right)^k c_i v_i \right\| \\   
+        &\leq \sum_{i=2}^n \left| \frac{\lambda_i}{\lambda_1} \right|^k |c_i| \|v_i\| \\  
+        &\leq M n \left| \frac{\lambda_2}{\lambda_1} \right|^k,
+    \end{align}
+    where \( M \) is a constant dependent on \( \|v_i\| \).
+\end{itemize}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Idea Behind the Convergence Rate}
@@ -673,6 +766,21 @@ A:\ (1/5)^{10}\approx10^{-7}
 \keyidea{Both runs converge. The ratio of eigenvalue magnitudes decides how fast.}
 \end{frame}
 
+\begin{frame}{When Should We Stop Iterating?}
+For a normalized iterate $x$ and its eigenvalue estimate $\mu$, check the eigenvalue equation:
+\[
+r=Ax-\mu x.
+\]
+\begin{itemize}
+\item Reuse $y=Ax$ from the iteration. Compute $\mu$ from $y$ and $x$, then test $r=y-\mu x$ before replacing $x$.
+\item A small residual means this pair nearly satisfies $Ax=\mu x$. Keep an iteration limit as well.
+\end{itemize}
+\question{In the preceding example, what is the residual for $\mu=1$?}
+\pause
+It is zero. A residual checks the eigenpair equation; it cannot certify dominance.
+\end{frame}
+
+
 \sectionframe{When Does the Power Method Fail?}
 \begin{frame}{What If Two Eigenvalues Tie in Magnitude?}
 \[
@@ -700,19 +808,6 @@ We found an exact eigenvector for $\lambda=1$. Its component along the dominant 
 \keyidea{For the diagonalizable matrices considered here, check both assumptions: $|\lambda_1|>|\lambda_2|$ and $c_1\ne0$.}
 \end{frame}
 
-\begin{frame}{When Should We Stop Iterating?}
-For a normalized iterate $x$ and its eigenvalue estimate $\mu$, check the eigenvalue equation:
-\[
-r=Ax-\mu x.
-\]
-\begin{itemize}
-\item Reuse $y=Ax$ from the iteration. Compute $\mu$ from $y$ and $x$, then test $r=y-\mu x$ before replacing $x$.
-\item A small residual means this pair nearly satisfies $Ax=\mu x$. Keep an iteration limit as well.
-\end{itemize}
-\question{In the preceding example, what is the residual for $\mu=1$?}
-\pause
-It is zero. A residual checks the eigenpair equation; it cannot certify dominance.
-\end{frame}
 
 \sectionframe{Other Eigenvalues}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -847,18 +942,18 @@ And the convergence rate?
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Next Week: When Normalization Is Automatic}
-Today we rescaled $Ax$ to keep the iterates from growing or shrinking.
+% \begin{frame}{Next Week: When Normalization Is Automatic}
+% Today we rescaled $Ax$ to keep the iterates from growing or shrinking.
 
-\medskip
-Next week, $x$ will be a probability vector. Our transition matrix $P$ will preserve nonnegativity and the sum of its entries:
-\[
-x^{(k+1)}=Px^{(k)},\qquad \sum_i x_i^{(k)}=1.
-\]
-\question{If this sequence settles to a vector $x$, what equation must $x$ satisfy?}
-\pause
-\[
-Px=x.
-\]
-\end{frame}
+% \medskip
+% Next week, $x$ will be a probability vector. Our transition matrix $P$ will preserve nonnegativity and the sum of its entries:
+% \[
+% x^{(k+1)}=Px^{(k)},\qquad \sum_i x_i^{(k)}=1.
+% \]
+% \question{If this sequence settles to a vector $x$, what equation must $x$ satisfy?}
+% \pause
+% \[
+% Px=x.
+% \]
+% \end{frame}
 \end{document}

@@ -24,6 +24,52 @@ We will answer these questions:\\[3mm]
     \item How can you use the SVD to solve overdetermined systems and why would you want to?
 \end{itemize}
 \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Eigenfaces}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Limitations of Eigenvalues}
+\begin{itemize}
+
+    \item Image files are actually matrices 
+    
+    \includegraphics[scale=0.25]{figs/eigenfaces.png}
+
+    \item Eigenvalues of images used to be prominent in face recognition\\[3mm]
+
+    \item Similar eigenvalues, eigenvectors $\implies$ similar faces
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Limitations of Eigenvalues}
+\begin{itemize}
+   {\question{
+       What if the image was not $n\times n$? Does that mean facial recognition is impossible?
+   }}
+   \vspace{3mm}
+
+    \item Finding eigenvalues is only possible for $n\times n$ matrices\\[3mm] 
+
+    \item If we can't find eigenvalues, facial recognition is not possible\\[3mm]
+
+    \onslide<2>{
+    
+    \item However...  $AA^T$ and $A^TA$ are both always square matrices.\\[3mm]
+    
+    \keyidea{
+        Even if an image is rectangular, we can still find the eigenvalues of $AA^T$ which is always a square.
+    }
+    }
+\end{itemize}
+    
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Linear Algebra Review}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -114,62 +160,6 @@ $$p(\lambda) := \det(\lambda I - A)$$
 \end{itemize}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{Eigenvalues}
-% Assume that 
-% $$ A v = \lambda v$$
-% for $v\neq 0$. 
-
-% \vspace{4mm}
-
-% \begin{block}{Some Properties}
-%     \begin{itemize}
-%         \item $A^k v = \lambda^k v$
-%         \item $1/\lambda$ is an eigenvlaue of $A^{-1}$
-%         \item If $A=A^T$ (and real) then all of its eigenvalue are real
-%         \item If $P$ is invertible, then $A$ and $P A P^{-1}$ have the same eigenvalues
-%     \end{itemize}
-% \end{block}
-
-% % {
-% % \define{Similarity}{Matrices $A$ and $B$ are \textbf{similar} if there is an invertible matrix $P$ such
-% % that
-% % \[
-% % P^{-1} B P = A
-% % \]
-% % }
-% % }
-    
-% \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{frame}{Similarity}
-% \begin{theorem}
-%     If $A$ and $B$ are similar matrices then they have the same eigenvalues.
-% \end{theorem}
-% Proof: 
-
-% \begin{itemize}
-%     \item  Let $v,\lambda$ be an eigenvector, eigenvalue pair for matrix $B$.  
-%     \item We use the assumption $P^{-1} B P = A$
-% \begin{align*}
-%   B v & = \lambda v, \quad v\neq 0\\
-%   P A P^{-1} v &= \lambda v\\
-%   A P^{-1} v &= \lambda P^{-1} v\\
-%   A w   &= \lambda w, \quad w\neq 0.
-% \end{align*}
-% \item Thus, $w=P^{-1} v$ is an eigenvector of $A$ with the same eigenvalue $\lambda$.
-% \end{itemize}
-
-% \vspace{3mm}
-% \begin{center}
-%     \emph{This will be useful later.}
-% \end{center}
-
-% \end{frame}
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Orthogonal Matrix}
@@ -236,59 +226,7 @@ $$p(\lambda) := \det(\lambda I - A)$$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \begin{frame}{Gram-Schmidt orthogonalization}
 
-% \method{Gram-Schmidt}{Set of vectors $\{a_1, a_2, ..., a_n\}$}{Ortho-normalized vectors $\{q_1, q_2, ..., q_n\}$ }{Adjust the vectors so they are all orthogonal to each other, and have unit length}
-% \begin{itemize}
-
-% \item Let $A = [a_1| a_2 | \cdots |a_n]$. First normalize $a_1$ and obtain $$q_1 = \frac{a_1}{||a_1||} = \frac{a_1}{r_{11}}.$$  Now subtract from $a_2$ the components from  $q_1$.  This is given by $$a_2' = a_2 - (q_1^Ta_2)q_1 = a_2 - r_{12} q_1.$$  
-
-% \item Normalizing $a_2'$ we have $$q_2 = \frac{a_2'}{||a_2'||} = \frac{a_2'}{r_{22}}$$
-
-% \item Repeat recursively $a_i' = a_i - (q_{i-1}^Ta_i)q_{i-1}$, then $q_i = a_i'/|| a_i'||$.
-% \end{itemize}
-% \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Limitations of Eigenvalues}
-\begin{itemize}
-
-    \item Image files are actually matrices 
-    
-    \includegraphics[scale=0.25]{figs/eigenfaces.png}
-
-    \item Eigenvalues of images used to be prominent in face recognition\\[3mm]
-
-    \item Similar eigenvalues, eigenvectors $\implies$ similar faces
-
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Limitations of Eigenvalues}
-\begin{itemize}
-   {\question{
-       What if the image was not $n\times n$? Does that mean facial recognition is impossible?
-   }}
-   \vspace{3mm}
-
-    \item Finding eigenvalues is only possible for $n\times n$ matrices\\[3mm] 
-
-    \item If we can't find eigenvalues, facial recognition is not possible\\[3mm]
-
-    \onslide<2>{
-    
-    \item However...  $AA^T$ and $A^TA$ are both always square matrices.\\[3mm]
-    
-    \keyidea{
-        Even if an image is rectangular, we can still find the eigenvalues of $AA^T$ which is always a square.
-    }
-    }
-\end{itemize}
-    
-\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Singular Value Decomposition}
@@ -1098,6 +1036,15 @@ A =
 \end{itemize}
 \end{frame}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Also Works for Colored Images}
+\begin{center}
+    \includegraphics[scale=0.5]{figs/gus_compressed.png}
+\end{center}
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Analogy}
 
@@ -1108,14 +1055,6 @@ A =
 \end{figure}
     
 \end{frame}
-
-
-\begin{frame}{Deep Fried}
-\begin{center}
-    \includegraphics[scale=0.5]{figs/meme-compressed.png}
-\end{center}
-\end{frame}
-
 
 
 \end{document}
