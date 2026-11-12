@@ -2,7 +2,6 @@
 % \documentclass[handout,10pt]{beamer}
 \usepackage{my_style}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title[Math/CS 375]{Lecture 14 - A}
 \subtitle{\S 8.2 Singular Value Decomposition }
@@ -23,6 +22,131 @@ We will answer these questions:\\[3mm]
     \item How does truncating the SVD compress an image?
 \end{itemize}
 \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Eigenfacess}
+\begin{itemize}
+
+    \item Image files are actually matrices 
+    
+    \includegraphics[scale=0.25]{figs/eigenfaces.png}
+
+    \item Eigenfaces use principal components of a collection of centered face images\\[3mm]
+
+    \item Faces can be compared using their coordinates in this shared basis
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Diagonalization and Dominant Eigenvectors}
+
+If $A\in\mathbb{R}^{n\times n}$ has $n$ linearly independent
+eigenvectors, then
+\[
+    A=VDV^{-1},
+    \qquad
+    V=[\,v_1\ \cdots\ v_n\,],
+    \qquad
+    D=\operatorname{diag}(\lambda_1,\ldots,\lambda_n).
+\]
+
+\begin{itemize}
+    \item Order the eigenpairs by eigenvalue magnitude:
+    \[
+        |\lambda_1|\geq|\lambda_2|\geq\cdots\geq|\lambda_n|.
+    \]
+    \item Since $Av_i=\lambda_i v_i$, larger $|\lambda_i|$
+    means greater scaling along that eigenvector.
+\end{itemize}
+
+\begin{block}{Keeping the First $k$ Eigenvector Terms}
+Let $w_i^T$ be row $i$ of $V^{-1}$. Then
+\[
+    A=\sum_{i=1}^{n}\lambda_i v_iw_i^T
+    \quad\longrightarrow\quad
+    A_k=\sum_{i=1}^{k}\lambda_i v_iw_i^T.
+\]
+Each term is a rank-one matrix.
+\end{block}
+
+\small
+Ranking by $|\lambda_i|$ identifies dominant eigenvectors,
+but does not generally give the best rank-$k$ approximation.
+
+% Talking point:
+% "Dominant" describes scaling under A. For a general matrix,
+% it does not necessarily mean most important for image quality.
+% SVD will give us an optimal ranking for low-rank approximation.
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{From Dominant Eigenvectors to Facial Recognition}
+
+\begin{itemize}
+    \item Collect face images and represent each as a vector
+    of pixel values.
+
+    \item After subtracting the mean face, form a
+    \textbf{covariance matrix} describing how the pixels vary
+    across the collection.
+
+    \item Its dominant eigenvectors capture the main patterns
+    of variation. Reshaped as images, these are called
+    \textbf{eigenfaces}.
+\end{itemize}
+
+\begin{block}{Describe Each Face with a Few Numbers}
+\[
+    \text{Face}
+    \approx
+    \text{Mean face}
+    + c_1\,\text{Eigenface}_1
+    + \cdots
+    + c_k\,\text{Eigenface}_k.
+\]
+The coefficients $c_1,\ldots,c_k$ describe how much of each
+shared pattern appears in that face.
+\end{block}
+
+\keyidea{
+To recognize a new face, compare its coefficients with those
+of known faces. The closest match gives our prediction.
+}
+
+% Talking point:
+% We learn one shared basis from the collection.
+% We do not diagonalize each face separately.
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Limitations of Eigenvalues}
+\begin{itemize}
+   {\question{
+       What if the image was not $n\times n$? Does that mean facial recognition is impossible?
+   }}
+   \vspace{3mm}
+
+    \item Finding eigenvalues is only possible for $n\times n$ matrices\\[3mm] 
+
+    \item Rectangular image data does not prevent facial recognition\\[3mm]
+
+    \onslide<2>{
+    
+    \item However...  $AA^T$ and $A^TA$ are both always square matrices.\\[3mm]
+    
+    \keyidea{
+        Even if an image is rectangular, we can still find the eigenvalues of $AA^T$ which is always a square.
+    }
+    }
+\end{itemize}
+    
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Linear Algebra Review}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -248,46 +372,7 @@ $$p(\lambda) := \det(\lambda I - A)$$
 % \end{itemize}
 % \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Limitations of Eigenvalues}
-\begin{itemize}
-
-    \item Image files are actually matrices 
-    
-    \includegraphics[scale=0.25]{figs/eigenfaces.png}
-
-    \item Eigenfaces use principal components of a collection of centered face images\\[3mm]
-
-    \item Faces can be compared using their coordinates in this shared basis
-
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Limitations of Eigenvalues}
-\begin{itemize}
-   {\question{
-       What if the image was not $n\times n$? Does that mean facial recognition is impossible?
-   }}
-   \vspace{3mm}
-
-    \item Finding eigenvalues is only possible for $n\times n$ matrices\\[3mm] 
-
-    \item Rectangular image data does not prevent facial recognition\\[3mm]
-
-    \onslide<2>{
-    
-    \item However...  $AA^T$ and $A^TA$ are both always square matrices.\\[3mm]
-    
-    \keyidea{
-        Even if an image is rectangular, we can still find the eigenvalues of $AA^T$ which is always a square.
-    }
-    }
-\end{itemize}
-    
-\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Singular Value Decomposition}
