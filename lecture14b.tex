@@ -104,9 +104,9 @@ A = U \Sigma V^T
 \vspace{3mm}
 
 \begin{itemize}
-\item $V^T$ contains combinations of words
-\item $\Sigma$ tells us how important each combination is
-\item $U$ tells us how documents use those combinations
+\item Columns of $V$ give orthonormal word patterns
+\item The singular values in $\Sigma$ rank the strength of these patterns
+\item Rows of $U\Sigma=AV$ give each document's coefficients in this basis
 \end{itemize}
 
 \end{frame}
@@ -127,32 +127,34 @@ A = U \Sigma V^T
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Result}
 \begin{itemize}
-    \item Each right singular vector contains weights for the vocabulary words
+    \item Each right singular vector contains signed weights for the vocabulary words
+% For a reproducible ranking, sort by absolute weight and inspect both signs.
+% These previously reported lists are retained; their ranking convention is unverified.
 
-    \item Top 7 words in $v_1$:
+    \item Reported words from $v_1$:
     $$
     \text{
         "game"    "like"    "games"    "just"    "get"    "play"    "time"  
     }
     $$
-    \item Top 7 in $v_2$
+    \item Reported words from $v_2$
     $$
     \text{"game"    "like"    "games"    "just"    "get"    "really"    "controller"}
     $$
-    \item Top 7 in $v_3$
+    \item Reported words from $v_3$
     $$
     \text{"games"    "wii"    "just"    "play"    "get"    "like"    "mario"}
     $$
 \end{itemize}
 \begin{block}{Inference}
-    We can't really glean much from this. We have to omit filler words.
+    Frequent generic words obscure the patterns. Word selection and preprocessing matter.
 \end{block}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{New Result}
 
 \begin{itemize}
-\item Removed filler/obscure words 
+\item Removed selected common words 
 $$
 \text{game, games, play, like, get, really, time}
 $$
@@ -172,7 +174,7 @@ Topic 5: great good fun story graphics even
 \end{itemize}
 
 \begin{block}{Inference}
-These word patterns suggest themes involving stories, characters, and graphics. The word lists alone do not establish sentiment or popularity.
+These patterns suggest themes, not established sentiment or popularity. For interpretation, rank words by absolute weight and examine positive and negative weights separately.
 \end{block}
 
 \end{frame}
@@ -201,7 +203,8 @@ SVD orders patterns by strength; interpreting them as topics requires judgment.
 \cols{
     \begin{tikzpicture}
     \begin{axis}[
-        width=5cm, height=6cm,
+        width=5cm, height=5cm,
+        xmin=-1.6, xmax=1.6, ymin=-0.6, ymax=1.2,
         xlabel={$x$}, ylabel={$y$},
         grid=major, 
         thick,
@@ -223,7 +226,8 @@ SVD orders patterns by strength; interpreting them as topics requires judgment.
 }{
 \begin{tikzpicture}
     \begin{axis}[
-        width=5cm, height=6cm,
+        width=5cm, height=5cm,
+        xmin=-1.6, xmax=1.6, ymin=-0.6, ymax=1.2,
         xlabel={$x$}, ylabel={$y$},
         grid=major, 
         thick,
@@ -231,12 +235,12 @@ SVD orders patterns by strength; interpreting them as topics requires judgment.
         samples=100,
         % legend pos=outer south
     ]
-    % Polynomial interpolation curve
-    \addplot[color=blue, thick] {-0.2*x^3 + 0.5*x^2 + 0.3*x - 0.4};
+    % Degree-four interpolant through the same five data points
+    \addplot[color=blue, thick] {0.01777777778*x^4 + 0.24*x^3 + 0.38222222222*x^2 - 0.44*x - 0.2};
 
     % Interpolation points
     \addplot[color=red, only marks, mark=*] 
-        coordinates {(-1.5,0.95) (-1, 0) (0, -0.4) (1, 0.2) (1.5, 0.5)};
+        coordinates {(-1.5,0.6) (-1,0.4) (0,-0.2) (1,0) (1.5,0.9)};
     
     % Optional legend
     % \legend{Interpolation $g(x)$, Data Points};
@@ -305,27 +309,27 @@ SVD orders patterns by strength; interpreting them as topics requires judgment.
 \begin{block}{Interpolation Problem}
 \begin{itemize}
 \item Given: $n$ data points $\{(x_1,y_1),...,(x_n,y_n)\}$
-\item Goal: Find a line $ y = m x + b$ that fits through all $n$ points    
+\item Goal: Find a line $ y = \alpha x + \beta$ that fits through all $n$ points    
 \end{itemize}
 \end{block}
 \vspace{3mm}
 
 In matrix form
 $$ \underbrace{\begin{bmatrix}x_1 & 1 \\ \vdots & \vdots \\x_n & 1 \end{bmatrix}}_A 
-\underbrace{\begin{bmatrix}m \\ b \end{bmatrix}}_{x} 
+\underbrace{\begin{bmatrix}\alpha \\ \beta \end{bmatrix}}_{x} 
 = 
 \underbrace{\begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix}}_{\mathbf{y}}$$
-The system is overdetermined; an exact solution exists only when the data are collinear. 
+For $n>2$, the system is overdetermined; an exact solution requires all points to lie on a line $y=\alpha x+\beta$. 
 
 \keyidea{
-Trying to fit a degree \textbf{one} polynomial through \textbf{twenty} points is a pipe dream.
+A line generally cannot pass through all twenty noisy data points.
 }
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Overdetermined Problem}
 
-The issue: generally $b\notin\operatorname{Range}(A)$, so no line fits all the data exactly.
+The issue: generally $\mathbf{y}\notin\operatorname{Range}(A)$, so no line fits all the data exactly.
 
 
     \keyidea{
@@ -338,7 +342,7 @@ The issue: generally $b\notin\operatorname{Range}(A)$, so no line fits all the d
 Let's rework the problem
     \begin{itemize}
     
-    \item We still want a line $\hat{y}=mx+b$
+    \item We still want a line $\hat{y}=\alpha x+\beta$
     \item We want our line to be optimal in some way
     \end{itemize}
 
@@ -384,7 +388,7 @@ Let's rework the problem
 
     \item The signed vertical difference is the \textbf{residual}
     $$
-        r_i = y_i - (mx_i+b)
+        r_i = y_i - (\alpha x_i+\beta)
     $$
     \item $r_i$ can be positive or negative. That's why we square them.
     \item The error is 
@@ -393,7 +397,7 @@ Let's rework the problem
     $$
     \item Since the matrix form is
     $$ \begin{bmatrix}x_1 & 1 \\ \vdots & \vdots \\x_n & 1 \end{bmatrix}
-\begin{bmatrix}m \\ b \end{bmatrix}
+\begin{bmatrix}\alpha \\ \beta \end{bmatrix}
 = 
 \begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix}$$
 with $\mathbf{y}=(y_1,\ldots,y_n)^T$, the residual in \textbf{vector form} is
@@ -413,10 +417,10 @@ $$
 \item Let $x$ represent a particular "fit" 
 $$
 x = \begin{bmatrix}
-    m\\b
+    \alpha\\\beta
 \end{bmatrix}
 $$
-for the line $y=mx+b$
+for the line $y=\alpha x+\beta$
 
 \define{Residual and Squared Error}{
 The {\bf{residual}} vector is  $$r = b-Ax.$$ 
@@ -437,11 +441,11 @@ The quantity $\|r\|_2^2$ is the \textbf{sum of squared residuals}.
 \end{figure}
 
 \begin{itemize}
-    \item For any fit $y=mx+b$, we can compute the least squares error
+    \item For any fit $y=\alpha x+\beta$, we can compute the least squares error
     $$
         E =  \sum_i| \text{$i^{th}$ vertical bar|}^2 = \sum_i (r_i)^2 = r^Tr = \|r\|^2
     $$
-    \item \textbf{Goal}: find the values $m$ and $b$ that minimize the error
+    \item \textbf{Goal}: find the values $\alpha$ and $\beta$ that minimize the error
 
 \end{itemize}
 \end{frame}
@@ -453,14 +457,14 @@ The quantity $\|r\|_2^2$ is the \textbf{sum of squared residuals}.
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/scatter3.png}
-    Residual $\|r\|^2=31.8624
+    Sum of squared residuals $\|r\|_2^2=31.8624
 $
 \end{figure}
 }{
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/scatter4.png}
-    Residual $\|r\|^2=16.0863$
+    Sum of squared residuals $\|r\|_2^2=16.0863$
 \end{figure}
 }
 
@@ -473,11 +477,11 @@ $
 \begin{frame}{How do you find the optimal line?}
 
 \begin{block}{Objective}
-    Find the line of best fit $y=mx+b$ that represents the data $(x_i,y_i)$.
+    Find the line of best fit $y=\alpha x+\beta$ that represents the data $(x_i,y_i)$.
 \end{block}
 \vfill 
 \begin{block}{Least Squares}
-    Find the \textbf{least} value of the sum of \textbf{squares} $E = \sum_i(y_i - (mx_i+b))^2$
+    Find the \textbf{least} value of the sum of \textbf{squares} $E = \sum_i(y_i - (\alpha x_i+\beta))^2$
 \end{block}
 \vfill 
 
@@ -567,20 +571,20 @@ Advantages:
     Find the line of best fit for the data points $(-3,-2)$, $(1,0)$, $(2,4)$. 
 \end{example}
 \begin{itemize}
-    \item Let the fit be $y=mx + b$ 
+    \item Let the fit be $y=\alpha x + \beta$ 
 
     \item Then the system is 
     $$
     \begin{aligned}
-        -2 &= -3m + b\\
-        0 &= m + b \\
-        4 &= 2m + b
+        -2 &= -3\alpha + \beta\\
+        0 &= \alpha + \beta \\
+        4 &= 2\alpha + \beta
     \end{aligned} \quad \implies \begin{bmatrix}
             -3 & 1\\
             1 & 1\\
             2 & 1
         \end{bmatrix} \begin{bmatrix}
-            m\\b
+            \alpha\\\beta
         \end{bmatrix}= \begin{bmatrix}
             -2\\0\\4
         \end{bmatrix}
@@ -619,13 +623,13 @@ Advantages:
         14& 0\\
         0 & 3
     \end{bmatrix} \begin{bmatrix}
-        m\\b
+        \alpha\\\beta
     \end{bmatrix} = \begin{bmatrix}
         14\\2
     \end{bmatrix}
     $$
     \item Solving the system gives
-    $$m = 1,\quad b = 2/3$$
+    $$\alpha = 1,\quad \beta = 2/3$$
 
     \item The line of best fit is 
     $$
@@ -731,7 +735,7 @@ Forming the normal equations squares the condition number. QR or SVD avoids this
 
 % \bigskip
 
-% \item SVD:  $A = USV^T$ where 
+% \item SVD:  $A = U\Sigma V^T$ where 
 % \begin{itemize}
 % \item $U$ is an $m\times m$ orthogonal matrix
 % \item $V$ is an $n\times n$ orthogonal matrix
@@ -831,84 +835,75 @@ Forming the normal equations squares the condition number. QR or SVD avoids this
 %     \item \textbf{QR Least Squares}: Factor $A=QR$. Finding the least squares becomes a triangular system. 
 %     \bigskip 
 % \end{itemize}
-%   We can also factor $A = USV^T$... turns out that this is even better.
+%   We can also factor $A = U\Sigma V^T$... turns out that this is even better.
 % \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}
-\frametitle{Using SVD for least squares}
-\begin{itemize}
-    \item Recall that a \textbf{singular value decomposition} is given by 
-\[
-A =
-\begin{bmatrix}
-    \vdots & \vdots & \vdots\\
-    u_1    & \dots  & u_m \\
-    \vdots & \vdots & \vdots
-\end{bmatrix}
-\begin{bmatrix}
-    \sigma_1 &        &          &        &\\
-             & \ddots &          &        & \\
-             &        & \sigma_r &        & \\
-             &        &          & \ddots & \\
-             &        &          &        & 0 
-\end{bmatrix}
-\begin{bmatrix}
-    \dots & v_1^T & \dots\\
-    \dots & \vdots & \dots\\
-    \dots & v_n^T & \dots
-\end{bmatrix}
-\] where $\sigma_i$ are the singular values.  
-\bigskip
-\item $U$ and $V$ are orthogonal $\implies$ they are norm-preserving 
-\bigskip 
-\item Instead of minimizing $\|r \|^2$, we can minimize $\| U^T r \|^2$
-
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Full-column-rank case is the main lecture path.
 \begin{frame}{Using SVD for Least Squares}
-\begin{itemize}
-    \item Assume that $A$ has rank $k$ (and hence $k$ nonzero singular values $\sigma_i$) and recall that we want to minimize 
-        $$||r||^2_2 = ||b-Ax||^2_2.$$  
-    
-    \item Substituting the SVD for $A$ we find that 
-        $$||r||^2_2 = ||b-Ax||^2_2 = ||b-USV^Tx||^2_2$$  
-
-    \item We leverage the orthogonality of $U^T$
-        $$||b-USV^Tx||^2_2 = ||U^Tb-U^TUSV^Tx||^2_2 = ||U^Tb-SV^Tx||^2_2$$ 
-
-    \begin{block}{The New Problem}
-        By using the SVD, the equivalent minimization problem is
-        $$ \min_x\|SV^Tx-U^Tb\|_2^2. $$
-    \end{block}
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{The Method}
-Let $c=U^Tb$ and $y=V^Tx$. We minimize $\|Sy-c\|_2^2$.
-If $\operatorname{rank}(A)=k$,
+Let $A\in\mathbb{R}^{m\times n}$ have full column rank, with $m\ge n$.
 \[
-\|Sy-c\|_2^2=\sum_{i=1}^k(\sigma_i y_i-c_i)^2+
-\sum_{i=k+1}^m c_i^2.
+A=U\Sigma V^T,
+\qquad U\in\mathbb{R}^{m\times m},\quad
+\Sigma\in\mathbb{R}^{m\times n},\quad V\in\mathbb{R}^{n\times n}.
 \]
 \begin{itemize}
-\item Set $y_i=c_i/\sigma_i$ for $i=1,\ldots,k$.
-\item The remaining residual components cannot be removed.
-\item Choose $y_{k+1}=\cdots=y_n=0$ for the minimum-norm solution.
-\item Recover $x=Vy$.
+\item Orthogonal matrices preserve the Euclidean norm.
+\item Change coordinates: $c=U^Tb$ and $y=V^Tx$.
 \end{itemize}
-\keyidea{SVD avoids forming $A^TA$; small singular values can still make the original problem sensitive.}
+\[
+\|b-Ax\|_2^2
+=\|U^Tb-\Sigma V^Tx\|_2^2
+=\|c-\Sigma y\|_2^2.
+\]
+\keyidea{Rotate or reflect the coordinates: the fitting error is unchanged, but the matrix becomes diagonal.}
+% Talking point: U and V change coordinates; Sigma does the scaling.
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{One-Shot Formula}
-\begin{theorem}
-Let $A$ be an $m \times n$ matrix of rank $k$ and let $A = USV^T$, 
-the singular value decomposition.  
-The minimum-2-norm least-squares solution of $Ax=b$ is 
-$$x = \sum_{i=1}^k(\sigma^{-1}_ic_i)v_i$$ where $c_i = u_i^Tb.$ 
-\end{theorem}
+
+\begin{frame}{Fit What We Can; Keep the Remaining Residual}
+Since $\sigma_1,\ldots,\sigma_n>0$,
+\[
+\|c-\Sigma y\|_2^2
+=\underbrace{\sum_{i=1}^n(c_i-\sigma_i y_i)^2}_{\text{we can make this zero}}
++\underbrace{\sum_{i=n+1}^m c_i^2}_{\text{unavoidable residual}}.
+\]
+\begin{enumerate}
+\item Compute $c=U^Tb$.
+\item Divide: $y_i=c_i/\sigma_i$, for $i=1,\ldots,n$.
+\item Transform back: $x=Vy$.
+\end{enumerate}
+\keyidea{SVD avoids forming $A^TA$. Small singular values can still make the original problem sensitive.}
+% Talking point: zero rows of Sigma cannot reproduce the final components of c.
+\end{frame}
+
+\begin{frame}{The SVD Least-Squares Solution}
+For full-column-rank $A$, the unique least-squares solution is
+\[
+\boxed{x=\sum_{i=1}^n\frac{u_i^Tb}{\sigma_i}v_i.}
+\]
+\begin{itemize}
+\item Project the data onto each $u_i$.
+\item Divide by the corresponding singular value.
+\item Combine the right singular vectors $v_i$.
+\end{itemize}
+% Main lecture path: continue to polynomial fitting if short on time.
+\end{frame}
+
+\begin{frame}{Reference: Rank-Deficient Least Squares}
+If $\operatorname{rank}(A)=r<n$, only $\sigma_1,\ldots,\sigma_r$ are positive:
+\[
+\|c-\Sigma y\|_2^2
+=\sum_{i=1}^r(c_i-\sigma_i y_i)^2+\sum_{i=r+1}^m c_i^2.
+\]
+\begin{itemize}
+\item Set $y_i=c_i/\sigma_i$ for $i\le r$.
+\item The other coordinates do not affect the residual.
+\item Choose $y_{r+1}=\cdots=y_n=0$ for the smallest solution norm.
+\end{itemize}
+\[
+\boxed{x_{\min}=\sum_{i=1}^r\frac{u_i^Tb}{\sigma_i}v_i.}
+\]
+% Optional reference slide: least-squares solutions need not be unique,
+% but the solution with minimum Euclidean norm is unique.
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Other Fitting}
@@ -946,7 +941,7 @@ y_n&= a+bx_n+cx_n^2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Fitting a Quadratic}
 \begin{itemize}
-\item This is non-square \textit{Vandermonde matrix}
+\item For $n>3$, this is a rectangular \textit{Vandermonde matrix}
 $$ \underbrace{\begin{bmatrix}  1& x_1&x_1^2 \\ \vdots & \vdots & \vdots \\
 1 & x_n & x_n^2 \end{bmatrix}}_A 
 \underbrace{\begin{bmatrix}a \\ b \\ c \end{bmatrix}}_{x} 
@@ -1010,6 +1005,7 @@ $$
 
 \end{frame}
 
+% Optional extension if time permits.
 \begin{frame}{Nonlinear Models}
 
 \question{What do you do if your data appears to be exponential?}
@@ -1080,8 +1076,8 @@ y_n&= a e^{bx_n}
         $$
         to find the "best-fit" equation
         \vfill 
-        \item In practice, use QR or SVD; with $A=USV^T$, minimize
-                $$ \|SV^Tx-U^Tb\|_2^2. $$
+        \item In practice, use QR or SVD; with $A=U\Sigma V^T$, minimize
+                $$ \|\Sigma V^Tx-U^Tb\|_2^2. $$
 
     \end{itemize}
 \end{frame}
