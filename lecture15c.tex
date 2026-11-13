@@ -2,7 +2,7 @@
 % \documentclass[handout,10pt]{beamer}
 \usepackage{my_style}
 
-\title[CS 375]{Lecture 15 - C}
+\title[Math/CS 375]{Lecture 15 - C}
 \subtitle{\S 7.1, 7.2, 7.3 Runge-Kutta Methods}
 
 \begin{document}
@@ -19,7 +19,7 @@ We will answer these questions:\\[3mm]
 
     \item How are the RK2 methods derived?
     
-    \item How is the RK4 method derived?
+    \item How does classical RK4 combine four slope evaluations?
     
     \item How do the RK2 and RK4 methods compare to Euler's method in terms of accuracy? 
     
@@ -82,7 +82,7 @@ We will answer these questions:\\[3mm]
     \begin{align*}        
      u(t_{i+1})  &= u(t_i)+\int_{t_i}^{t_{i+1}} f(t,u) \,dt\\
        u(t_{i+1}) &\approx  u(t_i)+(t_{i+1}-t_i) f(t_i,u(t_i))\\
-    u_{i+1} &\approx  u_i+h\;f(t_i,u_i)
+    u_{i+1} &=  u_i+h\;f(t_i,u_i)
     \end{align*}
     \item The result is \textit{Euler's method}
 
@@ -110,7 +110,7 @@ We will answer these questions:\\[3mm]
     $$
     \item Simpson's Rule
     $$
-    \int_a^b f(x) \,dx \approx \frac{b-a}{6} \left(f(a)+f\left(\frac{a+b}{2}\right)+f(b)\right)
+    \int_a^b f(x) \,dx \approx \frac{b-a}{6} \left(f(a)+4f\left(\frac{a+b}{2}\right)+f(b)\right)
     $$
 \end{itemize}
     
@@ -140,43 +140,29 @@ in the formula
 \end{itemize}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Runge-Kutta with Trapezoid}{RK2 - Version a}
+\begin{frame}{From Trapezoidal Rule to RK2}
 \begin{itemize}
-    \item Let the approximation  $u_i\approx u(t_i)$ and let $h=t_{i+1}-t_i$
-    \begin{align*}
-        u(t_{i+1}) &= u(t_i) + \int_{t_i}^{t_{i+1}} f(t, u(t)) \, dt \\
-        &\approx u(t_i)+ (t_{i+1}-t_i) \left(\frac{f(t_i,u(t_i)+f(t_{i+1},u(t_{i+1}))}{2}\right)\\
-       u_{i+1} &\approx u_i+ h \left(\frac{f(t_i,u_i)+f(t_{i+1},u_{i+1})}{2}\right)
-    \end{align*}
-    \item But this is \textbf{not} usable 
-    \[  
-    \textbf{u}_{i+1} \approx \textbf{u}_i + \frac{h}{2}[f(t_i, \textbf{u}_i) + f(t_{i}+h, \color{red} \textbf{u}_{i+1} \color{black}) ] 
+    \item Applying trapezoidal quadrature leads to
+    \[
+    u_{i+1}=u_i+\frac{h}{2}\left[f(t_i,u_i)+f(t_i+h,u_{i+1})\right].
     \]
-
-    \item This is \emph{not} in time-stepping form
-        $$\textbf{u}_{i+1} = T(\textbf{u}_i)$$ because of the  $\color{red}\textbf{u}_{i+1}$
+    \item This is the \textbf{implicit trapezoidal method}: the unknown $u_{i+1}$ appears on both sides.
+    \item It is a valid time-stepping method, but generally requires solving an equation at each step.
 \end{itemize}
+\question{Can we approximate the endpoint slope without an implicit solve?}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Runge-Kutta with Trapezoid}{RK2 - Version a}
+\begin{frame}{An Euler Predictor}{RK2 -- Heun's Method}
 \begin{itemize}
-    \item \textbf{Problem:} We need a way to approximate $\color{red}\textbf{u}_{i+1}$ on the right-hand side
-    \[  
-    \textbf{u}_{i+1} \approx \textbf{u}_i + \frac{h}{2}[f(t_i, \textbf{u}_i) + f(t_{i}+h, \color{red} \textbf{u}_{i+1} \color{black}) ] 
-    \]
-   \item \textbf{Fix:} Use Euler's method on $\color{red}\textbf{u}_{i+1}$
-   \begin{align*}
-        \textcolor{red}{\textbf{u}_{i+1}\approx \textbf{u}_i +  h f(t_i,\textbf{u}_i)}
-   \end{align*}
-   \item Finally, we have a usable time-stepping algorithm
-   \begin{align*}
-        \textbf{u}_{i+1} &\approx \textbf{u}_i + \frac{h}{2}[f(t_i, \textbf{u}_i) + f(t_{i}+h, \color{red} \textbf{u}_{i+1} \color{black})]\\ 
-        &\downarrow\\
-      \textbf{u}_{i+1} &\approx \textbf{u}_i + \frac{h}{2}\left[f(t_i, \textbf{u}_i) + f\left(t_{i}+h, \textcolor{red}{\textbf{u}_i +  h f(t_i,\textbf{u}_i)} \right) \right]
-   \end{align*}
-
+    \item Predict the endpoint with Euler:
+    \[\widetilde{u}_{i+1}=u_i+h f(t_i,u_i).\]
+    \item Evaluate the slope at that predicted endpoint.
+    \item Average the starting and predicted endpoint slopes:
+    \[u_{i+1}=u_i+\frac{h}{2}\left[f(t_i,u_i)+f(t_i+h,\widetilde{u}_{i+1})\right].\]
 \end{itemize}
+\keyidea{The predictor is an intermediate value. The averaged-slope update is the final value for this step.}
+% Heun's explicit method is different from solving the implicit trapezoidal rule.
 \end{frame}
 
 
@@ -186,7 +172,7 @@ in the formula
 \begin{itemize}
    \item This algorithm is often expressed in two "stages"
    \begin{align*}
-      \textbf{u}_{i+1} &\approx \textbf{u}_i + \frac{h}{2}(\underbrace{f(t_i, \textbf{u}_i)}_{\text{stage 1}} + \underbrace{f\left(t_{i}+h, \textbf{u}_i +  h f(t_i,\textbf{u}_i) \right)}_{\text{stage 2}} )
+      \textbf{u}_{i+1} &= \textbf{u}_i + \frac{h}{2}(\underbrace{f(t_i, \textbf{u}_i)}_{\text{stage 1}} + \underbrace{f\left(t_{i}+h, \textbf{u}_i +  h f(t_i,\textbf{u}_i) \right)}_{\text{stage 2}} )
    \end{align*}
 
     \begin{block}{RK2a (a.k.a. Heun's method)}
@@ -255,7 +241,7 @@ in the formula
 \begin{itemize}
    \item We get a different two-stage method
    \begin{align*}
-        \textbf{u}_{i+1}  &\approx  \textbf{u}_i + h[\, \underbrace{f(t_i + h/2,\; \textbf{u}_i + (h/2)\, \underbrace{f(t_i, \textbf{u}_i)}_{\text{stage 1}} )}_{\text{stage 2}}\, ]   
+        \textbf{u}_{i+1}  &=  \textbf{u}_i + h[\, \underbrace{f(t_i + h/2,\; \textbf{u}_i + (h/2)\, \underbrace{f(t_i, \textbf{u}_i)}_{\text{stage 1}} )}_{\text{stage 2}}\, ]   
 \end{align*}
 
     \begin{block}{RK2b (a.k.a. Midpoint Method)}
@@ -294,9 +280,9 @@ in the formula
 \begin{frame}{RK2 Methods}
 
 \begin{itemize}
-    \item Both RK2a and RK2b have 
+    \item For smooth problems, both RK2a and RK2b have 
     \begin{itemize}
-        \item \textit{local accuracy} $\mO(h^3)$
+        \item \textit{local one-step error} $\mO(h^3)$
         \item \textit{global accuracy} $\mO(h^2)$
     \end{itemize}
 
@@ -308,10 +294,10 @@ First order system $\textbf{u}'=\textbf{F}(t,\textbf{u)}, \textbf{u}(0)=\textbf{
 }{
 Discrete approximation to $\textbf{u}$
 }{
-They have a higher accuracy than Euler's because a better quadrature is used in the derivation.
+Their stage values and weights give second-order global accuracy.
 }
 
-\keyidea{Better quadrature $\implies$ better time-stepping method}
+\keyidea{Better quadrature also requires suitable approximations to intermediate solution values.}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -322,11 +308,11 @@ They have a higher accuracy than Euler's because a better quadrature is used in 
 \begin{itemize}
     \item Simpson's Rule
     $$
-    \int_a^b f(x) \,dx \approx \frac{b-a}{6} \left(f(a)+f\left(\frac{a+b}{2}\right)+f(b)\right)
+    \int_a^b f(x) \,dx \approx \frac{b-a}{6} \left(f(a)+4f\left(\frac{a+b}{2}\right)+f(b)\right)
     $$
-    \item Applying it to $\int_{t_i}^{t_{i+1}} f(t, u(t))$ yields
+    \item Applying it to $\int_{t_i}^{t_{i+1}} f(t, u(t))\,dt$ gives the approximation
     \begin{align*}
-    \frac{t_{i+1}-t_i}{6}\left[\;f(t_i,u_i)+f\left(t_{i}+\frac{h}{2},u\left(t_{i}+\frac{h}{2}\right)\right)+f(t_i+h,u(t_i+h))\right]
+    \frac{t_{i+1}-t_i}{6}\left[\;f(t_i,u(t_i))+4f\left(t_{i}+\frac{h}{2},u\left(t_{i}+\frac{h}{2}\right)\right)+f(t_i+h,u(t_i+h))\right]
     \end{align*}
 
     \item Utilize slope of $u(t)$ at three locations
@@ -340,7 +326,7 @@ They have a higher accuracy than Euler's because a better quadrature is used in 
 
 \begin{frame}{Four-Stage Runge-Kutta Method}
 \begin{itemize}
-    \item Simpson's quadrature is broken into four stages
+    \item RK4 uses four carefully chosen slopes; Simpson's rule motivates the weights
 
     \begin{block}{RK4}
     \begin{align*}
@@ -352,7 +338,8 @@ They have a higher accuracy than Euler's because a better quadrature is used in 
     \end{align*}
     \end{block}
 
-\item Global accuracy is $O(h^4)$
+\item For smooth solutions: local error $O(h^5)$, global error $O(h^4)$.
+\item When $f$ depends only on $t$, RK4 reduces to Simpson's rule.
 \end{itemize}
 
 \end{frame}
@@ -382,18 +369,19 @@ First order system $\textbf{u}'=\textbf{F}(t,\textbf{u)}, \textbf{u}(0)=\textbf{
 }{
 Discrete approximation to $\textbf{u}$
 }{
-It is derived from Simpson's rule which has accuracy $\mO(h^4)$
+Four slope evaluations give global error $\mO(h^4)$ for sufficiently smooth problems
 }
 
 \begin{itemize}
-    \item Most popular time-stepping algorithm
-    \item Matlab's \texttt{ode45()} is a professional implementation of RK4 with \textit{adaptive step size}
+    \item A widely used fixed-step algorithm
+    \item MATLAB's \texttt{ode45} uses an adaptive Dormand--Prince (4,5) pair, not classical RK4
     \item \textit{Fourth order accurate}!
 \end{itemize}
 \end{frame}
 
 
 
+% Documentation: https://www.mathworks.com/help/matlab/ref/ode45.html
 \begin{frame}[fragile]{Using ode45}
 \begin{block}{Problem}
 $$
@@ -458,9 +446,9 @@ plot(t,u)
     \vspace{5mm}
     Key Features of Stable time-stepping methods:
     \begin{itemize}
-        \item Does not propagate error 
-        \item Does not diverge from the true solution for sufficiently small $h$
-        \item Does not fail for test problem $u' = \lambda u$
+        \item Controls amplification of perturbations 
+        \item Depends on the method, step size, and differential equation
+        \item Stability alone does not guarantee accuracy
     \end{itemize}
 \end{frame}
 
@@ -493,7 +481,7 @@ u(0) &= u_0
     u_{i+1} = u_i + h(\lambda u_i) = (1 + h \lambda) u_i, \qquad i = 0,1,2, \ldots
     \]
     
-    \item Solution for choose $\lambda = -30, u_0 =1, h = 0.1$
+    \item Choose $\lambda = -30, u_0 =1, h = 0.1$
     \cols{    
     \begin{center}
         \includegraphics[height=4cm]{./figs/dahlquist_euler_soln}
@@ -529,7 +517,7 @@ u(0) &= u_0
 What went wrong?
 \begin{itemize}
     \item Didn't choose $h$ small enough
-    \item Error propagated 
+    \item The amplification factor is $1-30(0.1)=-2$ 
     \item Numerical solution is growing (!?) 
 \end{itemize}
 \end{frame}	
@@ -556,7 +544,7 @@ What went wrong?
    $$
         \underbrace{|u_{i+1}|}_{\text{new}} = \underbrace{|1+h\lambda|}_{\text{amplification factor}} \underbrace{|u_i|}_{\text{old}} 
    $$
-   \item For stability we need  
+   \item For decay we need  
         $$ |1+h\lambda| < 1$$
 
 \end{itemize}
@@ -565,31 +553,16 @@ What went wrong?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Stability Region}
-
 \begin{itemize}
-    \item Suppose $u_{i+1}=u_i+T(u_i)$ is a time-stepping algorithm 
-
-    \item We define our \textbf{test problem} to be
-    $$
-    \begin{dcases} 
-    u^{'} = \lambda u, & \quad t \in [0,T]\\
-    u(0) = u_0
-    \end{dcases}
-    $$
-
-    \define{Stability Region}{ 
-    The \textbf{region of absolute stability} is defined to be a region for $\lambda h$ such that the time stepping algorithm produces a stable solution for any $u_0$.
-    }
-
-    {
-    \keyidea{Stability region is an innate property of time-stepping methods.\\ \begin{center}
-    Bigger region $\implies$ Better method
-    \end{center}
-    }   
-    
-    }
+    \item Apply a Runge--Kutta method to $u'=\lambda u$:
+    \[u_{i+1}=R(z)u_i,\qquad z=h\lambda.\]
+    \item $R(z)$ is the method's amplification factor.
 \end{itemize}
-    
+\define{Stability Region}{The region of absolute stability is
+\[\{z\in\mathbb{C}: |R(z)|\leq1\}.\]
+Inside the region where $|R(z)|<1$, the numerical solution decays.}
+\keyidea{Choose $h$ so that $h\lambda$ lies in the stability region. Accuracy and computational cost also matter.}
+% Boundary points can remain bounded without reproducing physical decay.
 \end{frame}
 
 \begin{frame}{Visualizing Stability Regions}
@@ -624,13 +597,13 @@ What value of $h$ would give a stable solution for Euler's method for the IVP
                     &= u_i(1 -30 h ) \\ 
             \implies |u_{i+1}| &= |1-30h| |u_i| 
         \end{align*}
-    \item For stability we need $|1-30h| < 1$ or 
+    \item For decay we need $|1-30h| < 1$ or 
         \begin{align*}
             -1 &< 1-30h < 1\\
             -2 &< -30h < 0\\ 
              1/15 > h > 0
         \end{align*}
-    \item We need $h < 1/15$
+    \item Choose $0<h<1/15$. At $h=1/15$, the solution oscillates without decay.
 
 \end{itemize}
 \end{frame}	
@@ -659,7 +632,7 @@ What value of $h$ would give a stable solution for Euler's method for the IVP
 \end{figure}
 \begin{itemize}
     \item Pendulum of length $L$ is attached to a bob of mass $m$
-    \item Pendulum may pivot about point $P$, i.e. it can osciilate
+    \item Pendulum may pivot about point $P$, i.e. it can oscillate
     \item Motion is described by the angular displacement  $\theta(t)$ 
     \item The neutral hanging position is $\theta=0$
 \end{itemize}
@@ -676,7 +649,7 @@ What value of $h$ would give a stable solution for Euler's method for the IVP
     \item $\theta(t)$ = angular displacement of the pendulum at time $t$
     \item $L$ = length of the rod 
     \item $m$ = mass of the weight 
-    \item $\omega=\theta'$ = angular speed
+    \item $\omega=\theta'$ = angular velocity
 \end{itemize}
 
 \vspace{1cm}
@@ -726,7 +699,7 @@ Three forces
     \item Weight
 \end{itemize}
 \vspace{1cm}
-Since the bob is attached to a rigid rod, the forces cancel out to point in the \textit{tangential direction} 
+Tangential forces change the angular velocity. The radial resultant supplies centripetal acceleration. 
 
 \end{column}
 
@@ -790,11 +763,11 @@ Since the bob is attached to a rigid rod, the forces cancel out to point in the 
 % ================= LEFT COLUMN =================
 \begin{column}{0.35\textwidth}
 \begin{itemize}
-    \item The weight force $W$ can be expressed as $W=W_t+W_r$ 
-    \item Tension $T$ is canceled out by $W_r$
+    \item Resolve weight into tangential and radial components 
+    \item Radially, $T-mg\cos\theta=mL\omega^2$, where $\omega=\theta'$
     \item Tangential component of the weight 
     $W_t = -mg \sin \theta$
-    \item Damping force $F_d=-c\, \theta'$, $c\ge0$
+    \item Model tangential damping as $F_d=-c\,\theta'$, $c\ge0$
 \end{itemize}
 
 
@@ -883,7 +856,7 @@ The two forces are tangential component of weight and friction
 
 \vspace{3mm}
 
-\textbf{Step 4. Putting it all toghether}
+\textbf{Step 4. Putting it all together}
 \begin{align*}
 &-mg \sin\theta - c\,\theta'=mL\,\theta''\\
 &\boxed{mL\,\theta'' + c\,\theta'  +mg \sin\theta=0}
@@ -932,9 +905,27 @@ we must specify \emph{two} initial conditions.
 
 \end{frame}
 
+% Damping convention: c multiplies angular velocity in a tangential FORCE;
+% a torque damping coefficient would instead accompany m L^2.
+\begin{frame}{The Pendulum as a First-Order System}
+Set $y_1=\theta$ and $y_2=\theta'$:
+\[
+\begin{cases}
+y_1'=y_2,\\
+y_2'=-\dfrac{c}{mL}y_2-\dfrac{g}{L}\sin y_1,
+\end{cases}
+\qquad
+\begin{cases}
+y_1(0)=\theta_0,\\
+y_2(0)=\omega_0.
+\end{cases}
+\]
+\keyidea{Apply Euler, RK4, or an adaptive ODE solver to this two-component system.}
+\end{frame}
+
 \begin{frame}{Visualizing the Solution}
 \begin{itemize}
-    \item We can solve $mL\,\theta'' + c\,\theta'  -mg \sin\theta=0$ with Euler's method and plot
+    \item We can solve $mL\,\theta'' + c\,\theta'  +mg \sin\theta=0$ with Euler's method and plot
     \begin{figure}
         \centering
         \includegraphics[width=0.9\linewidth]{figs/pend.png}
@@ -953,6 +944,7 @@ we must specify \emph{two} initial conditions.
     \item Keep going up to $t=t_n$.
 \end{itemize}
 \begin{lstlisting}[mathescape]
+% Pseudocode: solve the system, then draw each state
 [t,u] = solve_pendulum()
 for i = 1 : n
     plot(state of pendulum at time $t_i$)
@@ -1207,3 +1199,4 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
+
