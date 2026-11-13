@@ -2,7 +2,7 @@
 % \documentclass[handout,10pt]{beamer}
 \usepackage{my_style}
 
-\title[CS 375]{Lecture 15 - B}
+\title[Math/CS 375]{Lecture 15 - B}
 \subtitle{\S 7.1, 7.2, 7.3 Systems of Differential Equations}
 
 \begin{document}
@@ -19,7 +19,7 @@ We will answer these questions:\\[3mm]
     
     \item What is the main idea behind the Runge-Kutta methods?
     
-    \item How do we choose the step size for Runge-Kutta?
+    \item How do we update all components of a coupled system?
 \end{itemize}
 \end{frame}
 
@@ -33,7 +33,7 @@ We will answer these questions:\\[3mm]
 \begin{frame}[shrink]{Population Model}
 
 \begin{block}{Rabbits}
-Let $R(t)$ = population of rabbits at time $t$. Then we can let model their population as
+Let $R(t)$ = population of rabbits at time $t$. Then we can model their population as
 $$
     R' = cR 
 $$
@@ -54,7 +54,7 @@ $$
 where $k>0$.
 \begin{itemize}
     \item Food is very scarce and they are dying out
-    \item Idea: more foxes $\implies$ less portion of food per fox
+    \item Assume a constant per-capita death rate $k$ in the absence of prey
 \end{itemize}
 \end{block}
 }
@@ -126,8 +126,8 @@ u_1^\prime(t) = f_1(t,u_1,u_2), \qquad u_1(0) = a \\
 u_2^\prime(t) = f_2(t,u_1,u_2), \quad \quad \, u_2(0) = b 
 \end{cases}
 \]
-\item $u_1$ and $u_2$ depend on each other so they be solved simultaneously 
-\item Discretize time $t_i = a + i\frac{b-a}{n}$
+\item $u_1$ and $u_2$ depend on each other so we solve for them together 
+\item Discretize time $t_i = ih$, with $h=T/n$ on $[0,T]$
 
 \item We seek discrete solutions of $u_1(t)$ and $u_2(t)$
 \[
@@ -169,7 +169,7 @@ u_2(t_0 + nh)
 
 
 \begin{itemize}
-    \item Taylor's Expand both solutions
+    \item Taylor-expand both solutions
     \begin{align*}        
     u_1(t_i+h) &\approx u_1(t_i) + h u_1'(t_i) \\
            &= u_1(t_i) + h f_1(t_i, u_1(t_i),u_2(t_i))\\[3mm]
@@ -177,7 +177,7 @@ u_2(t_0 + nh)
            &= u_2(t_i) + h f_2(t_i, u_1(t_i),u_2(t_i))
     \end{align*}
 
-    \item Establish the time stepping rule for both function
+    \item For the first component, the time-stepping rule is
         $$
         \textbf{u}_{1,i+1} = \textbf{u}_{1,i} + h\,f_1(t_i, \textbf{u}_{1,i},\textbf{u}_{2,i} )
         $$
@@ -205,7 +205,7 @@ u_2(t_0 + nh)
     \]
 
     \keyidea{
-    At the core, we are still using the same simple time-stepping idea. The only difference is that we have two variables changing over time.
+    Compute both new values using the same old pair. Do not overwrite one component before updating the other.
     }
 
 \end{itemize}
@@ -231,7 +231,7 @@ over the time interval $t \in [0, 1]$.
     \item Step 1: step from $t=0$ to $t=0.5$
     \begin{align*}
     u_1(0.5) &\approx u_1(0.0) + h \cdot f_1( u_1(0.0), u_2(0.0)) = 1 + 0.5*(0) = 1,\\
-    u_2(0.5) &\approx u_2(0.0) + h \cdot f_2(u_1(0,0),u_2(0.0)) = 0 + 0.5*(-1) = -0.5
+    u_2(0.5) &\approx u_2(0.0) + h \cdot f_2(u_1(0.0),u_2(0.0)) = 0 + 0.5*(-1) = -0.5
     \end{align*}
 
 \end{itemize}
@@ -327,7 +327,7 @@ over the time interval $t \in [0, 1]$.
 \end{figure}
 }
 \begin{block}{Interpretation}
-    There's an endless self-balancing cycle between rabbits and foxes 
+    The ideal model has periodic cycles for positive, non-equilibrium initial populations. Euler approximations can drift over time. 
 \end{block}
 \end{frame}
 %-------------------------------------------
@@ -384,7 +384,7 @@ u_m(a) = u_{ma}\\
     
     \begin{block}{Compact Notation for a System}
     We may define $\mathbf{F}(t,\textbf{u})$ to be the compact form for $f_i$ for $i = 1$ to $m$ so that we may write the ODE as
-        $$\underbrace{\mathbf{u}'(t)}_{\text{vector of u's}} =\;\; \underbrace{\mathbf{F}(t,\mathbf{u})}_{\text{vector of f's}}$$
+        $$\underbrace{\mathbf{u}'(t)}_{\text{vector of derivatives}} =\;\; \underbrace{\mathbf{F}(t,\mathbf{u})}_{\text{vector of f's}}$$
     \end{block}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -418,6 +418,7 @@ u_m(a) = u_{ma}\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Time-Stepping for Any Number of Variables}
+For autonomous systems (no explicit dependence on time):
 
 \begin{block}{Euler with One Unknown}
     $$ \texttt{new} = \texttt{old} + h*f(\texttt{old})$$
@@ -446,7 +447,7 @@ u_m(a) = u_{ma}\\
 \sectionframe{Higher Order ODEs}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{The Genius of Euler}
+\begin{frame}{Why This Simple Method Is Useful}
 
 % \begin{block}{First Order Problem}
 %     We know Euler's method can handle any IVP of the form
@@ -459,7 +460,7 @@ u_m(a) = u_{ma}\\
 % \end{block}
 
 \question{
-    Why does the great Euler get credit for such a simple algorithm?
+    How far can this simple update take us?
     $$
     u_{i+1} = u_i +hf(u_i)
     $$
@@ -472,7 +473,7 @@ u_m(a) = u_{ma}\\
     \end{figure}
 \onslide<2>{
 \begin{center}
-His contribution comes from solving \textit{higher order} ODEs.
+It also handles higher-order ODEs after rewriting them as systems.
 \end{center}
 }
 
@@ -487,12 +488,12 @@ His contribution comes from solving \textit{higher order} ODEs.
     \end{align*}
     
 
-    \item Euler’s method require the equation to be first-order ODEs.\\[3mm]
+    \item Euler’s method requires a first-order equation or system.\\[3mm]
 
     \item We may introduce new variables to change the ODE\\[3mm]
 
     \begin{block}{Goal}
-        Rewrite the second-order ODE as a first-order ODE.
+        Rewrite the second-order ODE as a first-order system.
     \end{block}
 
 
@@ -510,7 +511,7 @@ His contribution comes from solving \textit{higher order} ODEs.
     \[
     \begin{cases}
     y_1 = u(t), & \text{(the original function)}, \\
-    y_2 = u^\prime(t), & \text{(the first derivative or the original)}.
+    y_2 = u^\prime(t), & \text{(the first derivative of the original)}.
     \end{cases}
     \]
 
@@ -582,39 +583,40 @@ His contribution comes from solving \textit{higher order} ODEs.
     \begin{cases}
     y_1^\prime = y_2, \\
     y_2^\prime = -8u+2u'=-8y_1+2y_2\\
-    y'_1(0)=A,\;\; y'_2(0)=B
+    y_1(0)=A,\;\; y_2(0)=B
     \end{cases}
     \]
 \end{block}
 
 Euler's Idea:
 \begin{itemize}
-    \item We can't solve the original ODE
+    \item Euler's update does not directly apply to the second-order form
     \item Rewrite the ODE as a first-order system 
-    \item Now we \textit{can} solve it 
+    \item Now apply Euler to approximate both components 
     \item The solution to the original problem is $y_1(t) = u(t)$
 \end{itemize}
     
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Reduction of Order}
-    \begin{itemize}
-        \item This technique works for a general $n^{th}$ order ODE $$a_n u^{(n)} + a_{n-1} u^{(n-1)} + \cdots + a_1 u = f$$
-        
-        \item After doing a change of variables  $y_i = u^{(i-1)}$ we get an ODE sytem 
-            \[
-            \begin{cases}
-            y_1^\prime &= f_1(y_1, \ldots y_n)\\
-                        &\vdots \\
-            y_n^\prime &= f_n(y_1,\ldots,y_n)
-            \end{cases}
-            \]
-        \item After solving with Euler's method, we get $u(t)=y_1(t)\approx \mathbf{y_1}$
-    \end{itemize}
-    
-    \method{Reduction of Order}{$n^{th}$ order ODE, $n>1$}{Equivalent system of 1st order ODEs}{By introducing a new set of variables, the equation becomes solvable via Euler's method}
-
+\begin{frame}{Reduction to a First-Order System}
+\begin{itemize}
+    \item Suppose the highest derivative is isolated:
+    \[u^{(n)}=g(t,u,u',\ldots,u^{(n-1)}).\]
+    \item Introduce $y_1=u$, $y_2=u'$, \ldots, $y_n=u^{(n-1)}$:
+    \[
+    \begin{cases}
+    y_1'=y_2,\\
+    y_2'=y_3,\\
+    \quad\vdots\\
+    y_n'=g(t,y_1,\ldots,y_n).
+    \end{cases}
+    \]
+    \item Initial conditions transfer as $y_j(0)=u^{(j-1)}(0)$.
+    \item Solve the system numerically; its first component approximates $u(t)$.
+\end{itemize}
+% Talking point: we add variables, not new physics. Each variable stores
+% one derivative, so all updates use only first derivatives.
 \end{frame}
 
 
@@ -669,7 +671,7 @@ u(0) = 1, u^\prime(0) = 0, u^{''}(0) = 2
 \begin{itemize}
     \item We will reframe Euler's method as doing a crude quadrature 
     \item We will replace the crude quadrature with more advanced approximations
-    \item This is how \textbf{Runge-Kutta methods} are derived
+    \item Runge--Kutta methods combine quadrature with approximations to intermediate solution values
 \end{itemize}
 \end{block}
 
@@ -728,18 +730,18 @@ u(0) = 1, u^\prime(0) = 0, u^{''}(0) = 2
             fill=blue!20,       % Fill color
             fill opacity=0.5,    % Adjust opacity here
             draw=none
-        ] coordinates {(0.5,0.47) (3,0.47) (3,0) (0.5,0.0)};
+        ] coordinates {(0.5,0.47942554) (3,0.47942554) (3,0) (0.5,0.0)};
     
         % Plot the linear interpolant (straight line between x=0 and x=1.5)
-        \addplot[color=black, dashed, thick] coordinates {(0.5,0.47) (3,0.47)};
+        \addplot[color=black, dashed, thick] coordinates {(0.5,0.47942554) (3,0.47942554)};
         % \addlegendentry{$p_1(x)$};
     
         % Mark points x=0 and x=1.5 on the curve
-        \addplot[mark=*, only marks, color=red] coordinates {(0.5, 0.47) (3, 0.47)};
+        \addplot[mark=*, only marks, color=red] coordinates {(0.5, 0.47942554)};
     \end{axis}
     \end{tikzpicture}
     \begin{itemize}
-        \item The left-end Riemann sum is works like so 
+        \item The left-endpoint rule is 
             \[
             \int_a^b g(t) \, dt \approx (b-a) g(a).
             \]
@@ -756,8 +758,8 @@ u(0) = 1, u^\prime(0) = 0, u^{''}(0) = 2
     \item The left-point Riemann sum says
         \begin{align*}
             u(t_{i+1}) &= u(t_i)+ \int_{t_i}^{t_{i+1}} f(t, u(t)) \, dt\\
-                      &\approx u(t_i) + (t_{i+1}-t_i)\, f(t_i, u_i)\\ 
-                      &= u(t_i) + h\,f(t_i, u_i) 
+                      &\approx u(t_i) + (t_{i+1}-t_i)\, f(t_i, u(t_i))\\ 
+                      &= u(t_i) + h\,f(t_i, u(t_i)) 
         \end{align*}
         where \(h = t_{i+1} - t_i\).
 
@@ -769,7 +771,7 @@ u(0) = 1, u^\prime(0) = 0, u^{''}(0) = 2
 \keyidea{
 Euler's method was obtained by doing a very simple quadrature. 
 }
-\question{What if used even better quadratures?}
+\question{What if we used better quadrature rules?}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -798,8 +800,8 @@ Euler's method was obtained by doing a very simple quadrature.
         \vfill 
     \item Euler can also be applied to a coupled ODE
     \begin{align*}
-        x_{i+1} = x_i + hf(x_i,y_i)\\
-        y_{i+1} = y_i + h f(x_i,y_i)
+        x_{i+1} = x_i + hf_1(t_i,x_i,y_i)\\
+        y_{i+1} = y_i + h f_2(t_i,x_i,y_i)
     \end{align*}
         \vfill 
     \item It can generally be applied to an entire system of ODEs 
@@ -839,7 +841,7 @@ Euler's method was obtained by doing a very simple quadrature.
     \item One way to derive Euler's method is with a Taylor expansion 
     \begin{align*}
         u(t_i+h) &\approx u(t_i) + h u'(t_i)\\        
-        u(t_i+h) &\approx u(t_i) + h f(t_i, u(t_i)       
+        u(t_i+h) &\approx u(t_i) + h f(t_i, u(t_i))       
     \end{align*}
         \vfill 
     \item Another way is to use a very simple quadrature 
@@ -879,3 +881,4 @@ Euler's method was obtained by doing a very simple quadrature.
     
 \end{frame}
 \end{document}
+
