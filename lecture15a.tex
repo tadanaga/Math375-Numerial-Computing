@@ -2,7 +2,7 @@
 % \documentclass[handout,10pt]{beamer}
 \usepackage{my_style}
 
-\title[CS 375]{Lecture 15 - A}
+\title[Math/CS 375]{Lecture 15 - A}
 \subtitle{\S 7.1, 7.2, 7.3 Euler's Method}
 
 \begin{document}
@@ -113,7 +113,7 @@ Suppose a snowball with an initial radius $r=1$ is rolled down from the top of a
     \includegraphics[width=0.8\linewidth]{figs/snowball.png}
 \end{figure}
 \begin{itemize}
-    \item Assume that mass increases at a rate proportional to its current size 
+    \item As a simple model, assume the radius grows at a rate proportional to the radius 
     \item smaller snowball $\implies$ slower growth
     \item bigger snowball $\implies$ faster growth
 \end{itemize}
@@ -138,7 +138,7 @@ Suppose a snowball with an initial radius $r=1$ is rolled down from the top of a
 \end{itemize}
 
 {
-\define{Model}{ A \textbf{mathematical model} is a differential equation whose solution describes a quantity of interest. }
+\define{Model}{ A \textbf{mathematical model} uses mathematical relationships to describe a system; here we use a differential equation. }
 }
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -257,7 +257,7 @@ u(0) = A, u^\prime(0) = B
 \begin{block}{Assumption}
 \begin{itemize}
     \item No wind resistance
-    \item Rock is a sphere
+    \item Constant gravity; model valid until impact
     \item Use Newton's Law $F=ma=-mg$
 \end{itemize}
 \end{block}
@@ -378,7 +378,7 @@ x(0) = 50,\; x^\prime(0) = 0
 
 \begin{frame}{First-Order IVP}
     \begin{block}{First-Order IVP}
-        Given the derivative of a function $u'(t)$ for time $t\in (a,b]$ and an initial condition, find the antiderivative $u(t)$. 
+        Given a rate law $f(t,u)$ and an initial value, find a function $u(t)$ satisfying both: 
         $$
         \begin{cases}
 		u^\prime = f(t,u(t)), \quad t \in (a,b]\\
@@ -388,7 +388,7 @@ x(0) = 50,\; x^\prime(0) = 0
     \end{block}
 
     \begin{theorem}
-        If $f = f(t,u)$ and $\partial f/\partial u$ are continuous in the rectangle $\{ |t-a|<\alpha , \; |u-u_a|<\beta  \}$, then the first-order IVP has a unique continuous solution in some interval $|t-t_0| < \epsilon$.  
+        If $f = f(t,u)$ and $\partial f/\partial u$ are continuous in the rectangle $\{ |t-a|<\alpha , \; |u-u_a|<\beta  \}$, then the first-order IVP has a unique continuously differentiable solution in some interval $|t-a| < \epsilon$.  
     \end{theorem}
 
 \end{frame}
@@ -399,8 +399,8 @@ x(0) = 50,\; x^\prime(0) = 0
 \sectionframe{Time-Stepping Algorithms}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Solvable vs. Unsolvable}
-\begin{block}{Solvable}
+\begin{frame}{Analytic and Numerical Solutions}
+\begin{block}{Examples with analytic solutions}
 \begin{itemize}
     \item $x' = xt$
     \item $x''+4x'+2x=0$
@@ -408,11 +408,11 @@ x(0) = 50,\; x^\prime(0) = 0
 \end{itemize}
 \end{block}
 
-\begin{block}{Unsolvable - No Closed-form Solution }
+\begin{block}{Often approached numerically}
 \begin{itemize}
     \item $x'=\cos(xt)$
     \item $x'' + x^2x' +x=0 $
-    \item $\sqrt{x''} + x^2x' +\tan x=0 $
+    \item $x'' + \sin(x') +x^3=\cos t$
 \end{itemize}
 \end{block}
 \begin{center}
@@ -448,7 +448,7 @@ x(0) = 50,\; x^\prime(0) = 0
     
 
     \begin{itemize}
-        \item Computers don't ``solve" the differential equations
+        \item Numerical ODE solvers approximate values at selected times
         \item They find a discrete approximation $\textbf{u}$ of the continuous $u(t)$ 
     \end{itemize}    
 
@@ -473,7 +473,7 @@ We replace a continuous function with values at discrete time steps.
     \end{block}
 
     \begin{block}{Solution}
-    The solution to the IVP is a continuous function $u(t)$ defined on $t\in[a,b]$.
+    Assume the solution $u(t)$ exists throughout $[a,b]$.
     \end{block}
 
     \begin{block}{Objective}
@@ -508,14 +508,14 @@ We replace a continuous function with values at discrete time steps.
     \vspace{3mm}
 
     {\question{
-        If you know $\textbf{u}_0$, how would you approimate the solution at the next time step $\textbf{u}_1$?
+        If you know $\textbf{u}_0$, how would you approximate the solution at the next time step $\textbf{u}_1$?
     }}
     
 
     \begin{block}{Main Idea: Use recursion}
     
     \begin{itemize}
-        \item Suppose you have an update formula $$\textbf{u}_{i+1} = T(\textbf{u}_{i})$$ where $T()$ is the update function\\[3mm]
+        \item Suppose you have an update formula $$\textbf{u}_{i+1} = T(t_{i},\textbf{u}_{i};h)$$ where $T()$ is the update function\\[3mm]
         \item We can recursively find all values of $\textbf{u}_i$
         \item This is the main idea of \textbf{Time-Stepping algorithms}
     \end{itemize}
@@ -533,36 +533,38 @@ We replace a continuous function with values at discrete time steps.
     \begin{itemize}
         \item Initial condition $\textbf{u}_0$
         \item Update function $T$ satisfying
-        $$\textbf{u}_{i+1}  \approx   T(\textbf{u}_i)$$
+        $$\textbf{u}_{i+1}  =   T(t_{i},\textbf{u}_{i};h)$$
     \end{itemize}
     
     \textbf{Do a time-stepping loop}:
         \begin{align*}
-            \textbf{u}_1 &\approx  T(\textbf{u}_0) \\ 
-            \textbf{u}_2 &\approx T(\textbf{u}_1) \\
+            \textbf{u}_1 &=  T(t_{0},\textbf{u}_{0};h) \\ 
+            \textbf{u}_2 &= T(t_{1},\textbf{u}_{1};h) \\
                         &\vdots \\
-            \textbf{u}_n &\approx T(\textbf{u}_{n-1}) 
+            \textbf{u}_n &= T(t_{n-1},\textbf{u}_{n-1};h) 
         \end{align*}
 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Time Stepping Psuedocode}
+\begin{frame}[fragile]{Time Stepping Pseudocode}
 
 \begin{itemize}
     \item In general the update function $T$ may depend on $u$ and $t$, 
-        $$T = T(u,t)$$
+        $$T = T(t,u;h)$$
 
     \item Start by initializing an empty vector for the solution 
     \item Create a discretization of time 
     \item View time-stepping as an iterative method
 \end{itemize}
 \begin{lstlisting}[mathescape,label=algo,caption=Simple Time-stepping]
-initialize vector u
-create time vector t
+u = zeros(n+1,1)
+t = linspace(a,b,n+1)
+h = (b-a)/n
 u(1) = $u_0$ % given data
-for i = 1 : n - 1 
-    u(i+1) = $T$(u(i),t(i))
+for i = 1 : n 
+    u(i+1) = $T$(t(i),u(i),h)
+end
 \end{lstlisting}
 \end{frame}
 
@@ -579,7 +581,7 @@ for i = 1 : n - 1
 \begin{itemize}
     \item Taylor's Expansion of $u(t_i+h)$
     \begin{align*}        
-    u(t_i+h) &= u(t_i) + h u^\prime(t_i) + (h^2/2) u^{''}(c), \quad t < c < t +h\\
+    u(t_i+h) &= u(t_i) + h u^\prime(t_i) + (h^2/2) u^{''}(c), \quad t_i < c < t_i+h\\
            &\approx u(t_i) + h u'(t_i) 
     \end{align*}
 
@@ -604,12 +606,12 @@ for i = 1 : n - 1
 \begin{itemize}
     \item Taylor's Expansion of $u(t_i+h)$ with $f$
     \begin{align*}        
-    u(t_i+h) &= u(t_i) + h u^\prime(t_i) + (h^2/2) u^{''}(c), \quad t < c < t +h\\
+    u(t_i+h) &= u(t_i) + h u^\prime(t_i) + (h^2/2) u^{''}(c), \quad t_i < c < t_i+h\\
            &\approx u(t_i) + h u'(t_i) \\
            &= u(t_i) + h f(t_i, u(t_i))
     \end{align*}
 
-    \item Now make the discrete approximation $\textbf{u}_i = u(t_i)$
+    \item Now use the discrete approximation $\textbf{u}_i \approx u(t_i)$
         $$
         \textbf{u}_{i+1} = \textbf{u}_i + h\,f(t_i, \textbf{u}_i )
         $$
@@ -636,6 +638,7 @@ for i = 1 : n - 1
 u(1) = $u_a$
 for i = 1 : n
     u(i+1) = u(i) + h * f(t(i),u(i))
+end
 \end{lstlisting}
 \end{frame}
 
@@ -658,7 +661,7 @@ u(0) = 1
  0& 0.0& 1.0&           0.0 \\
  1& 0.2& 1.0&    0.2080\\
  2& 0.4& 1.0416& 0.4806\\
- 3& 0.6& 1.1377& 0.89865\\
+ 3& 0.6& 1.1377& 0.8986\\
  4& 0.8& 1.3175& 1.5660\\
  5& 1.0& 1.6306&       \\
 \end{tabular}
@@ -710,7 +713,7 @@ u(0) = 1
 \begin{itemize}
     \item Approximation of $u(t+h)$
     \begin{align*}
-         u(t+h) &= u(t) + h f(t,u(t)) \\
+         \widehat{u}(t+h) &= u(t) + h f(t,u(t)) \\
     \end{align*}
     \item True value 
     \begin{align*}
@@ -726,8 +729,9 @@ u(0) = 1
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Truncation Error for Euler's Method}
+% Convention: local error is the one-step defect, without dividing by h.
 \begin{block}{Local Truncation Error}
-    The Euler's method approxiation for $u(t+h)$ has a local truncation error 
+    Starting from the exact value $u(t)$, one Euler step has local error 
         $$E (h) = \frac{h^2}{2} u^{''}(c) = \mO(h^2)$$
 \end{block}
 
@@ -793,10 +797,10 @@ $\Rightarrow \quad p$ appears to be $1$?
 \begin{tabular}{c|c|c|c|c|c}
 Experiment $k$ & $e_k$ & $e_{k-1}$ & $h_{k}$ & $h_{k-1}$ &$p$\\ \hline 
  0& 0.1718& -& 1/10& - & -\\
- 1& 0.08991& 0.1718& 1/20&  1/10&0.93 \\
- 2&  0.04603& 0.08991& 1/40& 1/20&0.96\\
- 3& 0.02329&  0.04603& 1/80& 1/40&0.98\\
- 4& .01172& 0.02329& 1/160& 1/80&0.99 
+ 1& 0.08992& 0.1718& 1/20&  1/10&0.93 \\
+ 2&  0.04604& 0.08992& 1/40& 1/20&0.96\\
+ 3& 0.02330&  0.04604& 1/80& 1/40&0.98\\
+ 4& .01172& 0.02330& 1/160& 1/80&0.99 
 \end{tabular}
 \end{center}
 \item $p \approx 1$
@@ -808,25 +812,24 @@ If the truncation error is $\mathcal{O}(h^2)$, then why is the numerical accurac
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Global Truncation Error}
+\begin{frame}{Local and Global Error}
 \begin{itemize}
-    \item While it is true that the  \textbf{local error}, $|u(t+h) - u_{i+1}|$ is
+    \item A local error starts from the \textbf{exact} value at $t_i$:
     \[
-    E_L = |u(t+h) - u_{i+1}| = O(h^2)
+    \widehat{u}_{i+1}=u(t_i)+h f(t_i,u(t_i)).\]
+    \[
+    E_L=|u(t_{i+1})-\widehat{u}_{i+1}|=O(h^2).
     \]
-    \item The \textbf{global error} is the error at final time: 
-        $$ E_G = |u(t_n) - u_n|$$
-
-    
-    \item The errors accumulates from using Euler's method $n$ times  
-       $$O(n h^2) = O((b-a)h) = O(h)$$
-       global accuracy since $nh = (b-a)$.
+    \item Global error compares the computed solution with the exact solution:
+    \[E_G=|u(t_n)-\textbf{u}_n|.\]
+    \item Intuition: $n=(b-a)/h$ steps each introduce an $O(h^2)$ error:
+    \[ n\,O(h^2)=O(h). \]
 \end{itemize}
-
-\begin{block}{Global Truncation Error}
-    The Euler's method approximation for solving an IVP has a global truncation error 
-        $$E (h) = \mO(h)$$
+\begin{block}{Euler's Global Error}
+For a smooth solution and Lipschitz continuous $f$ in $u$, Euler's global error on a fixed interval is $O(h)$ as $h\to0$.
 \end{block}
+% Talking point: local error assumes an exact starting value. Global error
+% also includes propagation of errors from previous steps; the sum is intuition.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -865,7 +868,7 @@ If the truncation error is $\mathcal{O}(h^2)$, then why is the numerical accurac
     mark size=1.5pt,
     red
 ] table[row sep=\\] {
-x       y
+x       y \\
 0.0     1.0 \\
 0.2     1.0 \\
 0.4     1.0416 \\
@@ -880,7 +883,7 @@ x       y
     thick,
     red
 ] table[row sep=\\] {
-x       y
+x       y \\
 0.0     1.0 \\
 0.2     1.0 \\
 0.4     1.0416 \\
@@ -889,8 +892,9 @@ x       y
 1.0     1.6306 \\
 };
 
-% Local error arrow at t = 0.2
-\addplot[|-|, ultra thick, purple] coordinates {(0.6, 1.1377) (0.6, {3*exp(0.6^2/2) - 0.6^2 - 2})};
+% Local error: one Euler step from the EXACT value at t = 0.4
+\addplot[dashed, thick, teal] coordinates {(0.4,{3*exp(0.4^2/2)-0.4^2-2}) (0.6,{(3*exp(0.4^2/2)-0.4^2-2)*1.08+0.0128})};
+\addplot[|-|, ultra thick, purple] coordinates {(0.6, {(3*exp(0.4^2/2)-0.4^2-2)*1.08+0.0128}) (0.6, {3*exp(0.6^2/2) - 0.6^2 - 2})};
 \node[align=left, font=\scriptsize, purple] at (axis cs:0.6,1.32) {local error};
 
 % Local step indication brace
@@ -907,7 +911,7 @@ x       y
 \keyidea{
 
     \begin{itemize}
-        \item The \textbf{local error} accounts for one time step
+        \item The \textbf{local error} starts from the exact value for one step
         \item The \textbf{global error} accounts for all accumulated error
     \end{itemize}
 }
@@ -920,7 +924,7 @@ x       y
     \begin{itemize}
 \item Differential equations describe how quantities change
 \item Real-world problems $\rightarrow$ models $\rightarrow$ differential equations
-\item Most differential equations cannot be solved exactly
+\item Many useful differential equations lack a convenient closed-form solution
 \end{itemize}
 
 \vspace{3mm}
@@ -938,7 +942,7 @@ We use numerical methods to approximate solutions.
 \[
 t_0, t_1, t_2, \dots, t_n
 \]
-\item This gives a vector:
+\item The entries of the numerical solution vector satisfy:
 \[
 \textbf{u}_i \approx u(t_i)
 \]
@@ -972,7 +976,7 @@ Euler's method follows the slope (tangent line) step-by-step.
 \begin{frame}{Error in Euler's Method}
 
 \begin{itemize}
-\item Local truncation error: (Error from one time step)
+\item Local error: (One step from an exact starting value)
 \[
 \mathcal{O}(h^2)
 \]
@@ -991,3 +995,4 @@ Errors accumulate over many steps.
 \end{frame}
 
 \end{document}
+
