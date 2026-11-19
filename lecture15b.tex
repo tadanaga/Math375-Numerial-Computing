@@ -26,6 +26,267 @@ We will answer these questions:\\[3mm]
 
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Error Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Continuous vs. Discrete}
+    \begin{figure}
+        \centering
+        \includegraphics[scale=0.3]{figs/discrete_ODE.png}\\
+    \end{figure}
+    
+    \begin{itemize}
+        \item Solution $u(t)$ is continuous
+        \item But Euler's method gives a discrete vector $\textbf{u}$
+    \end{itemize}    
+    \question{What is the error?}
+\end{frame}
+
+
+\begin{frame}{Euler Euler}
+    \begin{equation*}
+      \includegraphics[height=5cm]{./figs/for_euler_solns}
+    \end{equation*}
+\begin{itemize}
+    \item Error is the largest difference between $u(t)$ and $\textbf{u}$ at discrete times
+    \item Notice where the largest error occurs
+    \item This is \textit{worst case scenario}: error keeps amplifying
+\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{Review: Truncation Error}
+\begin{block}{Recall the Forward Difference Scheme}
+    $$u'(t) \approx \frac{u(t+h) - u(t)}{h}$$
+\end{block}
+\begin{itemize}
+    \item Recall how \textbf{forward difference scheme} was derived 
+    \begin{align*}
+         u(t+h) &= u(t) + h u^\prime(t) + (h^2/2) u^{''}(c) \\
+         u(t+h) - u(t)&=  hu^\prime(t) + (h^2/2) u^{''}(c) \\
+         \underbrace{\frac{u(t+h) - u(t)}{h}}_{\text{approximate}}&=  \underbrace{u^\prime(t)}_{\text{true}} + \underbrace{(h/2) u^{''}(c)}_{\text{truncation term}} 
+    \end{align*}
+    \item Truncation Error for Forward Difference: 
+        $$ E(h) = -\frac{h}{2} u''(c)$$
+    \item Conclusion: the truncation error is $\mO(h)$ so the accuracy is $\mO(h)$
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Truncation Error for Euler's Method}
+\begin{itemize}
+    \item Approximation of $u(t+h)$
+    \begin{align*}
+         \widehat{u}(t+h) &= u(t) + h f(t,u(t)) \\
+    \end{align*}
+    \item True value 
+    \begin{align*}
+         u(t+h) &= u(t) + h u^\prime(t) + (h^2/2) u^{''}(c) \\
+    \end{align*}
+    \item Truncation = True - Approx. 
+    \begin{align*}
+        E_T(h) &=  \left(u(t) + h u^\prime(t) + (h^2/2) u^{''}(c)\right) -  \left(u(t) + h f(t,u(t))\right)\\
+               &= h u'(t) - h f(t,u(t)) + (h^2/2) u^{''}(c)\\
+               &= \frac{h^2}{2} u^{''}(c)
+    \end{align*}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Truncation Error for Euler's Method}
+% Convention: local error is the one-step defect, without dividing by h.
+\begin{block}{Local Truncation Error}
+    Starting from the exact value $u(t)$, one Euler step has local error 
+        $$E (h) = \frac{h^2}{2} u^{''}(c) = \mO(h^2)$$
+\end{block}
+
+\vspace{5mm}
+
+\question{
+    Does this mean Euler's method for IVPs converges quadratically?    
+}
+\vspace{3mm}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Numerical Experiment}
+\begin{itemize}
+    \item Let's solve 
+        \[
+        \begin{cases}
+        u^\prime = tu + t^3, \qquad t \in [0,1]\\
+        u(0) = 1
+        \end{cases}
+        \]
+        for $h$ = 1/10, 1/20, 1/40, 1/80, 1/160, 1/320, 1/ 640, 1/1280.\\[4mm]
+
+    \item Let error be $E = \left|u(1) - \textbf{u}_n\right|$ (error at final time $t=1$)\\[4mm]
+        
+    \item Hypothesis: Error $E = \mathcal{O}(h^p)$\\[4mm]
+
+    \item We can find $p$ two ways 
+        \begin{itemize}
+            \item Do a log-log plot of error vs. $h$
+            \item Calculate 
+                \[
+                p \approx \frac{\log(e_{k}/e_{k-1})}{\log(h_k/h_{k-1})}
+                \]
+        \end{itemize}
+
+    \item Run \texttt{forward\_euler\_script.m}
+
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Numerical Experiment}{Results}
+\begin{itemize}
+    \item Result:
+    \begin{equation*}
+    \includegraphics[height=6cm]{./figs/for_euler_conv}
+    \end{equation*}
+\begin{center}
+$\Rightarrow \quad p$ appears to be $1$?
+\end{center}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Numerical Experiment}{Results}
+\begin{itemize}
+    \item Calculate $p$ for successive values of $h$
+        \[
+        p \approx \frac{\log(e_{k}/e_{k-1})}{\log(h_k/h_{k-1})}
+        \]
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+Experiment $k$ & $e_k$ & $e_{k-1}$ & $h_{k}$ & $h_{k-1}$ &$p$\\ \hline 
+ 0& 0.1718& -& 1/10& - & -\\
+ 1& 0.08992& 0.1718& 1/20&  1/10&0.93 \\
+ 2&  0.04604& 0.08992& 1/40& 1/20&0.96\\
+ 3& 0.02330&  0.04604& 1/80& 1/40&0.98\\
+ 4& .01172& 0.02330& 1/160& 1/80&0.99 
+\end{tabular}
+\end{center}
+\item $p \approx 1$
+\question{
+If the truncation error is $\mathcal{O}(h^2)$, then why is the numerical accuracy $\mathcal{O}(h)$?
+}
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Local and Global Error}
+\begin{itemize}
+    \item A local error starts from the \textbf{exact} value at $t_i$:
+    \[
+    \widehat{u}_{i+1}=u(t_i)+h f(t_i,u(t_i)).\]
+    \[
+    E_L=|u(t_{i+1})-\widehat{u}_{i+1}|=O(h^2).
+    \]
+    \item Global error compares the computed solution with the exact solution:
+    \[E_G=|u(t_n)-\textbf{u}_n|.\]
+    \item Intuition: $n=(b-a)/h$ steps each introduce an $O(h^2)$ error:
+    \[ n\,O(h^2)=O(h). \]
+\end{itemize}
+\begin{block}{Euler's Global Error}
+For a smooth solution and Lipschitz continuous $f$ in $u$, Euler's global error on a fixed interval is $O(h)$ as $h\to0$.
+\end{block}
+% Talking point: local error assumes an exact starting value. Global error
+% also includes propagation of errors from previous steps; the sum is intuition.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Visualizing Local vs Global Error}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    width=11cm,
+    height=6cm,
+    axis lines=left,
+    xlabel={$t$},
+    ylabel={$u(t)$},
+    xmin=0, xmax=1.05,
+    ymin=0.8, ymax=2.0,
+    xtick={0,0.2,0.4,0.6,0.8,1.0},
+    ytick={1,1.25,1.5,1.75,2.0},
+    grid=both,
+    legend style={at={(0.02,0.98)}, anchor=north west, font=\small},
+    clip=false
+]
+
+% Exact solution
+\addplot[
+    domain=0:1,
+    samples=200,
+    thick,
+    blue
+] {3*exp(x^2/2) - x^2 - 2};
+\addlegendentry{Exact solution}
+
+% Euler approx points
+\addplot[
+    only marks,
+    mark=*,
+    mark size=1.5pt,
+    red
+] table[row sep=\\] {
+x       y \\
+0.0     1.0 \\
+0.2     1.0 \\
+0.4     1.0416 \\
+0.6     1.1377 \\
+0.8     1.3175 \\
+1.0     1.6306 \\
+};
+\addlegendentry{Euler approx.}
+
+% Euler line
+\addplot[
+    thick,
+    red
+] table[row sep=\\] {
+x       y \\
+0.0     1.0 \\
+0.2     1.0 \\
+0.4     1.0416 \\
+0.6     1.1377 \\
+0.8     1.3175 \\
+1.0     1.6306 \\
+};
+
+% Local error: one Euler step from the EXACT value at t = 0.4
+\addplot[dashed, thick, teal] coordinates {(0.4,{3*exp(0.4^2/2)-0.4^2-2}) (0.6,{(3*exp(0.4^2/2)-0.4^2-2)*1.08+0.0128})};
+\addplot[|-|, ultra thick, purple] coordinates {(0.6, {(3*exp(0.4^2/2)-0.4^2-2)*1.08+0.0128}) (0.6, {3*exp(0.6^2/2) - 0.6^2 - 2})};
+\node[align=left, font=\scriptsize, purple] at (axis cs:0.6,1.32) {local error};
+
+% Local step indication brace
+\draw [decorate,decoration={brace,mirror,amplitude=5pt}, thick]
+  (axis cs:0.4,1) -- (axis cs:0.6,1) node[midway, below=5pt, font=\scriptsize] {one time step};
+
+% Global error arrow at t = 1.0
+\addplot[|-|, ultra thick, purple] coordinates {(1.0, 1.6306) (1.0, {3*exp(1^2/2) - 1^2 - 2})};
+\node[align=left, font=\scriptsize, purple] at (axis cs:0.95,1.85) {global error};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\keyidea{
+
+    \begin{itemize}
+        \item The \textbf{local error} starts from the exact value for one step
+        \item The \textbf{global error} accounts for all accumulated error
+    \end{itemize}
+}
+
+\end{frame}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{System of ODEs}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

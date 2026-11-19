@@ -21,14 +21,53 @@ We will answer these questions:\\[3mm]
 
     \item What is the difference between local and global error for ODE solvers?
     
-
 \end{itemize}
 \end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \sectionframe{One-Dimensional Motion}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{frame}{Problem 1}
+
+% \question{Suppose a car is traveling down a long highway at a constant speed of 60 miles per hour. How many miles does it travel in 3 hours?}
+% \vfill 
+% \begin{itemize}
+%     \item No calculus required
+%     \item Let $x=$ distance, $r=$ speed, and $t=$ time 
+%     \item Solution:
+%     $$
+%         x = rt = (60)(3)=180 \text{ miles}
+%     $$
+% \end{itemize}
+% \vfill
+% \end{frame}
+
+
+% \begin{frame}{Problem 2}
+
+% \question{Let $x(t)$ be the position of a car in miles. Starting at $x(0)=0$, suppose the car travels down a long highway at a constant speed of 60 miles per hour. What is the position of the car it travel after $t$ hours?}
+% \vfill 
+% \begin{itemize}
+%     \item \textbf{Use calculus:} constant velocity means $x'=60$
+%     \item \textbf{Integrate:}
+%     \begin{align*}
+%         x' &= 60\\
+%         \int x'\,dt&=\int60\,dt\\
+%         % x(t)&=60t+C\\
+%         % x(0)&=0+c=0\\
+%         %  x(t)&=60t
+%     \end{align*}
+% \end{itemize}
+% \vfill
+% \end{frame}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Motivating Differential Equations}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Types of Equations to Solve}
+
+\begin{frame}{Types of Equations}
 
 \begin{block}{An Algebraic Equation}
 Solve for \( x \in \mathbb{R} \) in:  
@@ -54,7 +93,52 @@ Solve for \( u(x, t) \in C^2(\mathbb{R} \times \mathbb{R})  \) in:
 
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[shrink]{Why study them?}
+
+\question{Why do we care about differential equations? \onslide<2>{- \textbf{many reasons}}}
+
+\onslide<2>{
+\begin{itemize}
+    \item \textbf{Mechanics:} motion of objects under applied forces
+    \item \textbf{Astronomy:} orbits of planets, moons, and satellites
+    \item \textbf{Fluid dynamics:} airflow, ocean currents, and blood flow
+    \item \textbf{Weather:} changes in temperature, wind, and precipitation
+    \item \textbf{Heat transfer:} heating and cooling of materials
+    \item \textbf{Waves:} sound, vibrations, and water waves
+    \item \textbf{Electromagnetism:} electric fields, magnetic fields, and light
+    \item \textbf{Circuits:} changing currents and voltages
+    \item \textbf{Quantum mechanics:} behavior of particles at atomic scales
+    \item \textbf{Structural engineering:} vibrations of buildings and bridges
+    \item \textbf{Control systems:} cruise control, autopilot, and thermostats
+    \item \textbf{Robotics:} motion and balance of robotic systems
+    \item \textbf{Population dynamics:} growth and interactions of species
+    \item \textbf{Epidemiology:} spread of infectious diseases
+    \item \textbf{Medicine:} absorption and elimination of drugs
+    \item \textbf{Neuroscience:} electrical activity in neurons
+    \item \textbf{Chemistry:} rates of chemical reactions
+    \item \textbf{Environmental science:} transport of pollutants
+    \item \textbf{Economics:} growth of capital and changing markets
+    \item \textbf{Finance:} pricing financial derivatives
+    \item \textbf{Traffic:} movement of vehicles and formation of congestion
+    \item \textbf{Computer graphics:} simulation of cloth, smoke, and fluids
+    \item \textbf{Video games:} motion, collisions, and physical effects
+    \item \textbf{Machine learning:} continuous-time models and diffusion-based generation
+\end{itemize}
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Applications}
+Data produced by computational scientists:
+\pgfimage[width=\textwidth]{./figs/eng_apps}
+
+\keyidea{Scientists run simulations on the computer. The simulations are based on differential equations.}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{What is a Differential Equation?}
 
@@ -75,14 +159,6 @@ F\left(t, u, u', u'', \dots\right) = 0.
 \end{itemize}
 \end{block}
 
-\vspace{3mm}
-
-\begin{block}{Why study DEs?}
-    \begin{itemize}
-        \item Used to model systems that change over time or space
-        \item Physics, biology, engineering, economics
-    \end{itemize}
-\end{block}
 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -192,22 +268,6 @@ Radius of the snowball as a function of time
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Initial Value Problems}
 
-\begin{frame}{}
-    \begin{itemize}
-        \item The model for the size of the snowball is
-                $$\begin{dcases}
-                r' = kr,  & t>0\\
-           r(0) = 1 &
-        \end{dcases}$$
-        \item The equation $r'=kr$ is the \textbf{differential equation}
-            \vfill 
-        \item The equation $r(0)=1$ is called the \textbf{initial condition}
-            \vfill  
-
-        \item A differential equation together with an initial condition is called an \textit{initial value problem}
-            \vfill  
-    \end{itemize}
-\end{frame}
 
 \begin{frame}{Initial Value Problems (IVPs)}
    
@@ -242,6 +302,22 @@ u(0) = A, u^\prime(0) = B
 
 \end{frame}
 
+\begin{frame}{First-Order Example}
+    \begin{itemize}
+        \item The model for the size of the snowball is
+            $$\begin{dcases}
+                r' = kr,  & t>0\\
+           r(0) = 1 &
+        \end{dcases}$$
+        \item The equation $r'=kr$ is the \textbf{differential equation}
+            \vfill 
+        \item The equation $r(0)=1$ is called the \textbf{initial condition}
+            \vfill  
+
+        \item A differential equation together with an initial condition is called an \textit{initial value problem}
+            \vfill  
+    \end{itemize}
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Second Order Example}
 

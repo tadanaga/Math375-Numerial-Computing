@@ -110,6 +110,34 @@ A = U \Sigma V^T
 \end{itemize}
 
 \end{frame}
+
+\begin{frame}{Truncate: $A \approx U_k \Sigma_k V_k^{T}$}
+
+\textbf{Setup:} $m$ documents (reviews), $n$ vocabulary words, $k$ topics ($k \ll \min(m,n)$).
+
+\vspace{0.5em}
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{c|c|l}
+\textbf{Matrix} & \textbf{Size} & \textbf{Meaning} \\ \hline
+$A$ & $m \times n$ & Document-term counts (row = review, column = word) \\
+$U_k$ & $m \times k$ & Document--topic weights \\
+$\Sigma_k$ & $k \times k$ & Diagonal; topic strengths (singular values) \\
+$V_k$ & $n \times k$ & Word--topic weights \\
+\end{tabular}
+\end{center}
+
+\vspace{0.5em}
+\textbf{Significance:}
+\begin{itemize}
+  \item Columns of $V_k$: topics as weighted word lists (large $|v_{ij}|$ = defining words).
+  \item Rows of $U_k\Sigma_k$: each review's coordinates in topic space; sort to find the reviews that best match a topic.
+  \item Singular values $\sigma_1 \ge \sigma_2 \ge \dots$ rank topics by importance.
+  \item Columns of $U_k$ and $V_k$ are orthonormal, so topics are uncorrelated.
+  \item Best rank-$k$ approximation of $A$ (Eckart--Young): compresses $mn$ entries to about $k(m+n+1)$.
+\end{itemize}
+
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Example}
 
@@ -255,40 +283,7 @@ SVD orders patterns by strength; interpreting them as topics requires judgment.
 \end{itemize}
 \end{frame}
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Noise in Real data}
-\begin{itemize}
-    \item Real data $\{(x_1,y_1), ..., (x_n, y_n)\}$ contains noise (random error)
-    \item Regression is more suitable than interpolation for noisy data
-\end{itemize}
-
-\begin{center}
-  \pgfimage [width = 6cm] {figs/polling}
-\end{center}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{Noise in Simulated data}
-
-% \cols{
-% \begin{itemize}
-%     \item We may produce data $\{(x_1,y_1), ..., (x_n, y_n)\}$ by sampling from some function $y = f(x)$\\[3mm]
-%     \item We may introduce \emph{artificial} random error into our sampled data\\[3mm]
-%     \item Use \texttt{randn} for Gaussian noise or \texttt{rand} for uniform noise
-% \end{itemize}
-
-% }{
-% \begin{center}
-%   \includegraphics[scale=0.3] {figs/linear_interp}
-% \end{center}
-% }
-
-% \question{
-%     Can we recover the true solution $y=f(x)$ based using only the noisy data?
-% }
-% \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Linear Regression}
 
@@ -325,6 +320,37 @@ For $n>2$, the system is overdetermined; an exact solution requires all points t
 A line generally cannot pass through all twenty noisy data points.
 }
 \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Example}
+
+
+\begin{block}{Problem}    
+    Find the line $y=\alpha x+\beta$ that interpolates $(-3,-2)$, $(1,0)$, $(2,4)$. 
+\end{block}
+
+\begin{itemize}
+    \item Then the system is 
+    $$
+    \begin{aligned}
+        -2 &= -3\alpha + \beta\\
+        0 &= \alpha + \beta \\
+        4 &= 2\alpha + \beta
+    \end{aligned} \quad \implies \begin{bmatrix}
+            -3 & 1\\
+            1 & 1\\
+            2 & 1
+        \end{bmatrix} \begin{bmatrix}
+            \alpha\\\beta
+        \end{bmatrix}= \begin{bmatrix}
+            -2\\0\\4
+        \end{bmatrix}
+    $$
+    \item<2-> But there's no solution
+
+\end{itemize}
+\end{frame}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Overdetermined Problem}
@@ -461,14 +487,17 @@ The quantity $\|r\|_2^2$ is the \textbf{sum of squared residuals}.
 $
 \end{figure}
 }{
+\onslide<2>{
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/scatter4.png}
     Sum of squared residuals $\|r\|_2^2=16.0863$
 \end{figure}
 }
-
+}
+\onslide<2>{
 \keyidea{Minimizing $\|r\|^2$ generates the line that best represents the data.}
+}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Normal Equations}
