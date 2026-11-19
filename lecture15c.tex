@@ -875,337 +875,230 @@ What value of $h$ would give a stable solution for Euler's method for the IVP
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Animations}
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Physical Setup}
-
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[>=stealth]
-    \def\L{4}        % Length of the pendulum
-    \def\ang{30}     % Angle from vertical
-    \draw[thick] (0,0) -- ({\L*sin(\ang)},{-\L*cos(\ang)});
-    \draw[fill] (0,0) circle (0.05) node[above] {$P$};
-    \draw[fill] ({\L*sin(\ang)},{-\L*cos(\ang)}) circle (0.1) node[right=2pt] {$m$};
-    \draw[->,red,thick] ({\L*sin(\ang)},{-\L*cos(\ang)}) -- ++({-cos(\ang)*1.0},{-sin(\ang)*1.0}) node [below] {\tiny movement};
-    \draw[thick] (0,-1) arc[start angle=-90, end angle={-90+\ang}, radius=1];
-    \node at (0.1,-1.2) [right] {$\theta$};
-    \draw[dashed] (0,0) -- (0,-{\L}) node [below] {$\theta=0$};
-    \node at ({\L*sin(\ang)/2},{-\L*cos(\ang)/2}) [right] {$L$};
-    \end{tikzpicture}
-    \label{fig:pend}
-\end{figure}
-\begin{itemize}
-    \item Pendulum of length $L$ is attached to a bob of mass $m$
-    \item Pendulum may pivot about point $P$, i.e. it can oscillate
-    \item Motion is described by the angular displacement  $\theta(t)$ 
-    \item The neutral hanging position is $\theta=0$
-\end{itemize}
-
-\end{frame}
-
-% -------------
-
-\begin{frame}{Objective}
-
-\textbf{Variables: }
-\begin{itemize}
-    \item $t$ = time 
-    \item $\theta(t)$ = angular displacement of the pendulum at time $t$
-    \item $L$ = length of the rod 
-    \item $m$ = mass of the weight 
-    \item $\omega=\theta'$ = angular velocity
-\end{itemize}
-
-\vspace{1cm}
-\begin{block}{Goal}
-Derive a differential equation describing the motion of the pendulum using the variables above.
-\end{block}
-\end{frame}
-
-% ------------------
-\begin{frame}{Initial Conditions}
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[>=stealth]
-    \def\L{4}        % Length of the pendulum
-    \def\ang{30}     % Angle from vertical
-    \draw[thick] (0,0) -- ({\L*sin(\ang)},{-\L*cos(\ang)});
-    \draw[fill] (0,0) circle (0.05) node[above] {$P$};
-    \draw[fill] ({\L*sin(\ang)},{-\L*cos(\ang)}) circle (0.1) node[right=2pt] {$m$};
-    \draw[->,red,thick] ({\L*sin(\ang)},{-\L*cos(\ang)}) -- ++({-cos(\ang)*1.0},{-sin(\ang)*1.0}) node [below] {$\omega_0$};
-    \draw[thick,->] (0,-1) arc[start angle=-90, end angle={-90+\ang}, radius=1];
-    \node at (0.7,-0.7) [right] {$\theta_0$};
-    \draw[dashed] (0,0) -- (0,-{\L}) node [below] {$\theta=0$};
-    \node at ({\L*sin(\ang)/2},{-\L*cos(\ang)/2}) [right] {$L$};
-    \end{tikzpicture}
-\end{figure}
-
-\begin{itemize}
-    \item Initial position $\theta(0)=\theta_0$
-    \item Initial angular velocity $\theta'(0) = \omega_0$
-\end{itemize}
-\begin{center}
-    \textit{We pull the bob to the right, and then give it a tap in the left direction.}
-\end{center}
-    
-\end{frame}
-
-% ------------------
-
-% \begin{frame}{Free Body Diagram}
-% \begin{columns}[c]
-% % ================= LEFT COLUMN =================
-% \begin{column}{0.35\textwidth}
-% Three forces
-% \begin{itemize}
-%     \item Tension 
-%     \item Friction 
-%     \item Weight
-% \end{itemize}
-% \vspace{1cm}
-% Tangential forces change the angular velocity. The radial resultant supplies centripetal acceleration. 
-
-% \end{column}
-
-% % ================= RIGHT COLUMN =================
-% \begin{column}{0.50\textwidth}
-% \begin{figure}
-%     \centering
-% \begin{tikzpicture}[>=stealth,scale=1]
-%     \def\L{4}
-%     \def\ang{30}
-
-%     % Coordinates
-%     \coordinate (P) at (0,0);
-%     \coordinate (M) at ({\L*sin(\ang)},{-\L*cos(\ang)});
-
-%     % Rod and pivot
-%     \draw[thick] (P) -- (M);
-%     \draw[fill] (P) circle (0.05) node[above] {$P$};
-%     \draw[fill] (M) circle (0.10);
-
-%     % Dashed vertical (theta=0 reference)
-%     \draw[dashed] (P) -- (0,-\L);
-%     % \node at (0,-\L) [below] {$\theta = 0$};
-
-%     % Angle arc
-%     \draw[thick] (0,-1) arc[start angle=-90, end angle={-90+\ang}, radius=1];
-%     % \node at (0.9,-0.5) {$\theta$};
-
-%     % Forces
-%     % Gravity
-%     \draw[->,thick,blue] (M) -- ++(0,-1.5) node[below] {weight};
-
-%     % Tension
-%     \draw[->,thick,red] (M) -- ({0.7*\L*sin(\ang)},{-0.7*\L*cos(\ang)})
-%         node[midway,above left] {tension};
-
-%     % friction 
-%     \draw[->,thick,orange] (M) --
-%         ++({cos(\ang)}, {sin(\ang)}) node[right] {friction};
-
-%     % tangent 
-%     \draw[->,thick,purple] (M) --
-%         ++({-0.9*cos(\ang)},{-0.9*sin(\ang)})
-%         node[left] {direction of motion};
-
-
-%     % Label length
-%     \node at ({\L*sin(\ang)/2},{-\L*cos(\ang)/2}) [right] {$L$};
-% \end{tikzpicture}
-% \end{figure}
-% \end{column}
-% \end{columns}
-% \end{frame}
-
-
-
-% --------------------------
-
-\begin{frame}{Tangential vs. Radial}
-\begin{columns}[c]
-% ================= LEFT COLUMN =================
-\begin{column}{0.35\textwidth}
-\begin{itemize}
-    \item Resolve weight into tangential and radial components 
-    \item Radially, $T-mg\cos\theta=mL\omega^2$, where $\omega=\theta'$
-    \item Tangential component of the weight 
-    $W_t = -mg \sin \theta$
-    \item Model tangential damping as $F_d=-c\,\theta'$, $c\ge0$
-\end{itemize}
-\end{column}
-% ================= RIGHT COLUMN =================
-\begin{column}{0.50\textwidth}
-\begin{figure}
-    \centering
-\begin{tikzpicture}[>=stealth,scale=1]
-    \def\L{4}
-    \def\ang{30}
-    % Coordinates
-    \coordinate (P) at (0,0);
-    \coordinate (M) at ({\L*sin(\ang)},{-\L*cos(\ang)});
-    % Rod and pivot
-    \draw[thick] (P) -- (M);
-    \draw[fill] (P) circle (0.05) node[above] {$P$};
-    \draw[fill] (M) circle (0.10);
-    % Dashed vertical (theta=0 reference)
-    \draw[dashed] (P) -- (0,-\L);
-    % \node at (0,-\L) [below] {$\theta = 0$};
-    % Angle arc
-    \draw[thick] (0,-1) arc[start angle=-90, end angle={-90+\ang}, radius=1];
-    % \node at (0.9,-0.5) {$\theta$};
-    % Forces
-    % Gravity
-    \draw[->,thick,blue] (M) -- ++(0,-1.5) node[below] {$W$};
-    \draw[->,thick,dashed,blue] (M) -- ({1.35*\L*sin(\ang)},{-1.35*\L*cos(\ang)}) node[below] {$W_r$};
-    % Tension
-    \draw[->,thick,red] (M) -- ({0.7*\L*sin(\ang)},{-0.7*\L*cos(\ang)})
-        node[midway,above left] {$T$};
-    % friction 
-    \draw[->,thick,orange] (M) --
-        ++({cos(\ang)}, {sin(\ang)}) node[right] {$F_d$};
-    % tangent 
-    \draw[->,thick,blue,dashed] (M) --
-        ++({-0.9*cos(\ang)},{-0.9*sin(\ang)})
-        node[left] {$W_t$};
-    % Label length
-    \node at ({\L*sin(\ang)/2},{-\L*cos(\ang)/2}) [right] {$L$};
-\end{tikzpicture}
-\end{figure}
-\end{column}
-\end{columns}
-\end{frame}
-
-
-% --------------------------
-
-
-\begin{frame}{Derivation}
-    
-\textbf{Step 1. Coordinates and Kinematics}
-
-Take two derivatives of the Arc length formula $s = L\theta$  
-:
-\[
-s''  = L\theta''=a.
-\]
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{From a Numerical Solution to an Animation}
+\question{We can compute how a system changes. How do we show it moving?}
+\begin{enumerate}
+    \item \textbf{Solve:} compute the state at a sequence of times.
+    \item \textbf{Draw:} turn each state into a picture.
+    \item \textbf{Play:} display the pictures in time order.
+\end{enumerate}
 \vspace{3mm}
-
-\textbf{Step 2. Newton's Law}
-
-Newton's Second Law says the tangential forces satisfy 
-$$ \sum F = ma=mL\theta''$$
-
-\vspace{3mm}
-
-\textbf{Step 3. Sum of Forces}
-The two forces are tangential component of weight and friction
-\[ 
-\sum F = W_{\text{t}} +F_d = -mg \sin\theta - c\,\theta'
-\]
-
-
-\vspace{3mm}
-
-\textbf{Step 4. Putting it all together}
-\begin{align*}
-&-mg \sin\theta - c\,\theta'=mL\,\theta''\\
-&\boxed{mL\,\theta'' + c\,\theta'  +mg \sin\theta=0}
-\end{align*}
+\keyidea{An animation is a sequence of pictures of a changing state.}
+% Talking point: the solver produces numbers. We decide how to draw them.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Types of Initial Conditions}
-
-\begin{block}{Equation for the Pendulum}
-\[
-mL\,\theta'' + c\,\theta'  +mg \sin\theta=0
-\]
-we must specify \emph{two} initial conditions.
-\end{block}
-
-\vspace{2mm}
-
-
+\begin{frame}{What Is the State?}
+For an ODE system $\mathbf{u}'=\mathbf{F}(t,\mathbf{u})$, the state
+$\mathbf{u}(t)$ contains the quantities needed to describe its evolution.
+\begin{center}
+\begin{tabular}{l|l|l}
+Model & State variables & What we draw\\ \hline
+Projectile & Position and velocity & A moving ball\\
+Spring--mass & Displacement and velocity & A moving mass\\
+Pendulum & Angle and angular velocity & A rod and bob\\
+Populations & Numbers of each species & Bars or circles
+\end{tabular}
+\end{center}
 \vspace{3mm}
-
-\textbf{Common choices of initial conditions:}
-
-\begin{itemize}
-    \item \textbf{Released from rest:}  
-    \[
-      \theta(0)=\theta_0, \qquad \theta'(0)=0.
-    \]
-
-    \item \textbf{Given an initial push:}  
-    \[
-      \theta(0)=\theta_0, \qquad \theta'(0)=\omega_0.
-    \]
-
-    \item \textbf{Starting at the bottom with a kick:}  
-    \[
-      \theta(0)=0, \qquad \theta'(0)=\omega_0.
-    \]
-
-    \item \textbf{Starting near the top (unstable):}  
-    \[
-      \theta(0)\approx \pi, \qquad \theta'(0)\approx 0.
-    \]
-\end{itemize}
-
+\keyidea{Some state variables determine the picture directly; others determine how the state changes.}
+% Ask: why does a motion model need velocity even if we only draw position?
 \end{frame}
 
-% Damping convention: c multiplies angular velocity in a tangential FORCE;
-% a torque damping coefficient would instead accompany m L^2.
-\begin{frame}{The Pendulum as a First-Order System}
-Set $y_1=\theta$ and $y_2=\theta'$:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{A Numerical Solution Is a Sequence of States}
+At output times $t_0,t_1,\ldots,t_n$, store the approximate states as rows:
 \[
-\begin{cases}
-y_1'=y_2,\\
-y_2'=-\dfrac{c}{mL}y_2-\dfrac{g}{L}\sin y_1,
-\end{cases}
-\qquad
-\begin{cases}
-y_1(0)=\theta_0,\\
-y_2(0)=\omega_0.
-\end{cases}
+U=
+\begin{bmatrix}
+--- & \mathbf{u}_0^T & ---\\
+--- & \mathbf{u}_1^T & ---\\
+& \vdots &\\
+--- & \mathbf{u}_n^T & ---
+\end{bmatrix}.
 \]
-\keyidea{Apply Euler, RK4, or an adaptive ODE solver to this two-component system.}
+\begin{itemize}
+    \item Each \textbf{row} describes one instant.
+    \item Each \textbf{column} tracks one state variable.
+    \item To draw frame \texttt{i}, use time \texttt{t(i)} and state \texttt{U(i,:)}.
+\end{itemize}
+\keyidea{Compute the solution first; then use its rows to generate frames.}
+% MATLAB uses row 1 for the mathematical initial state u_0.
 \end{frame}
 
-\begin{frame}{Visualizing the Solution}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Example: A Pendulum State}
+Use the model
+\[
+\theta'=\omega,\qquad
+\omega'=-\gamma\omega-\frac{g}{L}\sin\theta,
+\qquad
+\mathbf{u}(0)=\begin{bmatrix}\theta_0\\\omega_0\end{bmatrix}.
+\]
 \begin{itemize}
-    \item We can solve $mL\,\theta'' + c\,\theta'  +mg \sin\theta=0$ with Euler's method and plot
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.9\linewidth]{figs/pend.png}
-    \end{figure}
-    \item<2> But that's boring
+    \item $\theta$: angle from the downward vertical, in radians.
+    \item $\omega$: angular velocity; $L$: rod length.
+    \item $g$: gravitational acceleration; $\gamma\geq0$: damping rate.
 \end{itemize}
+\begin{block}{What the Solver Returns}
+\[
+U(:,1)\approx\theta(t),\qquad U(:,2)\approx\omega(t).
+\]
+The angle tells us where to draw the bob.
+\end{block}
+% No force derivation here. For the earlier convention
+% m L theta'' + c theta' + m g sin(theta)=0, gamma=c/(m L).
 \end{frame}
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Making Animations}
-\begin{itemize}
-    \item An \textbf{animation} is made by plotting the pendulum in increments of time $\Delta t$ and writing it as a frame of a video
-    \item First, solve $mL\,\theta'' + c\,\theta'  +mg \sin\theta=0$
-    \item Plot pendulum at $t=0$, save it. 
-    \item Plot pendulum at $t=t_1$, save it. 
-    \item Keep going up to $t=t_n$.
-\end{itemize}
-\begin{lstlisting}[mathescape]
-% Pseudocode: solve the system, then draw each state
-[t,u] = solve_pendulum()
-for i = 1 : n
-    plot(state of pendulum at time $t_i$)
-    imwrite(plot_to_gif)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Turn a State into a Picture}
+\begin{columns}[c]
+\begin{column}{0.53\textwidth}
+Place the pivot at $(0,0)$:
+\[
+x=L\sin\theta,\qquad y=-L\cos\theta.
+\]
+\begin{enumerate}
+    \item Draw the fixed pivot.
+    \item Draw a line to $(x,y)$.
+    \item Draw a bob at $(x,y)$.
+\end{enumerate}
+\end{column}
+\begin{column}{0.43\textwidth}
+\centering
+\begin{tikzpicture}[scale=0.9,>=stealth]
+    \coordinate (P) at (0,0);
+    \coordinate (B) at (1.5,-2.598);
+    \draw[->,gray] (-0.5,0)--(2.3,0) node[right] {$x$};
+    \draw[->,gray] (0,-3.2)--(0,0.6) node[above] {$y$};
+    \draw[dashed] (P)--(0,-3);
+    \draw[very thick,blue] (P)--(B) node[midway,right] {$L$};
+    \fill (P) circle (0.06) node[above left] {pivot};
+    \fill[blue] (B) circle (0.13) node[right] {$(x,y)$};
+    \draw (0,-0.8) arc[start angle=-90,end angle=-60,radius=0.8];
+    \node at (0.22,-1.05) {$\theta$};
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\vspace{3mm}
+\keyidea{The model supplies the angle. Geometry converts it into drawing coordinates.}
+% Check theta=0: the bob should be directly below the pivot.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Step 1: Compute the States}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+g = 9.81;
+L = 1;
+gamma = 0.2;
+u0 = [pi/3; 0];
+
+fps = 20;
+dt = 1/fps;
+tFrames = 0:dt:10;
+
+F = @(t,u) [u(2);
+    -gamma*u(2) - (g/L)*sin(u(1))];
+[t,U] = ode45(F, tFrames, u0);
+
+x = L*sin(U(:,1));
+y = -L*cos(U(:,1));
+\end{lstlisting}
+\keyidea{Request equally spaced output times so consecutive frames represent equal amounts of simulated time.}
+% ode45 chooses adaptive internal steps and evaluates its solution at tFrames.
+% Documentation: https://www.mathworks.com/help/matlab/ref/ode45.html
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Step 2: Draw the Frames}
+Continue with the arrays \texttt{t}, \texttt{x}, and \texttt{y}:
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+fig = figure;
+plot(0,0,'k.','MarkerSize',20)
+hold on
+rod = plot([0 x(1)],[0 y(1)],'b-','LineWidth',2);
+bob = plot(x(1),y(1),'bo','MarkerFaceColor','b');
+axis equal
+axis(1.2*L*[-1 1 -1 1])
+
+for i = 1:length(t)
+    set(rod,'XData',[0 x(i)],'YData',[0 y(i)]);
+    set(bob,'XData',x(i),'YData',y(i));
+    title(sprintf('t = %.2f s',t(i)))
+    drawnow
 end
 \end{lstlisting}
+% Create objects once, then update their coordinates.
+% This preview runs as fast as drawing permits; it does not set playback speed.
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Step 3: Save the Animation}
+Before the drawing loop:
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+video = VideoWriter('animation.mp4','MPEG-4');
+video.FrameRate = fps;
+open(video)
+\end{lstlisting}
+Inside the loop, immediately after \texttt{drawnow}:
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+writeVideo(video,getframe(fig));
+\end{lstlisting}
+After the loop:
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+close(video)
+\end{lstlisting}
+\begin{itemize}
+    \item Keep the figure size and axis limits fixed.
+    \item The saved video's frame rate controls playback speed.
+\end{itemize}
+% MPEG-4 profile: supported on Windows/macOS. If unavailable, use
+% VideoWriter('animation.avi','Motion JPEG AVI').
+% Documentation: https://www.mathworks.com/help/matlab/ref/videowriter.html
+% https://www.mathworks.com/help/matlab/ref/videowriter.writevideo.html
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Three Different Time Scales}
+\begin{itemize}
+    \item \textbf{Solver step size:} chosen for numerical accuracy and stability.
+    \item \textbf{Frame spacing $\Delta t$:} simulated time between pictures.
+    \item \textbf{Frame rate $r$:} pictures shown per second of video.
+\end{itemize}
+\[
+\text{Playback speed}=r\Delta t
+\quad\text{simulated seconds per video second}.
+\]
+\begin{example}
+With $\Delta t=0.05$ seconds:
+\begin{itemize}
+    \item $20$ frames/second gives real-time playback.
+    \item $40$ frames/second gives double-speed playback.
+\end{itemize}
+\end{example}
+\keyidea{More frames can make motion smoother; they do not automatically make the numerical solution more accurate.}
+% ode45's internal steps need not match the requested frame spacing.
+% Including both endpoints adds one final frame held for 1/r seconds.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Same Workflow, Many Animations}
+\begin{itemize}
+    \item \textbf{Projectile:} draw a ball at its computed position.
+    \item \textbf{Orbit:} draw a body and trace its path.
+    \item \textbf{Spring--mass:} move a block using its displacement.
+    \item \textbf{Populations:} change bar heights using population values.
+\end{itemize}
+\vspace{3mm}
+\question{What belongs in the state? How will each state become a picture?}
+\vspace{3mm}
+\keyidea{Solve for the state, turn the state into a picture, and repeat over time.}
+% Demo prompt: change the initial state or damping and predict the motion.
+% Ask students to check the solution as well as the animation:
+% visually smooth motion is not evidence of numerical accuracy.
+\end{frame}
 
 % -----------
 % \begin{frame}{Released from Rest}
