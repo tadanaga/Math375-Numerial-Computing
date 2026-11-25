@@ -17,8 +17,8 @@ We will answer these questions:\\[3mm]
 \begin{itemize}
     \item What is numerical interpolation supposed to accomplish?
     \item What is a monomial basis and what are its drawbacks?
-    \item What is the Lagrange basis and why is it better?
-    \item What is the Newton basis and why is it better than both the monomial and Lagrange?
+    \item How can a basis adapted to the nodes simplify interpolation?
+    \item How might we update an interpolant when a new point is added?
 \end{itemize}
 \end{frame}
 
@@ -197,7 +197,7 @@ Types of approximating functions:
 \begin{frame}{Interpolation}
   \begin{block}{Objective}
     Given $n+1$ distinct points $x_0,\dots,x_n$, and values
-$y_0,\dots,y_n$, find a polynomial $p(x)$ of degree $n$ so that
+$y_0,\dots,y_n$, find a polynomial $p(x)$ of degree at most $n$ so that
   \begin{equation*}
     p(x_i) = y_i\quad i=0,\dots,n
 \end{equation*}
@@ -228,7 +228,7 @@ $p(x_i)=y_i$ for $i=0,\dots,n$.
 \begin{itemize}
     \item Interpolation is a well-defined problem 
 \vfill 
-    \item If you are given $n+1$ data points, there can only be one degree $n$ interpolation
+    \item If you are given $n+1$ data points, there is exactly one interpolant of degree at most $n$
 \vfill
 \end{itemize}
 
@@ -304,7 +304,7 @@ coordinates {(0,1) (1,1) (2,1) (3,4)};
 \bigskip
 
 \keyidea{
-If your data has $n+1$ points, then the goal is find a degree $n$ polynomial.
+If your data has $n+1$ points, at distinct nodes, then the goal is to find a polynomial of degree at most $n$.
 }
 \end{frame}
 
@@ -462,7 +462,7 @@ Assume the polynomial has the form
 \begin{frame}{Unknowns vs. Conditions}
 
     \begin{block}{Unknowns}
-The interpolation is $p(x) =p(x) = a_0 + a_1x + a_2x^2$, so the unknowns are
+The interpolation is $p(x) = a_0 + a_1x + a_2x^2$, so the unknowns are
 \begin{align*}
     a_0\\
     a_1\\
@@ -476,7 +476,7 @@ The interpolation is $p(x) =p(x) = a_0 + a_1x + a_2x^2$, so the unknowns are
 The polynomial must cut through all data points. The conditions are
 \begin{align*}
     p(0)&=3,\\
-    p(2)&=-2,\\
+    p(2)&=-1,\\
     p(3)&=0.
 \end{align*}
 \end{block}
@@ -690,7 +690,7 @@ coordinates {(0,3) (2,-1) (3,0)};
 \method{Monomial Interpolation}{
 $n+1$ data points $(x_i,y_i)$ 
 }{
-Degree $n$ polynomial cutting through all data points
+Polynomial of degree at most $n$ cutting through all data points
 }{
 Set up an $(n+1)\times (n+1)$ matrix and solve it to find polynomial coefficients
 }
@@ -832,295 +832,232 @@ a_3 \\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Lagrange Interpolation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Another Basis}
-
-\begin{block}{Monomial Basis}
-    Monomials are the family of functions 
-    $$ \mathcal{F}= \{1, x, x^2, x^3,\ldots \}$$
-    \begin{itemize}
-        \item Form a basis for polynomials 
-        \item A natural choice  
-        \item Suffers from some drawbacks for interpolation
-    \end{itemize}
+\begin{frame}{Revisit the Same Three Points}
+\begin{block}{Data}
+\[
+(0,3),\qquad (2,-1),\qquad (3,0).
+\]
 \end{block}
+With the monomial basis, we wrote
+\[
+p(x)=a_0+a_1x+a_2x^2
+\]
+and solved a coupled linear system for the coefficients.
 
-{
-\question{Is there another basis for polynomials?}
+\question{Can we choose a basis that makes each condition determine just one coefficient?}
+
+\onslide<2->{
+Consider these three quadratic polynomials:
+\[
+x(x-2),\qquad (x-2)(x-3),\qquad x(x-3).
+\]
 }
-
+% Talking point: do not introduce the general formula yet.
+% Ask which two nodes make each product vanish.
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Build Zeros into the Basis}
+Label the nodes $x_0=0$, $x_1=2$, $x_2=3$.
+Order the same three products by the node where they are nonzero:
+\[
+q_0(x)=(x-2)(x-3),\qquad
+q_1(x)=x(x-3),\qquad
+q_2(x)=x(x-2).
+\]
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{c|ccc}
+$x$ & $q_0(x)$ & $q_1(x)$ & $q_2(x)$\\ \hline
+$0$ & $6$ & $0$ & $0$\\
+$2$ & $0$ & $-2$ & $0$\\
+$3$ & $0$ & $0$ & $3$
+\end{tabular}
+\end{center}
+\keyidea{At each data node, exactly one basis function survives.}
+% All three have degree two, but they are linearly independent:
+% evaluate a zero linear combination at 0, 2, and 3.
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Consider this function $p(x)$}
+\begin{frame}{Find the Coefficients One at a Time}
+Write the interpolant in the new basis:
+\[
+p(x)=c_0(x-2)(x-3)+c_1x(x-3)+c_2x(x-2).
+\]
+\begin{align*}
+p(0)=3 &\quad\Longrightarrow\quad 6c_0=3
+    &&\Longrightarrow\quad c_0=\tfrac12,\\[2mm]
+p(2)=-1 &\quad\Longrightarrow\quad -2c_1=-1
+    &&\Longrightarrow\quad c_1=\tfrac12,\\[2mm]
+p(3)=0 &\quad\Longrightarrow\quad 3c_2=0
+    &&\Longrightarrow\quad c_2=0.
+\end{align*}
+\[
+\boxed{p(x)=\frac12(x-2)(x-3)+\frac12x(x-3).}
+\]
+\keyidea{No elimination is needed: the three equations are independent of one another.}
+% Pause after substituting each node and ask which terms disappear.
+\end{frame}
 
-\question{
-Suppose you have two data points: $(x_0,y_0)$ and $(x_1,y_1)$. 
-What is the behavior of the following function?
-\begin{equation*} 
-  p(x) = \left(\frac{x-x_1}{x_0-x_1}\right) y_0 + 
-         \left(\frac{x-x_0}{x_1-x_0}\right) y_1
-\end{equation*}
-}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Same Polynomial, Different Basis}
+Expanding only to compare with our earlier answer:
+\[
+\begin{aligned}
+p(x)&=\frac12(x-2)(x-3)+\frac12x(x-3)\\
+&=\frac12(x^2-5x+6)+\frac12(x^2-3x)\\
+&=\boxed{x^2-4x+3}.
+\end{aligned}
+\]
 \begin{itemize}
-  \item $p(x)$ is a degree 1 polynomial
-  \item $\ell_0(x)$ is zero at $x_1$ and 1 at $x_0$
-  \item $\ell_1(x)$ is zero at $x_0$ and 1 at $x_1$
-  \item Thus $p(x_0)=y_0$ and $p(x_1) = y_1$
-  \item These two are called \textbf{ Lagrange basis functions}:
-    \begin{equation*}
-      \ell_0(x) = \frac{x-x_1}{x_0-x_1}\qquad \ell_1(x) =\frac{x-x_0}{x_1-x_0}
-    \end{equation*}
+    \item The data and degree bound determine the interpolating polynomial.
+    \item The basis determines how we represent and compute it.
+    \item The factored form is already a complete answer.
 \end{itemize}
+\keyidea{We changed the building blocks, not the interpolating polynomial.}
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Lagrange Basis Functions for Two Points}
+\begin{frame}{Make the Surviving Value Equal to One}
+Our products take values $6$, $-2$, and $3$ at their own nodes.
+Divide each product by that value:
+\[
+\ell_0(x)=\frac{(x-2)(x-3)}{6},\qquad
+\ell_1(x)=\frac{x(x-3)}{-2},\qquad
+\ell_2(x)=\frac{x(x-2)}{3}.
+\]
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{c|ccc}
+$x$ & $\ell_0(x)$ & $\ell_1(x)$ & $\ell_2(x)$\\ \hline
+$0$ & $1$ & $0$ & $0$\\
+$2$ & $0$ & $1$ & $0$\\
+$3$ & $0$ & $0$ & $1$
+\end{tabular}
+\end{center}
+\keyidea{Each normalized basis function is 1 at its own node and 0 at the other nodes.}
+% Normalization preserves the zeros. These are the Lagrange basis functions.
+\end{frame}
 
-\begin{columns}
-\column{0.55\textwidth}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Data Values Become the Coefficients}
+For $(x_0,y_0)=(0,3)$, $(x_1,y_1)=(2,-1)$, $(x_2,y_2)=(3,0)$,
+\[
+\boxed{p(x)=3\ell_0(x)-\ell_1(x)+0\ell_2(x).}
+\]
+Indeed,
+\begin{align*}
+p(0)&=3(1)-1(0)+0(0)=3,\\
+p(2)&=3(0)-1(1)+0(0)=-1,\\
+p(3)&=3(0)-1(0)+0(1)=0.
+\end{align*}
+\keyidea{After normalization, the interpolation coefficients are simply $y_0,y_1,y_2$.}
+% Contrast c_0=c_1=1/2 in the unnormalized basis with coefficients 3,-1,0 here.
+% The 0/1 property holds at the nodes, not at every x.
+\end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Seeing the Lagrange Basis}
+\begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-    width=\linewidth,
-    height=5.2cm,
+    width=9cm,height=4.6cm,
     axis lines=middle,
-    xmin=-0.2, xmax=2.2,
-    ymin=-0.2, ymax=1.2,
-    xtick={0,2},
-    xticklabels={$x_0$,$x_1$},
-    ytick={0,1},
-    yticklabels={$0$,$1$},
-    samples=100,
-    domain=0:2,
-    clip=false
+    xmin=-0.15,xmax=3.15,ymin=-0.5,ymax=1.35,
+    xtick={0,2,3},ytick={0,1},
+    samples=100,domain=0:3,
+    legend style={at={(0.5,1.03)},anchor=south,legend columns=3}
 ]
-
-% l0(x) = (x-x1)/(x0-x1) with x0=0, x1=2
-\addplot[blue, thick] {(x-2)/(0-2)};
-\addplot[blue, only marks, mark=*, mark size=2pt] coordinates {(0,1) (2,0)};
-\node[blue] at (axis cs:0.45,0.85) {$\ell_0(x)$};
-
-% l1(x) = (x-x0)/(x1-x0) with x0=0, x1=2
-\addplot[red, thick] {(x-0)/(2-0)};
-\addplot[red, only marks, mark=*, mark size=2pt] coordinates {(0,0) (2,1)};
-\node[red] at (axis cs:1.55,0.85) {$\ell_1(x)$};
-
+\addplot[blue,thick] {(x-2)*(x-3)/6};
+\addlegendentry{$\ell_0$}
+\addplot[red,thick] {x*(x-3)/(-2)};
+\addlegendentry{$\ell_1$}
+\addplot[teal,thick] {x*(x-2)/3};
+\addlegendentry{$\ell_2$}
+\addplot[only marks,blue,forget plot] coordinates {(0,1) (2,0) (3,0)};
+\addplot[only marks,red,forget plot] coordinates {(0,0) (2,1) (3,0)};
+\addplot[only marks,teal,forget plot] coordinates {(0,0) (2,0) (3,1)};
 \end{axis}
 \end{tikzpicture}
-
-\column{0.45\textwidth}
-
-\begin{block}{Key Properties}
-\[
-\ell_0(x_0)=1,\qquad \ell_0(x_1)=0
-\]
-\[
-\ell_1(x_0)=0,\qquad \ell_1(x_1)=1
-\]
-\end{block}
-
-\vspace{2mm}
-
+\end{center}
 \begin{itemize}
-    \item Each basis function is 1 at its own node
-    \item Each basis function is 0 at the other node
-    \item Together they build the interpolating line
+    \item At a node, one function is 1 and the others are 0.
+    \item Between nodes, the functions vary and can be negative.
 \end{itemize}
-
-\[
-p(x)=y_0\ell_0(x)+y_1\ell_1(x)
-\]
-
-\end{columns}
-
 \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Generalize the Construction}
+Given distinct nodes $x_0,\ldots,x_n$, build a product for node $x_k$:
+\[
+q_k(x)=\prod_{\substack{i=0\\i\ne k}}^n(x-x_i).
+\]
+\begin{itemize}
+    \item Include a factor for every node except $x_k$.
+    \item Then $q_k(x_j)=0$ whenever $j\ne k$.
+    \item Distinct nodes ensure
+    \[
+    q_k(x_k)=\prod_{\substack{i=0\\i\ne k}}^n(x_k-x_i)\ne0.
+    \]
+\end{itemize}
+Normalize exactly as in the example:
+\[
+\ell_k(x)=\frac{q_k(x)}{q_k(x_k)}.
+\]
+% Numerator creates the zeros. Denominator makes the surviving value 1.
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Lagrange Basis Functions}
-\define{Lagrange Basis Functions}{
-    Let $x_0$, $x_1$, $\ldots$, $x_n$ be distinct points.
-    \textbf{Lagrange basis functions} are a family of functions 
-    $$\mathcal{F} = \{ \ell_0(x), \ell_1(x),\ldots, \ell_n(x) \}$$ satisfying  
-    \begin{equation*}
-  \ell_k(x) = \prod_{i=0,i\ne k}^{n} \frac{x-x_i}{x_k - x_i}, \text{ for } k=0,\ldots,n
-\end{equation*}
-    }
-\bigskip
-Properties:
-\begin{itemize}
-    \item  Each member $\ell_k(x)$ is a degree n polynomial
-    \item When you evaluate $\ell_k$ at $x_k$, you get 1
-    $\ell_i(x_i) = 1$
-    \item $\ell_i(x_j) = 0$ whenever $i \neq j$
-\end{itemize}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{Lagrange Basis Functions for $n=2$}
-% Suppose we have 3 points $(x_0, y_0)$, $(x_1,y_1)$, and $(x_2,y_2)$\\[5mm]
-% Then our Lagrange basis functions are $\mathcal{F} = \{ \ell_0(x), \ell_1(x), \ell_2(x) \}$\\[5mm] 
-
-% Properties: 
-% \begin{itemize}
-%     \item Each member $\ell_i(x)$ is a degree 2 polynomial
-%     \item $\ell_i(x_i) = 1$
-%     \item $\ell_i(x_j) = 0$ whenever $i \neq j$
-% \end{itemize}
-
-% \begin{example}
-%     The Lagrange basis function $\ell_2(x)$ has the form 
-%         $$\ell_2(x) = \frac{(x-x_0)(x-x_1)}{(x_2-x_0)(x_2-x_1)}$$
-% \end{example}
-% \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Lagrange Basis for 3 Points}
-\begin{example}
- Find the first Lagrange basis function $\ell_0(x)$ for the data points $(1,6), (-1,2),$ and $(2,12)$.
-\end{example}
-\begin{itemize}
-    \item First, $\ell_0(x)$ must be zero $x_1=-1$ and $x_2=2$ so we write
-    $$
-    \ell_0(x) = (x+1)(x-2)
-    $$
-    \item Next, we find the correcting scalar. We want $\ell(x)=1$ at $x_0=1$
-
-    \item Plug in $x_0$
-    $$
-    \ell_0(1)= (1+1)(1-2)= -2 
-    $$
-    \item We must \textit{correct} $\ell_0$ by scaling it by $-2$
-    $$
-        \ell_0(x) = -\frac{1}{2}(x+1)(x-2)
-    $$
-\end{itemize}
-\end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Sanity Check}
-\question{
-Does the function     
-    $$
-        \ell_0(x) = -\frac{1}{2}(x+1)(x-2)
-    $$
-satisfy the properties of a Lagrange basis function for 
-\begin{center}
-  \begin{tabular}{c| c  c  c}
-  $x$ & $1$ & $-1$ &$2$\\\hline
-  $y$ & $6$ & $2$ &$12$\\
-  \end{tabular} ?
-\end{center}
+\define{Lagrange Basis}{
+For distinct nodes $x_0,\ldots,x_n$, define
+\[
+\ell_k(x)=\prod_{\substack{i=0\\i\ne k}}^n
+\frac{x-x_i}{x_k-x_i},
+\qquad k=0,\ldots,n.
+\]
 }
+Their defining property is
+\[
+\ell_k(x_j)=
+\begin{cases}
+1,&j=k,\\
+0,&j\ne k.
+\end{cases}
+\]
 \begin{itemize}
-    \item $\ell_0(1)  =-\frac{1}{2}(1+1)(1-2)=1 \checkmark$
-    \item $\ell_0(-1)  =-\frac{1}{2}(-1+1)(-1-2)=0 \checkmark$
-    \item $\ell_0(2)  =-\frac{1}{2}(2+1)(2-2)=0 \checkmark$
+    \item Each $\ell_k$ is a polynomial of degree $n$.
+    \item The $n+1$ functions form a basis for polynomials of degree at most $n$.
+    \item The basis depends on the nodes, not on the values $y_i$.
 \end{itemize}
-{
-\keyidea{
-\begin{itemize}
-    \item Lagrange basis functions act like a swicth: 0 or 1
-    \item $\ell_0(x)$ is switched on at $x=x_0$
-    \item $\ell_0(x)$ is switched off at $x=x_1$ and $x=x_2$
-\end{itemize}
-}
-}
+% Independence: if sum a_k ell_k(x)=0, evaluation at x_j gives a_j=0.
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Interpolation}
 
-\begin{block}{Data}
-    \begin{center}
-  \begin{tabular}{c| c  c  c}
-  $x$ & $1$ & $-1$ &$2$\\\hline
-  $y$ & $6$ & $2$ &$12$\\
-  \end{tabular} 
-\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Lagrange Interpolation Formula}
+\begin{block}{Theorem}
+For data $(x_i,y_i)$ with distinct nodes $x_0,\ldots,x_n$,
+the unique interpolating polynomial of degree at most $n$ is
+\[
+\boxed{p_n(x)=\sum_{k=0}^n y_k\ell_k(x).}
+\]
 \end{block}
+\textbf{Why does it work?}
 \begin{itemize}
-    \item We found $\ell_0(x)$. We can find $\ell_1(x)$ and $\ell_2(x) $ similarly
-
-    \item Then we can construct the interpolation  
-    $$
-    p(x)  = \ell_0(x) +2 \ell_1(x) + 12 \ell_2(x)
-    $$
-    \item At $x=x_0$
-    $$
-    p(x_0)  = \ell_0(x_0) +\cancel{2\ell_1(x_0)} + \cancel{12\ell_2(x_0)} = 1
-    $$
-    \item At $x=x_1$
-    $$
-    p(x_1)  = \cancel{\ell_0(x_1)} +2\ell_1(x_1) + \cancel{12\ell_2(x_1)} = 2
-    $$
-    \item At $x=x_2$
-    $$
-    p(x_1)  = \cancel{\ell_0(x_1)} +\cancel{2\ell_1(x_0)} + 12\ell_2(x_1) = 12
-    $$
+    \item Each term has degree at most $n$, so their sum does too.
+    \item At any node $x_j$, every term except the $j$th vanishes:
+    \[
+    p_n(x_j)=\sum_{k=0}^n y_k\ell_k(x_j)=y_j.
+    \]
 \end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Lagrange Interpolation Example}{Part 1}
-\begin{example}
-  Find the Lagrange interpolation for the data set $(1,6), (-1,2),$ and $(2,12)$.
-\end{example}
-\begin{itemize}
-     \item Calculate $\ell_0$: $k=0$, $i=1,2$
-\begin{align*}
-  \ell_0(x) =\frac{(x-x_1)(x-x_2)}{(x_0-x_1)(x_0-x_2)} 
-        = \frac{(x+1)(x-2)}{(2)(-1) } =-\frac{1}{2}(x+1)(x-2)
-\end{align*}
-\item Calculate $\ell_1$: $k=1$, $i=0,2$
-\begin{align*}
-  \ell_1(x)  = \frac{(x-x_0)(x-x_2)}{(x_1-x_0)(x_1-x_2)} 
-        = \frac{(x-1)(x-2)}{(-2)(-3) } = \frac{1}{6}(x-1)(x-2)
-\end{align*}
-\item Calculate $\ell_2$: $k=2$, $i=0,1$
-\begin{align*}
-  \ell_2(x) = \frac{(x-x_0)(x-x_1)}{(x_2-x_0)(x_2-x_1)} 
-        = \frac{(x-1)(x+1)}{(1)(3) } = \frac{1}{3}(x-1)(x+1)
-\end{align*}
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Lagrange Interpolation Example}{Part 2}
-\begin{example}
-  Write the three Lagrange basis functions for the data points $(1,6), (-1,2),$ and $(2,12)$.
-\end{example}
-
-\begin{itemize}
-    \item Then write the linear combination of the Lagrange basis functions 
-    \begin{align*}
-        p(x) &= y_0 \ell_0(x) + y_1 \ell_1(x) + y_2 \ell_2(x)\\
-         &=  \ell_0(x) + 2\ell_1(x) + 12\ell_2(x)\\
-         &=  -\frac{1}{2}(x+1)(x-2) + \frac{2}{6}(x-1)(x-2) + \frac{12}{3}(x-1)(x+1)\\
-    \end{align*}
-
-\end{itemize}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Lagrange Interpolation}
-
-\keyidea{
-
-    \begin{itemize}
-        \item Since Lagrange basis functions have a switch-like property,
-             $$ y_k\; \ell_k(x)$$
-        will be $y_k$ at $x=x_k$ and be zero at all other points
-
-        \item We may easily create interpolation polynomials using Lagrange functions as the basis: 
-        $$ p(x) = y_0 \ell_0(x) + y_1\ell_1(x)+ \cdots + y_n \ell_n(x)$$
-    \end{itemize}
-}
-
-\method{Lagrange Interpolation}{Data $n+1$ points $(x_i,y_i)$ for $i=0,\ldots,n$}{Interpolating polynomial $p_n(x)$}{With Lagrange basis functions the interpolation can easily be found by hand. (Solving a linear system is not required.)}
+\keyidea{Build the zeros, normalize to 1, and weight by the data values.}
+% Uniqueness follows from the earlier theorem.
+% Alternatively, the difference of two degree-at-most-n interpolants
+% has n+1 distinct roots and must be the zero polynomial.
 \end{frame}
 
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sectionframe{Final Remarks}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Summary}
@@ -1142,72 +1079,50 @@ $$\mathcal{F} = \{ \ell_0(x), \ell_1(x),\ldots, \ell_n(x) \}$$
 \begin{itemize}
     \item Avoids solving a linear system
     \item Gives an explicit formula for $p(x)$
-    \item But has limited flexibility
+    \item Basis functions change when a new node is added
 \end{itemize}
 \end{block}
 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Limitations of Lagrange Interpolation}
-
+\begin{frame}{Computation and Adding New Data}
 \begin{itemize}
-
-\item \textbf{Adding a new data point is expensive}
-\begin{itemize}
-    \item If we add $(x_{n+1}, y_{n+1})$, we must recompute all basis functions
-    \item The entire polynomial must be rebuilt from scratch
+    \item The Lagrange formula gives the interpolant without a coupled solve.
+    \item Direct evaluation of all products takes $O(n^2)$ work per evaluation point.
+    \item Adding a node changes every Lagrange basis function.
+    \item Newton's form makes incremental construction especially convenient.
 \end{itemize}
-
-\vspace{3mm}
-
-\item \textbf{No reuse of previous work}
-\begin{itemize}
-    \item We cannot easily update the polynomial incrementally
-\end{itemize}
-
-\vspace{3mm}
-
-\item \textbf{Not ideal for computation}
-\begin{itemize}
-    \item Expression becomes complicated for large $n$
-    \item Difficult to evaluate efficiently
-\end{itemize}
-
-\end{itemize}
-
-\keyidea{
-Lagrange interpolation is conceptually simple, but not computationally efficient.
-}
-
+\begin{block}{A Computational Note}
+The barycentric form evaluates Lagrange interpolation efficiently using
+precomputed weights. The direct product formula is our starting point
+for understanding the method.
+\end{block}
+\keyidea{Different representations of the same polynomial are useful for different tasks.}
+% Avoid implying that all Lagrange implementations are inefficient or unstable.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Psuedocode}
-
-% \begin{columns}
-% \column{0.450\textwidth}
-Just solve a linear system.
-\begin{lstlisting}[language=matlab,caption=monomial]
-Create vandermonde matrix V
-Create b vector
-Solve a=V\b
-Construct polynomial
-\end{lstlisting}
-
-% \column{0.45\textwidth}
-Create a domain vector, and construct $p(x)$ as a vector.
-\begin{lstlisting}[language=matlab,caption=monomial]
-xx = linspace(x0,xn)
-p = zeros(size(xx))
-for i=1:n
-    Initialize li 
-    for j = 0:n (skip i) 
-        li = li + (xx-xi)./(xj-xi)
+\begin{frame}[fragile]{Evaluating the Lagrange Interpolant}
+Given node and value vectors \texttt{x}, \texttt{y}, evaluate at \texttt{xx}:
+\begin{lstlisting}[language=matlab,basicstyle=\ttfamily\small]
+N = length(x);           % N = n+1 data points
+p = zeros(size(xx));
+for k = 1:N
+    ell = ones(size(xx));
+    for j = 1:N
+        if j ~= k
+            ell = ell .* (xx-x(j))/(x(k)-x(j));
+        end
     end
+    p = p + y(k)*ell;
 end
 \end{lstlisting}
-% \end{columns}
+\begin{itemize}
+    \item The inner loop constructs $\ell_k$ at all query points.
+    \item The outer loop adds $y_k\ell_k$ to the interpolant.
+\end{itemize}
+% MATLAB indexing is 1:N; the mathematical indexing is 0:n.
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Moving Forward: Newton Interpolation}
