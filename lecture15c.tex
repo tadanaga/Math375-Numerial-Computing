@@ -49,7 +49,7 @@ $$
 \end{itemize}
 \end{block}
 
-\question{How doe Euler's method work for higher-order ODEs?
+\question{How does Euler's method work for a \textbf{second order differential equation}?
     \begin{align*}    
     \underbrace{u^{\prime}(t)}_{\text{1st order}} + 2\, u &= 6\\
     \underbrace{2u^{\prime\prime}(t)}_{\text{2nd order}} - \, u^\prime(t) + 7 \, u(t) &= 0.
@@ -173,7 +173,7 @@ Euler's Idea:
     \item Solve the system numerically; its first component approximates $u(t)$.
 \end{itemize}
 
-\keyidea{ODEs of \textit{any} order can be solved using Euler's method by rewriting them as a .}
+\keyidea{Euler's method can be applied to \textit{any} order ODE.}
 
 \end{frame}
 
@@ -874,28 +874,35 @@ What value of $h$ would give a stable solution for Euler's method for the IVP
 \end{frame}	
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\sectionframe{Animations}
-
+\sectionframe{Numerical Simulations}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{From a Numerical Solution to an Animation}
-\question{We can compute how a system changes. How do we show it moving?}
-\begin{enumerate}
-    \item \textbf{Solve:} compute the state at a sequence of times.
-    \item \textbf{Draw:} turn each state into a picture.
-    \item \textbf{Play:} display the pictures in time order.
-\end{enumerate}
-\vspace{3mm}
-\keyidea{An animation is a sequence of pictures of a changing state.}
+\begin{frame}{How to make animations}
+
+\begin{block}{\textbf{1.} Solve}
+    Solve a time-dependent model for the "state" of a system.
+\end{block}
+
+\begin{block}{\textbf{2.} Draw}
+    In a loop, draw the "states" of the system at discrete times. 
+\end{block}
+
+\begin{block}{\textbf{3.} Play}
+    Play back the saved frames in chronological order.
+\end{block}
+
 % Talking point: the solver produces numbers. We decide how to draw them.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{What Is the State?}
-For an ODE system $\mathbf{u}'=\mathbf{F}(t,\mathbf{u})$, the state
-$\mathbf{u}(t)$ contains the quantities needed to describe its evolution.
+
+\begin{itemize}
+    \item  For an ODE system $\mathbf{u}'=\mathbf{F}(t,\mathbf{u})$, the state usually depends on the solution $\mathbf{u}(t)$. 
+
+\item Some examples
 \begin{center}
 \begin{tabular}{l|l|l}
-Model & State variables & What we draw\\ \hline
+Model & Solution & State we draw\\ \hline
 Projectile & Position and velocity & A moving ball\\
 Spring--mass & Displacement and velocity & A moving mass\\
 Pendulum & Angle and angular velocity & A rod and bob\\
@@ -903,446 +910,503 @@ Populations & Numbers of each species & Bars or circles
 \end{tabular}
 \end{center}
 \vspace{3mm}
-\keyidea{Some state variables determine the picture directly; others determine how the state changes.}
-% Ask: why does a motion model need velocity even if we only draw position?
-\end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{A Numerical Solution Is a Sequence of States}
-At output times $t_0,t_1,\ldots,t_n$, store the approximate states as rows:
-\[
-U=
-\begin{bmatrix}
---- & \mathbf{u}_0^T & ---\\
---- & \mathbf{u}_1^T & ---\\
-& \vdots &\\
---- & \mathbf{u}_n^T & ---
-\end{bmatrix}.
-\]
-\begin{itemize}
-    \item Each \textbf{row} describes one instant.
-    \item Each \textbf{column} tracks one state variable.
-    \item To draw frame \texttt{i}, use time \texttt{t(i)} and state \texttt{U(i,:)}.
 \end{itemize}
-\keyidea{Compute the solution first; then use its rows to generate frames.}
-% MATLAB uses row 1 for the mathematical initial state u_0.
 \end{frame}
+% ----------------
+\begin{frame}{Animating a Falling Rock}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Example: A Pendulum State}
-Use the model
+\begin{block}{Model}
+A rock is dropped from a height of $50$ meters:
 \[
-\theta'=\omega,\qquad
-\omega'=-\gamma\omega-\frac{g}{L}\sin\theta,
-\qquad
-\mathbf{u}(0)=\begin{bmatrix}\theta_0\\\omega_0\end{bmatrix}.
+x''=-g,\qquad x(0)=50,\qquad x'(0)=0.
 \]
-\begin{itemize}
-    \item $\theta$: angle from the downward vertical, in radians.
-    \item $\omega$: angular velocity; $L$: rod length.
-    \item $g$: gravitational acceleration; $\gamma\geq0$: damping rate.
-\end{itemize}
-\begin{block}{What the Solver Returns}
+Ignoring air resistance, its height is
 \[
-U(:,1)\approx\theta(t),\qquad U(:,2)\approx\omega(t).
+x(t)=50-\frac{1}{2}gt^2.
 \]
-The angle tells us where to draw the bob.
 \end{block}
-% No force derivation here. For the earlier convention
-% m L theta'' + c theta' + m g sin(theta)=0, gamma=c/(m L).
-\end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Turn a State into a Picture}
-\begin{columns}[c]
-\begin{column}{0.53\textwidth}
-Place the pivot at $(0,0)$:
-\[
-x=L\sin\theta,\qquad y=-L\cos\theta.
-\]
-\begin{enumerate}
-    \item Draw the fixed pivot.
-    \item Draw a line to $(x,y)$.
-    \item Draw a bob at $(x,y)$.
-\end{enumerate}
-\end{column}
-\begin{column}{0.43\textwidth}
-\centering
-\begin{tikzpicture}[scale=0.9,>=stealth]
-    \coordinate (P) at (0,0);
-    \coordinate (B) at (1.5,-2.598);
-    \draw[->,gray] (-0.5,0)--(2.3,0) node[right] {$x$};
-    \draw[->,gray] (0,-3.2)--(0,0.6) node[above] {$y$};
-    \draw[dashed] (P)--(0,-3);
-    \draw[very thick,blue] (P)--(B) node[midway,right] {$L$};
-    \fill (P) circle (0.06) node[above left] {pivot};
-    \fill[blue] (B) circle (0.13) node[right] {$(x,y)$};
-    \draw (0,-0.8) arc[start angle=-90,end angle=-60,radius=0.8];
-    \node at (0.22,-1.05) {$\theta$};
-\end{tikzpicture}
-\end{column}
-\end{columns}
-\vspace{3mm}
-\keyidea{The model supplies the angle. Geometry converts it into drawing coordinates.}
-% Check theta=0: the bob should be directly below the pivot.
-\end{frame}
+\begin{itemize}
+    \item Stop when the rock reaches the ground:
+    \[
+    x(T)=0
+    \quad\Longrightarrow\quad
+    T=\sqrt{\frac{100}{g}}\approx 3.19\text{ seconds}.
+    \]
+    \item Choose equally spaced times $t_0,t_1,\ldots,t_n$.
+    \item For each time $t_i$, draw the rock at $(0,x(t_i))$.
+    \item Save the pictures as frames of a video.
+\end{itemize}
 
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Step 1: Compute the States}
+\begin{frame}[fragile]{Matlab Animation}
+
+\begin{itemize}
+    \item Initialize a video file
 \begin{lstlisting}[basicstyle=\ttfamily\small]
-g = 9.81;
-L = 1;
-gamma = 0.2;
-u0 = [pi/3; 0];
-
-fps = 20;
-dt = 1/fps;
-tFrames = 0:dt:10;
-
-F = @(t,u) [u(2);
-    -gamma*u(2) - (g/L)*sin(u(1))];
-[t,U] = ode45(F, tFrames, u0);
-
-x = L*sin(U(:,1));
-y = -L*cos(U(:,1));
-\end{lstlisting}
-\keyidea{Request equally spaced output times so consecutive frames represent equal amounts of simulated time.}
-% ode45 chooses adaptive internal steps and evaluates its solution at tFrames.
-% Documentation: https://www.mathworks.com/help/matlab/ref/ode45.html
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Step 2: Draw the Frames}
-Continue with the arrays \texttt{t}, \texttt{x}, and \texttt{y}:
-\begin{lstlisting}[basicstyle=\ttfamily\small]
-fig = figure;
-plot(0,0,'k.','MarkerSize',20)
-hold on
-rod = plot([0 x(1)],[0 y(1)],'b-','LineWidth',2);
-bob = plot(x(1),y(1),'bo','MarkerFaceColor','b');
-axis equal
-axis(1.2*L*[-1 1 -1 1])
-
-for i = 1:length(t)
-    set(rod,'XData',[0 x(i)],'YData',[0 y(i)]);
-    set(bob,'XData',x(i),'YData',y(i));
-    title(sprintf('t = %.2f s',t(i)))
-    drawnow
-end
-\end{lstlisting}
-% Create objects once, then update their coordinates.
-% This preview runs as fast as drawing permits; it does not set playback speed.
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Step 3: Save the Animation}
-Before the drawing loop:
-\begin{lstlisting}[basicstyle=\ttfamily\small]
-video = VideoWriter('animation.mp4','MPEG-4');
+video = VideoWriter('falling_rock.mp4','MPEG-4');
 video.FrameRate = fps;
 open(video)
 \end{lstlisting}
-Inside the loop, immediately after \texttt{drawnow}:
+
+\item Create time-dependent objects 
 \begin{lstlisting}[basicstyle=\ttfamily\small]
-writeVideo(video,getframe(fig));
+rock = plot(ax,0,x(1),'o', 'MarkerSize',18, ...
+    'MarkerFaceColor',[0.4 0.4 0.4], ...
+    'MarkerEdgeColor','k');
+label = title(ax,'Released from rest');
 \end{lstlisting}
-After the loop:
+
+\item Update the objects in a loop 
 \begin{lstlisting}[basicstyle=\ttfamily\small]
-close(video)
+for i = 1:length(t)
+    set(rock,'YData',x(i));
+    set(label,'String',sprintf( ...
+        'Time: %.2f s     Height: %.1f m',t(i),x(i)));
+    drawnow
+    writeVideo(video,getframe(fig));
+end
 \end{lstlisting}
-\begin{itemize}
-    \item Keep the figure size and axis limits fixed.
-    \item The saved video's frame rate controls playback speed.
 \end{itemize}
-% MPEG-4 profile: supported on Windows/macOS. If unavailable, use
-% VideoWriter('animation.avi','Motion JPEG AVI').
-% Documentation: https://www.mathworks.com/help/matlab/ref/videowriter.html
-% https://www.mathworks.com/help/matlab/ref/videowriter.writevideo.html
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Result}
+\cols{
+Example \texttt{falling\_rock.mlx}
+\begin{itemize}
+    \item In LiveScript, you get a player
+    \item Can change playback speed
+    \item Can export video
+\end{itemize}
+
+\vspace{1cm}
+
+\textbf{Important}
+\begin{itemize}
+    \item Keep axes fixed
+    \item Choose smooth framerate
+\end{itemize}
+}{
+\begin{center}
+    \includegraphics[height=0.8\textheight]{figs/fallingrock.png}
+\end{center}
+}
 \end{frame}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Three Different Time Scales}
-\begin{itemize}
-    \item \textbf{Solver step size:} chosen for numerical accuracy and stability.
-    \item \textbf{Frame spacing $\Delta t$:} simulated time between pictures.
-    \item \textbf{Frame rate $r$:} pictures shown per second of video.
-\end{itemize}
+\begin{frame}{More Advanced Simulations}
+
+{
+\question{How do you simulated something like a bouncing ball?}
+}
+
+\begin{block}{Model for Bouncing Ball}
+\begin{align*}
+&x''=-g, & x>0\\
+&x'(t^+)=-0.8 x(t^-) & x=0
+\end{align*}
+\end{block}
+
+\begin{enumerate}
+    \item First, change to first order system
+        $$
+        \begin{dcases}
+            y_1' = y_2\\
+            y_2' = -g
+        \end{dcases}
+        $$
+    \item Then apply \texttt{ode45} to solve the system
+\end{enumerate}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Other Simulations}
+
+\begin{block}{Model for a Pendulum}
+\begin{align*}
+\theta''+\gamma \theta' +\frac{g}{L}\sin \theta=0, &\\
+\end{align*}
+\end{block}
+
+\begin{block}{Model for Double Pendulum}
 \[
-\text{Playback speed}=r\Delta t
-\quad\text{simulated seconds per video second}.
+\begin{cases}
+(m_1+m_2)L_1\theta_1''
++m_2L_2\cos(\theta_1-\theta_2)\theta_2''\\
+=m_2L_2\sin(\theta_1-\theta_2)(\theta_2')^2
+-(m_1+m_2)g\sin\theta_1,\\[3mm]
+L_2\theta_2''
++L_1\cos(\theta_1-\theta_2)\theta_1''
+-L_1\sin(\theta_1-\theta_2)(\theta_1')^2
++g\sin\theta_2=0.
+\end{cases}
 \]
-\begin{example}
-With $\Delta t=0.05$ seconds:
-\begin{itemize}
-    \item $20$ frames/second gives real-time playback.
-    \item $40$ frames/second gives double-speed playback.
-\end{itemize}
-\end{example}
-\keyidea{More frames can make motion smoother; they do not automatically make the numerical solution more accurate.}
-% ode45's internal steps need not match the requested frame spacing.
-% Including both endpoints adds one final frame held for 1/r seconds.
+\end{block}
+
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{The Same Workflow, Many Animations}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionframe{Animating the Double Pendulum}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{The Double Pendulum}
+
 \begin{itemize}
-    \item \textbf{Projectile:} draw a ball at its computed position.
-    \item \textbf{Orbit:} draw a body and trace its path.
-    \item \textbf{Spring--mass:} move a block using its displacement.
-    \item \textbf{Populations:} change bar heights using population values.
+    \item Two point masses $m_1,m_2$ connected by massless,
+    rigid rods of lengths $L_1,L_2$.
+    \item Both angles $\theta_1,\theta_2$ are measured from the
+    \textbf{downward vertical}, in radians.
+    \item $\theta_2$ is the angle of the second rod relative to
+    the vertical, not relative to the first rod.
+    \item Assume no friction or air resistance.
 \end{itemize}
-\vspace{3mm}
-\question{What belongs in the state? How will each state become a picture?}
-\vspace{3mm}
-\keyidea{Solve for the state, turn the state into a picture, and repeat over time.}
-% Demo prompt: change the initial state or damping and predict the motion.
-% Ask students to check the solution as well as the animation:
-% visually smooth motion is not evidence of numerical accuracy.
+
+\begin{block}{Parameters for Our Simulation}
+\[
+m_1=m_2=1,\qquad L_1=L_2=1,\qquad g=9.81.
+\]
+\end{block}
+
+\keyidea{
+We will compute two angles, convert them into bob positions,
+and draw one frame at a time.
+}
+
 \end{frame}
 
-% -----------
-% \begin{frame}{Released from Rest}
-% \centering
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Equations of Motion}
 
-% \movie[
-%   autostart,
-%   loop,
-%   width=0.6\linewidth,
-%   height=0.6\linewidth
-% ]{%
-%   \parbox[c][0.6\linewidth][c]{0.6\linewidth}{%
-%     \centering
-%     \fbox{%
-%       \parbox[c][0.4\linewidth][c]{0.5\linewidth}{%
-%          \large\textbf{Click to play}
-%       }
-%     }
-%   }
-% }{figs/pendulum1.mp4}
-% \end{frame}
-% % -----------
-% \begin{frame}{Initial Kick}
-% \centering
+Let $\delta=\theta_1-\theta_2$. The equations are
+\[
+\begin{aligned}
+(m_1+m_2)L_1\theta_1''
++m_2L_2\cos\delta\,\theta_2''
+&=
+-m_2L_2\sin\delta\,(\theta_2')^2\\
+&\quad -(m_1+m_2)g\sin\theta_1,\\[3mm]
+L_2\theta_2''
++L_1\cos\delta\,\theta_1''
+&=
+L_1\sin\delta\,(\theta_1')^2
+-g\sin\theta_2.
+\end{aligned}
+\]
 
-% \movie[
-%   autostart,
-%   loop,
-%   width=0.6\linewidth,
-%   height=0.6\linewidth
-% ]{%
-%   \parbox[c][0.6\linewidth][c]{0.6\linewidth}{%
-%     \centering
-%     \fbox{%
-%       \parbox[c][0.4\linewidth][c]{0.5\linewidth}{%
-%          \large\textbf{Click to play}
-%       }
-%     }
-%   }
-% }{figs/pendulum2.mp4}
-% \end{frame}
-% % -----------
-% \begin{frame}{Kick from Neutral Position}
-% \centering
+\begin{itemize}
+    \item These are two coupled, second-order ODEs.
+    \item Both angular accelerations appear in both equations.
+\end{itemize}
 
-% \movie[
-%   autostart,
-%   loop,
-%   width=0.6\linewidth,
-%   height=0.6\linewidth
-% ]{%
-%   \parbox[c][0.6\linewidth][c]{0.6\linewidth}{%
-%     \centering
-%     \fbox{%
-%       \parbox[c][0.4\linewidth][c]{0.5\linewidth}{%
-%          \large\textbf{Click to play}
-%       }
-%     }
-%   }
-% }{figs/pendulum3.mp4}
-% \end{frame}
-% % -----------
-% \begin{frame}{Almost 180 Start}
-% \centering
+\question{
+How do we obtain the angular accelerations at the current state?
+}
 
-% \movie[
-%   autostart,
-%   loop,
-%   width=0.6\linewidth,
-%   height=0.6\linewidth
-% ]{%
-%   \parbox[c][0.6\linewidth][c]{0.6\linewidth}{%
-%     \centering
-%     \fbox{%
-%       \parbox[c][0.4\linewidth][c]{0.5\linewidth}{%
-%          \large\textbf{Click to play}
-%       }
-%     }
-%   }
-% }{figs/pendulum4.mp4}
-% \end{frame}
-% -----------
+% No derivation is needed here. Focus on the computational task:
+% given the current angles and velocities, find the accelerations.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Define the State}
+
+Introduce angular velocities
+\[
+\omega_1=\theta_1',
+\qquad
+\omega_2=\theta_2'.
+\]
+
+Our state and its derivative are
+\[
+\mathbf{u}=
+\begin{bmatrix}
+\theta_1\\
+\theta_2\\
+\omega_1\\
+\omega_2
+\end{bmatrix},
+\qquad
+\mathbf{u}'=
+\begin{bmatrix}
+\omega_1\\
+\omega_2\\
+\alpha_1\\
+\alpha_2
+\end{bmatrix},
+\]
+where $\alpha_i=\theta_i''$ is an angular acceleration.
+
+\begin{block}{Initial Conditions}
+Release both bobs from rest:
+\[
+\mathbf{u}(0)=
+\begin{bmatrix}
+2\pi/3\\
+-\pi/18\\
+0\\
+0
+\end{bmatrix}.
+\]
+\end{block}
+
+% Zero initial velocity does not imply zero acceleration.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Find the Angular Accelerations}
+
+Multiply the first equation by $L_1$ and the second by $m_2L_2$.
+Then
+\[
+M
+\begin{bmatrix}
+\alpha_1\\
+\alpha_2
+\end{bmatrix}
+=\mathbf{b},
+\]
+where
+\[
+M=
+\begin{bmatrix}
+(m_1+m_2)L_1^2 & m_2L_1L_2\cos\delta\\
+m_2L_1L_2\cos\delta & m_2L_2^2
+\end{bmatrix},
+\]
+and
+\[
+\mathbf{b}=
+\begin{bmatrix}
+-m_2L_1L_2\sin\delta\,\omega_2^2
+-(m_1+m_2)gL_1\sin\theta_1\\[2mm]
+m_2L_1L_2\sin\delta\,\omega_1^2
+-m_2gL_2\sin\theta_2
+\end{bmatrix}.
+\]
+
+\keyidea{
+At each evaluation of the ODE, solve a $2\times2$
+linear system for the angular accelerations.
+}
+
+% M and b must be recomputed from the current state.
+% Use a linear solve rather than explicitly forming the inverse.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{The MATLAB Right-Hand Side}
+
+Save this function as \texttt{doublePendulum.m}:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+function du = doublePendulum(~,u,g,L1,L2,m1,m2)
+    theta1 = u(1);
+    theta2 = u(2);
+    omega1 = u(3);
+    omega2 = u(4);
+    delta = theta1 - theta2;
+
+    M = [(m1+m2)*L1^2, m2*L1*L2*cos(delta);
+         m2*L1*L2*cos(delta), m2*L2^2];
+
+    b1 = -m2*L1*L2*sin(delta)*omega2^2 ...
+         -(m1+m2)*g*L1*sin(theta1);
+
+    b2 =  m2*L1*L2*sin(delta)*omega1^2 ...
+         -m2*g*L2*sin(theta2);
+
+    alpha = M \ [b1; b2];
+    du = [omega1; omega2; alpha(1); alpha(2)];
+end
+\end{lstlisting}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Compute the States}
+
+In a separate script:
+
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+g = 9.81;
+L1 = 1; L2 = 1;
+m1 = 1; m2 = 1;
+
+u0 = [2*pi/3; -pi/18; 0; 0];
+fps = 30;
+tFrames = 0:1/fps:20;
+
+F = @(t,u) doublePendulum(t,u,g,L1,L2,m1,m2);
+options = odeset('RelTol',1e-9,'AbsTol',1e-11);
+
+[t,U] = ode45(F,tFrames,u0,options);
+\end{lstlisting}
+
+\begin{itemize}
+    \item Each row of \texttt{U} is one state.
+    \item Columns 1 and 2 contain the angles.
+    \item Columns 3 and 4 contain the angular velocities.
+\end{itemize}
+
+% Before animating, plot the angle columns against t to check the solution.
+% The requested output times are not necessarily ode45's internal steps.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Drawing the Double Pendulum}
+
+Place the fixed pivot at $(0,0)$, with positive $y$ upward.
+
+\begin{block}{Bob Positions}
+\[
+\begin{aligned}
+x_1 &= L_1\sin\theta_1,
+& y_1 &= -L_1\cos\theta_1,\\
+x_2 &= x_1+L_2\sin\theta_2,
+& y_2 &= y_1-L_2\cos\theta_2.
+\end{aligned}
+\]
+\end{block}
+
+\begin{itemize}
+    \item \textbf{Rod 1:} connect $(0,0)$ to $(x_1,y_1)$.
+    \item \textbf{Rod 2:} connect $(x_1,y_1)$ to $(x_2,y_2)$.
+    \item Draw a bob at each endpoint.
+\end{itemize}
+
+\keyidea{
+The second bob's position is measured from the first bob.
+}
+
+% Quick check: when both angles are zero, both rods point downward.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Animation Loop}
+
+Compute the bob positions before the loop:
+
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+x1 =  L1*sin(U(:,1));
+y1 = -L1*cos(U(:,1));
+x2 = x1 + L2*sin(U(:,2));
+y2 = y1 - L2*cos(U(:,2));
+\end{lstlisting}
+
+Use these positions in the animation loop:
+
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+fig = figure;
+R = 1.1*(L1 + L2);
+
+for i = 1:length(t)
+    plot([0 x1(i) x2(i)],[0 y1(i) y2(i)], ...
+         '-o','LineWidth',2,'MarkerSize',10)
+    axis equal
+    axis([-R R -R R])
+    title(sprintf('Time: %.2f s',t(i)))
+    drawnow
+end
+\end{lstlisting}
+
+% Use the earlier VideoWriter template:
+% open the video before the loop, write after drawnow, close after the loop.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{What About a Triple Pendulum?}
+
+\question{What changes if we attach one more rod and bob?}
+
+\begin{itemize}
+    \item \textbf{Six state variables:}
+    \[
+    \mathbf{u}=
+    \begin{bmatrix}
+    \theta_1 & \theta_2 & \theta_3 &
+    \omega_1 & \omega_2 & \omega_3
+    \end{bmatrix}^{T}.
+    \]
+
+    \item \textbf{A larger linear system:}
+    solve a $3\times3$ system for the angular accelerations:
+    \[
+    M(\boldsymbol{\theta})
+    \begin{bmatrix}
+    \alpha_1\\ \alpha_2\\ \alpha_3
+    \end{bmatrix}
+    =\mathbf{b}(\boldsymbol{\theta},\boldsymbol{\omega}).
+    \]
+
+    \item \textbf{One more point to draw:}
+    \[
+    x_3=x_2+L_3\sin\theta_3,
+    \qquad
+    y_3=y_2-L_3\cos\theta_3.
+    \]
+    Connect bob 2 to bob 3.
+\end{itemize}
 
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \sectionframe{Visualizing Stability of a Method}
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Triple Pendulum: The System}
 
-% \begin{frame}{Region of Stability}
+Let $\omega_i=\theta_i'$ and define
+\[
+s_1=m_1+m_2+m_3,\qquad s_2=m_2+m_3,\qquad s_3=m_3.
+\]
 
-% \begin{block}{Test Problem} 
-% For this test IVP, let \(\lambda \in \mathbb{C}\):
-% \[
-% \begin{cases}
-% u^{\prime}(t) = \lambda u(t), \quad t \in [0, T], \\
-% u(0) = u_0.
-% \end{cases}
-% \]
-% \(\lambda\) often represents an \textit{eigenvalue} of the system, scaling the rate of change.
-% \end{block}
+The first-order system is
+\[
+\theta_i'=\omega_i,\qquad i=1,2,3,
+\qquad
+M
+\begin{bmatrix}
+\omega_1'\\ \omega_2'\\ \omega_3'
+\end{bmatrix}
+=\mathbf{b},
+\]
+where
+{\small
+\[
+M=
+\begin{bmatrix}
+s_1L_1^2
+& s_2L_1L_2\cos(\theta_1-\theta_2)
+& s_3L_1L_3\cos(\theta_1-\theta_3)\\
+s_2L_1L_2\cos(\theta_1-\theta_2)
+& s_2L_2^2
+& s_3L_2L_3\cos(\theta_2-\theta_3)\\
+s_3L_1L_3\cos(\theta_1-\theta_3)
+& s_3L_2L_3\cos(\theta_2-\theta_3)
+& s_3L_3^2
+\end{bmatrix},
+\]
+}
+and
+\[
+b_i=-s_i gL_i\sin\theta_i
+-\sum_{j=1}^{3}s_{\max(i,j)}L_iL_j
+\sin(\theta_i-\theta_j)\,\omega_j^2.
+\]
 
-% \define{Stability Region}{
+% Angles are measured from the downward vertical.
+% Assumptions: massless rigid rods, point masses, no damping.
+% Specify three initial angles and three initial angular velocities.
 
-% The \textbf{region of stability} for a time-stepping method is the set of \(z = \lambda h\) in the complex plane for which the numerical solution for the test problem remains bounded:
-% \[
-% |G(z)| \leq 1,
-% \]
-% where \(G(z)\) is the method's amplification factor.
-% }
-
-% \end{frame}
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{frame}{Stability Region of Euler's Method}
-
-% \begin{itemize}
-%     \item For Euler’s method the amplification factor is:
-%     \[
-%     G(z) = 1 + \lambda h = 1 + z.
-%     \]
-
-%     \item Stability condition is
-%     \[
-%     |G(z)| = |1 + z| \leq 1.
-%     \]
-
-%     \item The stability region is the set:
-%     \[
-%     S = \{ z \in \mathbb{C} \;|\; |1 + z| \leq 1 \}.
-%     \]
-%     This is a disk of radius 1 centered at \(-1\) in the complex plane.
-% \end{itemize}
-
-% \end{frame}
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{frame}{Visualizing the Stability Region for Euler's Method}
-
-% \begin{itemize}
-%     \item The stability region is a circle of radius 1 centered at \(z_0 = -1\).
-%     \item Points inside this circle correspond to stable step-size and eigenvalue combinations.
-% \end{itemize}
-
-% \begin{center}
-% \begin{tikzpicture}[scale=1.2]
-%     % Stability region (circle)
-%     \draw[fill=gray!30] (-1,0) circle (1);
-%     % Axes
-%     \draw[->, thick] (-3,0)--(1,0) node[right] {\(\mathrm{Re}(h\lambda)\)};
-%     \draw[->, thick] (0,-1.5)--(0,1.5) node[above] {\(\mathrm{Im}(h\lambda)\)};
-%     % Labels
-%     \node at (-1, 0) {\(\bullet\)};
-%     \node[below] at (-1,0) {\(-1\)};
-%     \node[right] at (0,1) {\(i\)};
-%     \node[right] at (0,-1) {\(-i\)};
-%     % Boundary
-%     \draw[dashed] (-1,-1) -- (-1,1);
-%     \draw[dashed] (0,1) -- (0,-1);
-% \end{tikzpicture}
-% \end{center}
-% \begin{block}{Idea}
-%     Plot shows us the poolsize of stable $h$ values for Euler's.
-% \end{block}
-% \end{frame}
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \begin{frame}{Region of Stability for RK2b}
-
-% \begin{itemize}
-%     \item For the model problem \( u^\prime = \lambda u \), RK2b gives:
-%     \begin{align*}
-%         K_1 &= \lambda u_j, \\
-%         K_2 &= \lambda \left(u_j + \frac{h}{2}\lambda u_j\right), \\
-%         u_{j+1} &= u_j \left(1 + h \lambda + \frac{1}{2} (h \lambda)^2\right).
-%     \end{align*}
-
-%     \item Amplification Factor:
-%     \[
-%     G(z) = \left| \frac{u_{j+1}}{u_j} \right| = \left|1 + z + \frac{1}{2}z^2 \right|, \quad z = h \lambda.
-%     \]
-
-%     \item Stability Condition:
-%     Want all \( z \in \mathbb{C} \) such that:
-%     \[
-%     \left|1+ z + \frac{1}{2}z^2\right| < 1.
-%     \]
-
-
-% \end{itemize}
-% \end{frame}
-
-
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}[fragile]
-% \frametitle{Region of Stability for RK4}
-% \begin{itemize}
-	
-%    \item After similar derivations as earlier we get
-% 	\[
-% 	G = \left |1 + (h \lambda) + \frac{1}{2}(h \lambda)^2 + \frac{1}{6}(h \lambda)^3 + \frac{1}{24}(\lambda h)^4 \right|
-% 	\]
-	
-%    \item Stability Condition:
-% 	\[
-% 	G(z) = \left |1 + z + \frac{1}{2}z^2 + \frac{1}{6}z^3 + \frac{1}{24}z^4 \right| < 1
-% 	\]
-	
-%    \item We can plot the stability region numerically 
-% \end{itemize}
-
-% \begin{tiny}
-% \begin{lstlisting}[mathescape]
-% [x,y] = meshgrid(linspace(-4,4), linspace(-4,4));
-% z = x + 1i*y;
-% contour(x,y,abs(1+z+(1/2)*z.^2+(1/6)*z.^3+(1/24)*z.^4),[1, 1]);
-% \end{lstlisting}
-% \end{tiny}
-
-
-% \end{frame}
-
-% \begin{frame}{Takeaway}
-
-%     \begin{itemize}
-%         \item Stability Regions gives us a way to visualize the pool size of good parameter choices for a time-stepping algorithm
-
-        
-%     \begin{center}
-%         \includegraphics[scale=0.5]{figs/rk_stability.png}
-%     \end{center}
-    
-
-%         \item larger the region $\implies$ more reliable the algorithm
-    
-    
-%     \end{itemize}
-    
-% \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{frame}
 \end{document}
 
